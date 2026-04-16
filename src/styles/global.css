@@ -221,51 +221,8 @@ a:where(:not(.cta-button):not(.work-card):not(.logo)):hover {
   color: var(--color-sunset-light);
 }
 
-/* CTA principal */
-.cta-button {
-  display: inline-block;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 1em 2.5em;
-  color: var(--color-black);
-  background: var(--color-sunset);
-  border: none;
-  border-radius: 0;
-  position: relative;
-  overflow: hidden;
-  transition:
-    background var(--duration-base) var(--ease-out-expo),
-    transform var(--duration-fast) var(--ease-out-expo);
-}
-
-.cta-button::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--color-sunset-light);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--duration-base) var(--ease-out-expo);
-}
-
-.cta-button:hover::before {
-  transform: scaleX(1);
-}
-
-.cta-button:hover {
-  transform: translateY(-1px);
-}
-
-.cta-button span,
-.cta-button {
-  position: relative;
-  z-index: 1;
-}
-
-/* Botón outline / secundario */
+/* CTA principal — Minimal Bordered */
+.cta-button,
 .btn-outline {
   display: inline-block;
   font-family: var(--font-body);
@@ -273,18 +230,76 @@ a:where(:not(.cta-button):not(.work-card):not(.logo)):hover {
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.85em 2em;
-  color: var(--color-text);
-  background: transparent;
-  border: 1px solid var(--color-border-strong);
+  padding: 0.9em 2.4em;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+  cursor: pointer;
+  text-decoration: none;
   transition:
-    border-color var(--duration-base) var(--ease-out-expo),
-    background var(--duration-base) var(--ease-out-expo);
+    color 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cta-button::before,
+.btn-outline::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cta-button:hover::before,
+.btn-outline:hover::before {
+  transform: scaleY(1);
+}
+
+.cta-button {
+  color: var(--color-sunset);
+  background: transparent;
+  border: 1px solid var(--color-sunset);
+}
+
+.cta-button::before {
+  background: var(--color-sunset);
+}
+
+.cta-button:hover {
+  color: var(--color-black);
+}
+
+.cta-button:focus-visible {
+  outline: 2px solid var(--color-sunset);
+  outline-offset: 3px;
+}
+
+.cta-button:active {
+  transform: scale(0.98);
+}
+
+/* Botón outline / secundario */
+.btn-outline {
+  color: var(--color-text-dim);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-outline::before {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .btn-outline:hover {
-  border-color: var(--color-text-muted);
-  background: var(--color-bg-hover);
+  color: var(--color-text);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-outline:focus-visible {
+  outline: 2px solid var(--color-sunset);
+  outline-offset: 3px;
 }
 
 /* ─── LAYOUT HELPERS ─── */

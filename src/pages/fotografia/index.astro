@@ -4,36 +4,46 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 // Datos de ejemplo — reemplazar por fetch a Emdash cuando esté configurado
 const categories = [
   { id: "all", label: "Todo" },
-  { id: "water", label: "En el agua" },
-  { id: "land", label: "Desde tierra" },
+  { id: "surf", label: "Surf & Mar" },
+  { id: "sport", label: "Deportes" },
   { id: "portrait", label: "Retratos" },
   { id: "event", label: "Eventos" },
 ];
 
 const photos = [
-  { id: 1, title: "Barrel perfecto", category: "water", aspect: "3/4" },
-  { id: 2, title: "Cutback al atardecer", category: "water", aspect: "16/10" },
-  { id: 3, title: "Rider en lineup", category: "portrait", aspect: "3/4" },
+  { id: 1, title: "Barrel al amanecer", category: "surf", aspect: "3/4" },
+  { id: 2, title: "Cutback en El Palmar", category: "surf", aspect: "16/10" },
+  { id: 3, title: "Sumisión en el tatami", category: "sport", aspect: "3/4" },
   {
     id: 4,
     title: "Aerial sobre la sección",
-    category: "water",
+    category: "surf",
     aspect: "16/10",
   },
-  { id: 5, title: "El pier al amanecer", category: "land", aspect: "16/10" },
-  { id: 6, title: "Retrato con tabla", category: "portrait", aspect: "3/4" },
-  { id: 7, title: "Bottom turn", category: "water", aspect: "16/10" },
-  { id: 8, title: "Campeonato regional", category: "event", aspect: "16/10" },
-  { id: 9, title: "Tubo desde dentro", category: "water", aspect: "3/4" },
-  { id: 10, title: "Sunset session", category: "land", aspect: "16/10" },
+  { id: 5, title: "Kickflip en el bowl", category: "sport", aspect: "16/10" },
+  { id: 6, title: "Retrato con neopreno", category: "portrait", aspect: "3/4" },
+  {
+    id: 7,
+    title: "Bottom turn al atardecer",
+    category: "surf",
+    aspect: "16/10",
+  },
+  {
+    id: 8,
+    title: "Campeonato de jiu-jitsu",
+    category: "event",
+    aspect: "16/10",
+  },
+  { id: 9, title: "Tubo desde dentro", category: "surf", aspect: "3/4" },
+  { id: 10, title: "Ollie en la calle", category: "sport", aspect: "16/10" },
   { id: 11, title: "Retrato en la playa", category: "portrait", aspect: "3/4" },
-  { id: 12, title: "Drop late takeoff", category: "water", aspect: "16/10" },
+  { id: 12, title: "Océano al amanecer", category: "surf", aspect: "16/10" },
 ];
 ---
 
 <BaseLayout
   title="Fotografía"
-  description="Portfolio de fotografía deportiva de surf por Sergi Ortega — The Churfer. Sesiones en el agua, retratos, lifestyle y competiciones."
+  description="Portfolio de fotografía deportiva de Sergi Ortega — The Churfer. Surf, foto marina, jiu-jitsu, skate y más. Desde El Palmar, Cádiz."
 >
   <!-- ═══ PAGE HERO ═══ -->
   <section class="page-hero">
@@ -41,9 +51,9 @@ const photos = [
       <span class="label reveal">Portfolio</span>
       <h1 class="reveal">Fotografía</h1>
       <p class="page-hero__desc reveal">
-        Cada ola es única, cada sesión es irrepetible. Trabajo tanto dentro del
-        agua como desde la orilla para capturar la intensidad del surf desde
-        todos los ángulos.
+        Surf, foto marina, jiu-jitsu, skate — capturo deportes de acción con la
+        intensidad que merecen. Dentro del agua, al borde del tatami o en el
+        bowl, mi cámara está donde pasa la acción.
       </p>
       <div class="rule reveal"></div>
     </div>
