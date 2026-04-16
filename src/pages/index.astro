@@ -1,0 +1,61 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CloudinaryImage from '../components/CloudinaryImage.astro';
+---
+
+<BaseLayout
+  title="Sergi Ortega — Fotógrafo deportivo de surf"
+  description="The Churfer es Sergi Ortega, fotógrafo deportivo especializado en surf. Capturo la energía del océano y la pasión de los riders."
+>
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>The Churfer</h1>
+      <p class="tagline">Fotografía deportiva de surf</p>
+    </div>
+    <!-- Fondo: imagen hero desde Cloudinary (reemplazar public_id cuando esté subida) -->
+    <!-- <CloudinaryImage publicId="hero/surf-main" alt="Ola rompiendo al atardecer" width={1920} loading="eager" /> -->
+  </section>
+
+  <!-- ═══ SOBRE MÍ (intro breve) ═══ -->
+  <section class="about-intro">
+    <h2>Sergi Ortega</h2>
+    <p>
+      Soy The Churfer. Fotógrafo y editor de vídeo especializado en surf y deportes de acción.
+      Llevo años capturando la energía del mar, la fuerza de cada ola y la pasión de quienes
+      las cabalgan. Mi trabajo busca transmitir lo que se siente estando ahí dentro —
+      la adrenalina, el silencio antes del set, la luz de cada sesión.
+    </p>
+    <!-- <CloudinaryImage publicId="about/sergi-portrait" alt="Sergi Ortega - The Churfer" width={600} /> -->
+  </section>
+
+  <!-- ═══ SECCIONES DE TRABAJO ═══ -->
+  <section class="work-sections">
+    <h2>Mi trabajo</h2>
+
+    <div class="work-grid">
+      <a href="/fotografia" class="work-card">
+        <div class="work-card-image">
+          <!-- <CloudinaryImage publicId="home/preview-foto" alt="Fotografía de surf" width={800} height={600} /> -->
+        </div>
+        <h3>Fotografía</h3>
+        <p>Sesiones en el agua, retratos de riders, lifestyle y competiciones.</p>
+      </a>
+
+      <a href="/video" class="work-card">
+        <div class="work-card-image">
+          <!-- <CloudinaryImage publicId="home/preview-video" alt="Edición de vídeo de surf" width={800} height={600} /> -->
+        </div>
+        <h3>Vídeo</h3>
+        <p>Ediciones cinematográficas, recaps de sesiones y cobertura de eventos.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══ CTA CONTACTO ═══ -->
+  <section class="cta">
+    <h2>¿Tienes un proyecto en mente?</h2>
+    <p>Hablemos sobre tu próxima sesión de fotos o producción de vídeo.</p>
+    <a href="/contacto" class="cta-button">Contactar</a>
+  </section>
+</BaseLayout>

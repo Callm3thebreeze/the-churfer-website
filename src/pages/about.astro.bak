@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Sobre mí"
+  description="Conoce al fotógrafo y editor de vídeo detrás de The Churfer"
+>
+  <section>
+    <h1>Sobre mí</h1>
+    <!-- Contenido cargado desde Emdash -->
+    <p>Próximamente: biografía y perfil desde el CMS.</p>
+  </section>
+</BaseLayout>

@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CloudinaryImage from '../../components/CloudinaryImage.astro';
+---
+
+<BaseLayout
+  title="Fotografía"
+  description="Portfolio de fotografía deportiva de surf por Sergi Ortega — The Churfer. Sesiones en el agua, retratos, lifestyle y competiciones."
+>
+  <!-- ═══ INTRO ═══ -->
+  <section class="page-intro">
+    <h1>Fotografía</h1>
+    <p>
+      Cada ola es única, cada sesión es irrepetible. Trabajo tanto dentro del agua como
+      desde la orilla para capturar la intensidad del surf desde todos los ángulos.
+    </p>
+  </section>
+
+  <!-- ═══ FILTROS POR CATEGORÍA ═══ -->
+  <nav class="gallery-filters">
+    <button data-filter="all" aria-pressed="true">Todo</button>
+    <button data-filter="water" aria-pressed="false">En el agua</button>
+    <button data-filter="land" aria-pressed="false">Desde tierra</button>
+    <button data-filter="portrait" aria-pressed="false">Retratos</button>
+    <button data-filter="event" aria-pressed="false">Eventos</button>
+  </nav>
+
+  <!-- ═══ GALERÍA ═══ -->
+  <section class="gallery">
+    <!-- Las imágenes se cargarán desde Emdash + Cloudinary -->
+    <!-- Ejemplo de cómo se verá cada item: -->
+    <!--
+    <article class="gallery-item" data-category="water">
+      <a href="/fotografia/nombre-sesion">
+        <CloudinaryImage
+          publicId="fotografia/ejemplo-water"
+          alt="Surfista en barrel"
+          width={800}
+          height={600}
+        />
+        <div class="gallery-item-info">
+          <h3>Título de la sesión</h3>
+          <span>En el agua</span>
+        </div>
+      </a>
+    </article>
+    -->
+    <p>Galería de fotografía — contenido próximamente desde el CMS.</p>
+  </section>
+</BaseLayout>

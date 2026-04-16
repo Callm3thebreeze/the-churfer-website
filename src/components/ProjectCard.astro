@@ -1,0 +1,30 @@
+---
+/**
+ * Componente para mostrar una tarjeta de proyecto en el portfolio.
+ * Muestra imagen de portada, título y categoría.
+ */
+import CloudinaryImage from "./CloudinaryImage.astro";
+
+interface Props {
+  slug: string;
+  title: string;
+  category: string;
+  coverImage: string;
+}
+
+const { slug, title, category, coverImage } = Astro.props;
+---
+
+<article>
+  <a href={`/portfolio/${slug}`}>
+    <CloudinaryImage
+      publicId={coverImage}
+      alt={title}
+      width={600}
+      height={400}
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+    <h3>{title}</h3>
+    <span>{category}</span>
+  </a>
+</article>

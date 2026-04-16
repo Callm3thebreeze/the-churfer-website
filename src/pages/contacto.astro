@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Contacto"
+  description="Contacta con Sergi Ortega — The Churfer para sesiones de fotografía de surf, producciones de vídeo o colaboraciones."
+>
+  <section class="page-intro">
+    <h1>Contacto</h1>
+    <p>
+      ¿Quieres una sesión de fotos en el agua, cobertura de un evento
+      o una producción de vídeo? Escríbeme y hablamos.
+    </p>
+  </section>
+
+  <section class="contact-content">
+    <form class="contact-form" method="POST" action="#">
+      <div class="form-group">
+        <label for="name">Nombre</label>
+        <input type="text" id="name" name="name" required autocomplete="name" />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email" />
+      </div>
+
+      <div class="form-group">
+        <label for="subject">Asunto</label>
+        <select id="subject" name="subject" required>
+          <option value="">Selecciona una opción</option>
+          <option value="foto-sesion">Sesión de fotografía</option>
+          <option value="video-produccion">Producción de vídeo</option>
+          <option value="evento">Cobertura de evento</option>
+          <option value="colaboracion">Colaboración</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="message">Mensaje</label>
+        <textarea id="message" name="message" rows="6" required></textarea>
+      </div>
+
+      <button type="submit">Enviar mensaje</button>
+    </form>
+
+    <aside class="contact-info">
+      <h2>También me encuentras en</h2>
+      <ul class="social-links">
+        <!-- URLs reales de Sergi — actualizar cuando estén disponibles -->
+        <li><a href="#" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+        <li><a href="#" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+      </ul>
+    </aside>
+  </section>
+</BaseLayout>

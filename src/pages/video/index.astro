@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
+---
+
+<BaseLayout
+  title="Vídeo"
+  description="Producciones de vídeo de surf por Sergi Ortega — The Churfer. Ediciones cinematográficas, recaps y cobertura de eventos."
+>
+  <!-- ═══ INTRO ═══ -->
+  <section class="page-intro">
+    <h1>Vídeo</h1>
+    <p>
+      Ediciones cinematográficas que capturan la esencia de cada sesión.
+      Desde recaps de dawn patrols hasta cobertura completa de competiciones.
+    </p>
+  </section>
+
+  <!-- ═══ FILTROS POR TIPO ═══ -->
+  <nav class="gallery-filters">
+    <button data-filter="all" aria-pressed="true">Todo</button>
+    <button data-filter="session" aria-pressed="false">Sesiones</button>
+    <button data-filter="event" aria-pressed="false">Eventos</button>
+    <button data-filter="shortfilm" aria-pressed="false">Cortometrajes</button>
+  </nav>
+
+  <!-- ═══ GALERÍA DE VÍDEOS ═══ -->
+  <section class="video-gallery">
+    <!-- Los vídeos se cargarán desde Emdash; cada uno embebe YouTube -->
+    <!-- Ejemplo de cómo se verá cada item: -->
+    <!--
+    <article class="video-item" data-category="session">
+      <YouTubeEmbed videoId="dQw4w9WgXcQ" title="Sesión de ejemplo" />
+      <div class="video-item-info">
+        <h3>Título del vídeo</h3>
+        <p>Breve descripción de la sesión.</p>
+        <time datetime="2025-03-15">Marzo 2025</time>
+      </div>
+    </article>
+    -->
+    <p>Galería de vídeo — contenido próximamente desde el CMS.</p>
+  </section>
+</BaseLayout>
