@@ -1,6 +1,5 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import CloudinaryImage from "../components/CloudinaryImage.astro";
 ---
 
 <BaseLayout
@@ -9,58 +8,424 @@ import CloudinaryImage from "../components/CloudinaryImage.astro";
 >
 	<!-- ═══ HERO ═══ -->
 	<section class="hero">
-		<div class="hero-content">
-			<h1>The Churfer</h1>
-			<p class="tagline">Fotografía deportiva de surf</p>
+		<div class="hero__bg">
+			<!-- Placeholder hasta que tengamos imagen real de Cloudinary -->
+			<div class="hero__bg-placeholder"></div>
 		</div>
-		<!-- Fondo: imagen hero desde Cloudinary (reemplazar public_id cuando esté subida) -->
-		<!-- <CloudinaryImage publicId="hero/surf-main" alt="Ola rompiendo al atardecer" width={1920} loading="eager" /> -->
-	</section>
-
-	<!-- ═══ SOBRE MÍ (intro breve) ═══ -->
-	<section class="about-intro">
-		<h2>Sergi Ortega</h2>
-		<p>
-			Soy The Churfer. Fotógrafo y editor de vídeo especializado en surf y
-			deportes de acción. Llevo años capturando la energía del mar, la fuerza de
-			cada ola y la pasión de quienes las cabalgan. Mi trabajo busca transmitir
-			lo que se siente estando ahí dentro — la adrenalina, el silencio antes del
-			set, la luz de cada sesión.
-		</p>
-		<!-- <CloudinaryImage publicId="about/sergi-portrait" alt="Sergi Ortega - The Churfer" width={600} /> -->
-	</section>
-
-	<!-- ═══ SECCIONES DE TRABAJO ═══ -->
-	<section class="work-sections">
-		<h2>Mi trabajo</h2>
-
-		<div class="work-grid">
-			<a href="/fotografia" class="work-card">
-				<div class="work-card-image">
-					<!-- <CloudinaryImage publicId="home/preview-foto" alt="Fotografía de surf" width={800} height={600} /> -->
-				</div>
-				<h3>Fotografía</h3>
-				<p>
-					Sesiones en el agua, retratos de riders, lifestyle y competiciones.
-				</p>
-			</a>
-
-			<a href="/video" class="work-card">
-				<div class="work-card-image">
-					<!-- <CloudinaryImage publicId="home/preview-video" alt="Edición de vídeo de surf" width={800} height={600} /> -->
-				</div>
-				<h3>Vídeo</h3>
-				<p>
-					Ediciones cinematográficas, recaps de sesiones y cobertura de eventos.
-				</p>
+		<div class="hero__overlay"></div>
+		<div class="hero__content container">
+			<span class="hero__label label">Fotografía deportiva &amp; Vídeo</span>
+			<h1 class="hero__title">The<br />Churfer</h1>
+			<div class="hero__rule rule"></div>
+			<p class="hero__tagline">
+				Capturo la energía del océano y la pasión de quienes cabalgan cada ola.
+			</p>
+			<a href="#about" class="hero__scroll" aria-label="Scroll hacia abajo">
+				<svg width="20" height="30" viewBox="0 0 20 30" fill="none">
+					<rect
+						x="1"
+						y="1"
+						width="18"
+						height="28"
+						rx="9"
+						stroke="currentColor"
+						stroke-width="1.5"
+						opacity="0.4"></rect>
+					<circle
+						class="hero__scroll-dot"
+						cx="10"
+						cy="9"
+						r="2"
+						fill="currentColor"></circle>
+				</svg>
 			</a>
 		</div>
 	</section>
 
-	<!-- ═══ CTA CONTACTO ═══ -->
-	<section class="cta">
-		<h2>¿Tienes un proyecto en mente?</h2>
-		<p>Hablemos sobre tu próxima sesión de fotos o producción de vídeo.</p>
-		<a href="/contacto" class="cta-button">Contactar</a>
+	<!-- ═══ ABOUT INTRO ═══ -->
+	<section class="about" id="about">
+		<div class="about__inner container">
+			<div class="about__image-col reveal">
+				<!-- Placeholder para retrato -->
+				<div class="about__portrait-placeholder"></div>
+				<span class="about__image-caption label"
+					>Sergi Ortega — Est. Mediterranean Coast</span
+				>
+			</div>
+			<div class="about__text-col">
+				<span class="label reveal">Sobre mí</span>
+				<h2 class="about__heading reveal">Soy <em>Sergi Ortega</em></h2>
+				<p class="about__bio reveal">
+					Fotógrafo y editor de vídeo especializado en surf y deportes de
+					acción. Llevo años capturando la energía del mar, la fuerza de cada
+					ola y la pasión de quienes las cabalgan. Mi trabajo busca transmitir
+					lo que se siente estando ahí dentro — la adrenalina, el silencio antes
+					del set, la luz de cada sesión.
+				</p>
+				<p class="about__bio reveal">
+					Trabajo tanto dentro del agua como desde la orilla. Cada sesión es
+					irrepetible, cada ola cuenta una historia diferente, y mi cámara está
+					ahí para capturarla.
+				</p>
+				<div class="about__stats reveal">
+					<div class="about__stat">
+						<span class="about__stat-number">+500</span>
+						<span class="about__stat-label label">Sesiones</span>
+					</div>
+					<div class="about__stat">
+						<span class="about__stat-number">+50</span>
+						<span class="about__stat-label label">Eventos</span>
+					</div>
+					<div class="about__stat">
+						<span class="about__stat-number">+8</span>
+						<span class="about__stat-label label">Años</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ═══ WORK SECTIONS ═══ -->
+	<section class="work">
+		<div class="work__header container">
+			<span class="label reveal">Portfolio</span>
+			<h2 class="reveal">Mi trabajo</h2>
+		</div>
+
+		<div class="work__grid container">
+			<a href="/fotografia" class="work__card reveal img-zoom">
+				<div class="work__card-media">
+					<div class="work__card-placeholder work__card-placeholder--foto">
+					</div>
+				</div>
+				<div class="work__card-content">
+					<span class="label">01</span>
+					<h3>Fotografía</h3>
+					<p>
+						Sesiones en el agua, retratos de riders, lifestyle y cobertura de
+						competiciones.
+					</p>
+					<span class="work__card-arrow">&rarr;</span>
+				</div>
+			</a>
+
+			<a href="/video" class="work__card reveal img-zoom">
+				<div class="work__card-media">
+					<div class="work__card-placeholder work__card-placeholder--video">
+					</div>
+				</div>
+				<div class="work__card-content">
+					<span class="label">02</span>
+					<h3>Vídeo</h3>
+					<p>
+						Ediciones cinematográficas, recaps de sesiones y cobertura completa
+						de eventos.
+					</p>
+					<span class="work__card-arrow">&rarr;</span>
+				</div>
+			</a>
+		</div>
+	</section>
+
+	<!-- ═══ CTA ═══ -->
+	<section class="home-cta">
+		<div class="home-cta__inner container reveal">
+			<span class="label">Colaboremos</span>
+			<h2 class="home-cta__heading">¿Tienes un <em>proyecto</em> en mente?</h2>
+			<p class="home-cta__text">
+				Hablemos sobre tu próxima sesión de fotos o producción de vídeo.
+			</p>
+			<a href="/contacto" class="cta-button">Contactar</a>
+		</div>
 	</section>
 </BaseLayout>
+
+<style>
+	/* ═══ HERO ═══ */
+	.hero {
+		position: relative;
+		min-height: 100dvh;
+		display: flex;
+		align-items: flex-end;
+		overflow: hidden;
+	}
+
+	.hero__bg {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+	}
+
+	.hero__bg-placeholder {
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(
+			135deg,
+			#0c1a2a 0%,
+			#0a1520 30%,
+			#162430 60%,
+			#0d1a25 100%
+		);
+		animation: heroShift 20s ease-in-out infinite alternate;
+	}
+
+	@keyframes heroShift {
+		0% {
+			filter: brightness(0.9) hue-rotate(0deg);
+		}
+		100% {
+			filter: brightness(1.1) hue-rotate(8deg);
+		}
+	}
+
+	.hero__overlay {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		background:
+			linear-gradient(to top, var(--color-bg) 0%, transparent 40%),
+			linear-gradient(to right, rgba(10, 10, 10, 0.5) 0%, transparent 60%);
+	}
+
+	.hero__content {
+		position: relative;
+		z-index: 2;
+		padding-bottom: var(--space-2xl);
+		padding-top: var(--space-section);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+	}
+
+	.hero__label {
+		animation: fadeInUp 0.8s var(--ease-out-expo) 0.2s backwards;
+	}
+
+	.hero__title {
+		font-size: var(--text-hero);
+		line-height: 0.88;
+		letter-spacing: -0.04em;
+		animation: fadeInUp 1s var(--ease-out-expo) 0.4s backwards;
+	}
+
+	.hero__rule {
+		animation: lineExpand 1s var(--ease-out-expo) 0.7s backwards;
+		transform-origin: left;
+		margin-block: var(--space-xs);
+	}
+
+	.hero__tagline {
+		font-size: var(--text-lg);
+		color: var(--color-text-muted);
+		max-width: 480px;
+		animation: fadeInUp 1s var(--ease-out-expo) 0.9s backwards;
+	}
+
+	.hero__scroll {
+		position: absolute;
+		bottom: var(--space-lg);
+		right: var(--gutter);
+		color: var(--color-text-muted);
+		animation: fadeIn 1s var(--ease-out-expo) 1.4s backwards;
+	}
+
+	.hero__scroll-dot {
+		animation: scrollBounce 2s ease-in-out infinite;
+	}
+
+	@keyframes scrollBounce {
+		0%,
+		100% {
+			cy: 9;
+			opacity: 1;
+		}
+		50% {
+			cy: 20;
+			opacity: 0.2;
+		}
+	}
+
+	/* ═══ ABOUT ═══ */
+	.about {
+		padding-block: var(--space-section);
+	}
+
+	.about__inner {
+		display: grid;
+		grid-template-columns: 1fr 1.3fr;
+		gap: var(--space-xl);
+		align-items: center;
+	}
+
+	.about__portrait-placeholder {
+		aspect-ratio: 3 / 4;
+		background: linear-gradient(160deg, #1a1a1a 0%, #111 50%, #1a1a17 100%);
+		border: 1px solid var(--color-border);
+	}
+
+	.about__image-caption {
+		margin-top: var(--space-sm);
+		display: block;
+	}
+
+	.about__heading {
+		margin-top: var(--space-xs);
+	}
+
+	.about__bio {
+		color: var(--color-text-muted);
+		margin-top: var(--space-sm);
+		line-height: 1.85;
+	}
+
+	.about__stats {
+		display: flex;
+		gap: var(--space-lg);
+		margin-top: var(--space-lg);
+		padding-top: var(--space-md);
+		border-top: 1px solid var(--color-border);
+	}
+
+	.about__stat-number {
+		font-family: var(--font-display);
+		font-size: var(--text-3xl);
+		color: var(--color-sunset);
+		display: block;
+		line-height: 1;
+	}
+
+	.about__stat-label {
+		margin-top: 0.3em;
+		display: block;
+	}
+
+	@media (max-width: 900px) {
+		.about__inner {
+			grid-template-columns: 1fr;
+			gap: var(--space-lg);
+		}
+
+		.about__image-col {
+			max-width: 400px;
+		}
+	}
+
+	/* ═══ WORK ═══ */
+	.work {
+		padding-block: var(--space-section);
+		border-top: 1px solid var(--color-border);
+	}
+
+	.work__header {
+		margin-bottom: var(--space-xl);
+	}
+
+	.work__header h2 {
+		margin-top: var(--space-xs);
+	}
+
+	.work__grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: var(--space-md);
+	}
+
+	.work__card {
+		display: block;
+		position: relative;
+		border: 1px solid var(--color-border);
+		transition:
+			border-color var(--duration-base) var(--ease-out-expo),
+			background var(--duration-base) var(--ease-out-expo);
+	}
+
+	.work__card:hover {
+		border-color: var(--color-border-strong);
+		background: var(--color-bg-raised);
+	}
+
+	.work__card-media {
+		overflow: hidden;
+	}
+
+	.work__card-placeholder {
+		aspect-ratio: 16 / 10;
+	}
+
+	.work__card-placeholder--foto {
+		background: linear-gradient(
+			135deg,
+			#0c1e30 0%,
+			#142838 40%,
+			#1a3045 70%,
+			#0e1a28 100%
+		);
+	}
+
+	.work__card-placeholder--video {
+		background: linear-gradient(
+			135deg,
+			#1a1510 0%,
+			#25200f 40%,
+			#1f1a0d 70%,
+			#12100a 100%
+		);
+	}
+
+	.work__card-content {
+		padding: var(--space-md);
+	}
+
+	.work__card-content h3 {
+		margin-top: var(--space-xs);
+		font-size: var(--text-2xl);
+	}
+
+	.work__card-content p {
+		color: var(--color-text-muted);
+		margin-top: var(--space-xs);
+		font-size: var(--text-sm);
+	}
+
+	.work__card-arrow {
+		display: inline-block;
+		margin-top: var(--space-md);
+		font-size: var(--text-xl);
+		color: var(--color-sunset);
+		transition: transform var(--duration-base) var(--ease-out-expo);
+	}
+
+	.work__card:hover .work__card-arrow {
+		transform: translateX(8px);
+	}
+
+	@media (max-width: 768px) {
+		.work__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	/* ═══ CTA ═══ */
+	.home-cta {
+		padding-block: var(--space-section);
+		border-top: 1px solid var(--color-border);
+	}
+
+	.home-cta__inner {
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-sm);
+	}
+
+	.home-cta__heading {
+		margin-top: var(--space-xs);
+	}
+
+	.home-cta__text {
+		color: var(--color-text-muted);
+		text-align: center;
+		max-width: 50ch;
+	}
+</style>

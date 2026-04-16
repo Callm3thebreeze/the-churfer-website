@@ -1,43 +1,235 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import YouTubeEmbed from "../../components/YouTubeEmbed.astro";
+import {
+  videos,
+  videoCategories as categories,
+  formatDate,
+} from "../../data/videos";
 ---
 
 <BaseLayout
   title="Vídeo"
   description="Producciones de vídeo de surf por Sergi Ortega — The Churfer. Ediciones cinematográficas, recaps y cobertura de eventos."
 >
-  <!-- ═══ INTRO ═══ -->
-  <section class="page-intro">
-    <h1>Vídeo</h1>
-    <p>
-      Ediciones cinematográficas que capturan la esencia de cada sesión. Desde
-      recaps de dawn patrols hasta cobertura completa de competiciones.
-    </p>
+  <!-- ═══ PAGE HERO ═══ -->
+  <section class="page-hero">
+    <div class="page-hero__inner container">
+      <span class="label reveal">Portfolio</span>
+      <h1 class="reveal">Vídeo</h1>
+      <p class="page-hero__desc reveal">
+        Ediciones cinematográficas que capturan la esencia de cada sesión. Desde
+        recaps de dawn patrols hasta cobertura completa de competiciones.
+      </p>
+      <div class="rule reveal"></div>
+    </div>
   </section>
 
-  <!-- ═══ FILTROS POR TIPO ═══ -->
-  <nav class="gallery-filters">
-    <button data-filter="all" aria-pressed="true">Todo</button>
-    <button data-filter="session" aria-pressed="false">Sesiones</button>
-    <button data-filter="event" aria-pressed="false">Eventos</button>
-    <button data-filter="shortfilm" aria-pressed="false">Cortometrajes</button>
+  <!-- ═══ FILTERS ═══ -->
+  <nav class="filters container reveal" aria-label="Filtrar por tipo">
+    {
+      categories.map(({ id, label }) => (
+        <button
+          class="filters__btn"
+          data-filter={id}
+          aria-pressed={id === "all" ? "true" : "false"}
+        >
+          {label}
+        </button>
+      ))
+    }
   </nav>
 
-  <!-- ═══ GALERÍA DE VÍDEOS ═══ -->
-  <section class="video-gallery">
-    <!-- Los vídeos se cargarán desde Emdash; cada uno embebe YouTube -->
-    <!-- Ejemplo de cómo se verá cada item: -->
-    <!--
-    <article class="video-item" data-category="session">
-      <YouTubeEmbed videoId="dQw4w9WgXcQ" title="Sesión de ejemplo" />
-      <div class="video-item-info">
-        <h3>Título del vídeo</h3>
-        <p>Breve descripción de la sesión.</p>
-        <time datetime="2025-03-15">Marzo 2025</time>
-      </div>
-    </article>
-    -->
-    <p>Galería de vídeo — contenido próximamente desde el CMS.</p>
+  <!-- ═══ VIDEO GALLERY ═══ -->
+  <section class="video-gallery container">
+    {
+      videos.map((video, i) => (
+        <a
+          href={`/video/${video.slug}`}
+          class={`video-card reveal reveal-delay-${(i % 3) + 1}`}
+          data-category={video.category}
+        >
+          <div class="video-card__embed">
+            <YouTubeEmbed videoId={video.youtubeId} title={video.title} />
+          </div>
+          <div class="video-card__info">
+            <div class="video-card__meta">
+              <span class="label">
+                {categories.find((c) => c.id === video.category)?.label}
+              </span>
+              <time class="video-card__date" datetime={video.date}>
+                {formatDate(video.date)}
+              </time>
+            </div>
+            <h3 class="video-card__title">{video.title}</h3>
+            <p class="video-card__desc">{video.description}</p>
+            <span class="video-card__more">Ver proyecto →</span>
+          </div>
+        </a>
+      ))
+    }
   </section>
 </BaseLayout>
+
+<script>
+  const btns = document.querySelectorAll<HTMLButtonElement>(".filters__btn");
+  const items = document.querySelectorAll<HTMLElement>(".video-card");
+
+  btns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const filter = btn.dataset.filter;
+      btns.forEach((b) => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+
+      items.forEach((item) => {
+        const match = filter === "all" || item.dataset.category === filter;
+        item.style.display = match ? "" : "none";
+      });
+    });
+  });
+</script>
+
+<style>
+  /* ═══ PAGE HERO ═══ */
+  .page-hero {
+    padding-top: calc(var(--space-section) + 80px);
+    padding-bottom: var(--space-xl);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .page-hero h1 {
+    margin-top: var(--space-xs);
+  }
+
+  .page-hero__desc {
+    color: var(--color-text-muted);
+    margin-top: var(--space-sm);
+    max-width: 55ch;
+    line-height: 1.8;
+  }
+
+  .page-hero .rule {
+    margin-top: var(--space-md);
+  }
+
+  /* ═══ FILTERS ═══ */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    padding-block: var(--space-lg);
+  }
+
+  .filters__btn {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.6em 1.4em;
+    color: var(--color-text-dim);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    transition:
+      color var(--duration-fast) var(--ease-out-quart),
+      border-color var(--duration-fast) var(--ease-out-quart),
+      background var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .filters__btn:hover {
+    color: var(--color-text-muted);
+    border-color: var(--color-border-strong);
+  }
+
+  .filters__btn[aria-pressed="true"] {
+    color: var(--color-black);
+    background: var(--color-sunset);
+    border-color: var(--color-sunset);
+  }
+
+  /* ═══ VIDEO GALLERY ═══ */
+  .video-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+    padding-bottom: var(--space-section);
+  }
+
+  .video-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color var(--duration-base) var(--ease-out-expo),
+      background var(--duration-base) var(--ease-out-expo);
+  }
+
+  .video-card:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-bg-raised);
+  }
+
+  .video-card__embed {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .video-card__info {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .video-card__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .video-card__date {
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    font-style: italic;
+    font-family: var(--font-display);
+  }
+
+  .video-card__title {
+    font-size: var(--text-xl);
+    line-height: 1.2;
+  }
+
+  .video-card__desc {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: 1.65;
+  }
+
+  .video-card__more {
+    display: inline-block;
+    margin-top: auto;
+    padding-top: var(--space-xs);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-sunset);
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity var(--duration-fast) var(--ease-out-quart),
+      transform var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .video-card:hover .video-card__more {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    .video-gallery {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

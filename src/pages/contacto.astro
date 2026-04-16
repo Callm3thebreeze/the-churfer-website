@@ -6,63 +6,249 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   title="Contacto"
   description="Contacta con Sergi Ortega — The Churfer para sesiones de fotografía de surf, producciones de vídeo o colaboraciones."
 >
-  <section class="page-intro">
-    <h1>Contacto</h1>
-    <p>
-      ¿Quieres una sesión de fotos en el agua, cobertura de un evento o una
-      producción de vídeo? Escríbeme y hablamos.
-    </p>
+  <!-- ═══ PAGE HERO ═══ -->
+  <section class="page-hero">
+    <div class="page-hero__inner container">
+      <span class="label reveal">Hablemos</span>
+      <h1 class="reveal">Contacto</h1>
+      <p class="page-hero__desc reveal">
+        ¿Quieres una sesión de fotos en el agua, cobertura de un evento o una
+        producción de vídeo? Escríbeme y hablamos.
+      </p>
+      <div class="rule reveal"></div>
+    </div>
   </section>
 
-  <section class="contact-content">
-    <form class="contact-form" method="POST" action="#">
-      <div class="form-group">
-        <label for="name">Nombre</label>
-        <input type="text" id="name" name="name" required autocomplete="name" />
-      </div>
+  <!-- ═══ CONTACT CONTENT ═══ -->
+  <section class="contact container">
+    <div class="contact__grid">
+      <!-- FORMULARIO -->
+      <form class="contact__form reveal" method="POST" action="#">
+        <div class="contact__form-group">
+          <label for="name">Nombre</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            required
+            autocomplete="name"
+            placeholder="Tu nombre"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          required
-          autocomplete="email"
-        />
-      </div>
+        <div class="contact__form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            autocomplete="email"
+            placeholder="tu@email.com"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="subject">Asunto</label>
-        <select id="subject" name="subject" required>
-          <option value="">Selecciona una opción</option>
-          <option value="foto-sesion">Sesión de fotografía</option>
-          <option value="video-produccion">Producción de vídeo</option>
-          <option value="evento">Cobertura de evento</option>
-          <option value="colaboracion">Colaboración</option>
-          <option value="otro">Otro</option>
-        </select>
-      </div>
+        <div class="contact__form-group">
+          <label for="subject">¿En qué puedo ayudarte?</label>
+          <select id="subject" name="subject" required>
+            <option value="">Selecciona una opción</option>
+            <option value="foto-sesion">Sesión de fotografía</option>
+            <option value="video-produccion">Producción de vídeo</option>
+            <option value="evento">Cobertura de evento</option>
+            <option value="colaboracion">Colaboración / Marca</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label for="message">Mensaje</label>
-        <textarea id="message" name="message" rows="6" required></textarea>
-      </div>
+        <div class="contact__form-group">
+          <label for="message">Mensaje</label>
+          <textarea
+            id="message"
+            name="message"
+            rows="6"
+            required
+            placeholder="Cuéntame sobre tu proyecto..."></textarea>
+        </div>
 
-      <button type="submit">Enviar mensaje</button>
-    </form>
+        <button type="submit" class="cta-button">Enviar mensaje</button>
+      </form>
 
-    <aside class="contact-info">
-      <h2>También me encuentras en</h2>
-      <ul class="social-links">
-        <!-- URLs reales de Sergi — actualizar cuando estén disponibles -->
-        <li>
-          <a href="#" target="_blank" rel="noopener noreferrer">Instagram</a>
-        </li>
-        <li>
-          <a href="#" target="_blank" rel="noopener noreferrer">YouTube</a>
-        </li>
-      </ul>
-    </aside>
+      <!-- SIDEBAR INFO -->
+      <aside class="contact__aside reveal">
+        <div class="contact__info-block">
+          <h2 class="contact__info-heading">Encuéntrame</h2>
+          <p class="contact__info-text">
+            Basado en la costa mediterránea. Disponible para proyectos en
+            cualquier parte del mundo.
+          </p>
+        </div>
+
+        <div class="contact__info-block">
+          <h3 class="label">Redes sociales</h3>
+          <ul class="contact__social">
+            <li>
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="contact__social-link"
+              >
+                <span class="contact__social-icon">IG</span>
+                Instagram
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="contact__social-link"
+              >
+                <span class="contact__social-icon">YT</span>
+                YouTube
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="contact__info-block">
+          <h3 class="label">Respuesta habitual</h3>
+          <p class="contact__info-text">
+            Normalmente respondo en menos de 24h. Para proyectos urgentes,
+            indícalo en el mensaje.
+          </p>
+        </div>
+      </aside>
+    </div>
   </section>
 </BaseLayout>
+
+<style>
+  /* ═══ PAGE HERO ═══ */
+  .page-hero {
+    padding-top: calc(var(--space-section) + 80px);
+    padding-bottom: var(--space-xl);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .page-hero h1 {
+    margin-top: var(--space-xs);
+  }
+
+  .page-hero__desc {
+    color: var(--color-text-muted);
+    margin-top: var(--space-sm);
+    max-width: 55ch;
+    line-height: 1.8;
+  }
+
+  .page-hero .rule {
+    margin-top: var(--space-md);
+  }
+
+  /* ═══ CONTACT LAYOUT ═══ */
+  .contact {
+    padding-block: var(--space-section);
+  }
+
+  .contact__grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  /* ═══ FORM ═══ */
+  .contact__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .contact__form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .contact__form input::placeholder,
+  .contact__form textarea::placeholder {
+    color: var(--color-text-dim);
+    opacity: 0.6;
+  }
+
+  .contact__form .cta-button {
+    align-self: flex-start;
+  }
+
+  /* ═══ ASIDE ═══ */
+  .contact__aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    padding-left: var(--space-lg);
+    border-left: 1px solid var(--color-border);
+  }
+
+  .contact__info-heading {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-xs);
+  }
+
+  .contact__info-text {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: 1.7;
+  }
+
+  .contact__social {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+    margin-top: var(--space-xs);
+  }
+
+  .contact__social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7em;
+    font-size: var(--text-base);
+    color: var(--color-text-muted);
+    transition: color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .contact__social-link:hover {
+    color: var(--color-sunset);
+  }
+
+  .contact__social-icon {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    width: 2.4em;
+    height: 2.4em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    transition: border-color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .contact__social-link:hover .contact__social-icon {
+    border-color: var(--color-sunset);
+  }
+
+  @media (max-width: 768px) {
+    .contact__grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-xl);
+    }
+
+    .contact__aside {
+      padding-left: 0;
+      border-left: none;
+      border-top: 1px solid var(--color-border);
+      padding-top: var(--space-lg);
+    }
+  }
+</style>
