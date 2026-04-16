@@ -161,10 +161,57 @@ const photos = [
 </BaseLayout>
 
 <script>
-  // ── Filter logic ──
+  const grid = document.querySelector<HTMLElement>(".gallery__grid")!;
   const btns = document.querySelectorAll<HTMLButtonElement>(".filters__btn");
-  const items = document.querySelectorAll<HTMLElement>(".gallery__item");
+  const items = Array.from(
+    document.querySelectorAll<HTMLElement>(".gallery__item"),
+  );
 
+  // ── Masonry: shortest column first ──
+  function getColCount(): number {
+    const w = grid.offsetWidth;
+    if (w < 540) return 1;
+    if (w < 900) return 2;
+    return 3;
+  }
+
+  function layoutMasonry() {
+    const cols = getColCount();
+    const style = getComputedStyle(document.documentElement);
+    const gap = parseFloat(style.getPropertyValue("--space-xs")) * 16 || 8;
+    const gridWidth = grid.offsetWidth;
+    const colWidth = (gridWidth - gap * (cols - 1)) / cols;
+    const colHeights = new Array(cols).fill(0);
+
+    // Visible items — lay out in shortest column
+    const visible = items.filter((el) => !el.classList.contains("hidden"));
+    visible.forEach((item) => {
+      const shortest = colHeights.indexOf(Math.min(...colHeights));
+
+      item.style.width = `${colWidth}px`;
+      item.style.transform = `translate(${shortest * (colWidth + gap)}px, ${colHeights[shortest]}px)`;
+      item.style.opacity = "1";
+
+      colHeights[shortest] += item.offsetHeight + gap;
+    });
+
+    // Hidden items — fade out
+    items
+      .filter((el) => el.classList.contains("hidden"))
+      .forEach((item) => {
+        item.style.opacity = "0";
+        item.style.pointerEvents = "none";
+      });
+
+    // Set container height
+    grid.style.height = `${Math.max(...colHeights, 0)}px`;
+  }
+
+  // Initial layout (no transitions)
+  layoutMasonry();
+  requestAnimationFrame(() => grid.classList.add("masonry-ready"));
+
+  // ── Filters ──
   btns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const filter = btn.dataset.filter;
@@ -173,12 +220,22 @@ const photos = [
 
       items.forEach((item) => {
         const match = filter === "all" || item.dataset.category === filter;
-        item.style.display = match ? "" : "none";
+        item.classList.toggle("hidden", !match);
+        item.style.pointerEvents = match ? "" : "none";
       });
+
+      layoutMasonry();
     });
   });
 
-  // ── Lightbox logic ──
+  // ── Resize (debounced) ──
+  let resizeTimer: ReturnType<typeof setTimeout>;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(layoutMasonry, 100);
+  });
+
+  // ── Lightbox ──
   const lightbox = document.getElementById("lightbox")!;
   const lbTitle = document.getElementById("lightbox-title")!;
   const lbCat = document.getElementById("lightbox-cat")!;
@@ -196,7 +253,7 @@ const photos = [
   let currentIndex = 0;
 
   function getVisibleItems(): HTMLElement[] {
-    return Array.from(items).filter((el) => el.style.display !== "none");
+    return items.filter((el) => !el.classList.contains("hidden"));
   }
 
   function showImage(index: number) {
@@ -233,7 +290,6 @@ const photos = [
     document.body.style.overflow = "";
   }
 
-  // Open on click / Enter
   items.forEach((item) => {
     const handler = () => {
       const visible = getVisibleItems();
@@ -249,17 +305,14 @@ const photos = [
     });
   });
 
-  // Navigation
   prevBtn.addEventListener("click", () => showImage(currentIndex - 1));
   nextBtn.addEventListener("click", () => showImage(currentIndex + 1));
   closeBtn.addEventListener("click", closeLightbox);
 
-  // Close on backdrop click
   lightbox.addEventListener("click", (e) => {
     if (e.target === lightbox) closeLightbox();
   });
 
-  // Keyboard
   document.addEventListener("keydown", (e) => {
     if (lightbox.getAttribute("aria-hidden") === "true") return;
     if (e.key === "Escape") closeLightbox();
@@ -344,15 +397,20 @@ const photos = [
   }
 
   .gallery__grid {
-    columns: 3;
-    column-gap: var(--space-xs);
+    position: relative;
   }
 
   .gallery__item {
-    break-inside: avoid;
-    margin-bottom: var(--space-xs);
+    position: absolute;
     cursor: pointer;
     outline: none;
+    transition:
+      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .gallery__grid:not(.masonry-ready) .gallery__item {
+    transition: none;
   }
 
   .gallery__item:focus-visible .gallery__placeholder {
@@ -610,15 +668,11 @@ const photos = [
 
   /* ═══ RESPONSIVE ═══ */
   @media (max-width: 900px) {
-    .gallery__grid {
-      columns: 2;
-    }
+    /* column count handled by JS masonry */
   }
 
   @media (max-width: 540px) {
-    .gallery__grid {
-      columns: 1;
-    }
+    /* column count handled by JS masonry */
 
     .lightbox__arrow {
       width: 40px;
