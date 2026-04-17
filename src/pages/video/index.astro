@@ -193,6 +193,41 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     padding-top: calc(var(--space-section) + 80px);
     padding-bottom: 0;
     position: relative;
+    overflow: hidden;
+  }
+
+  .vhero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      #0c1a2a 0%,
+      #0a1520 30%,
+      #162430 60%,
+      #0d1a25 100%
+    );
+    animation: heroShift 20s ease-in-out infinite alternate;
+    z-index: 0;
+  }
+
+  .vhero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--color-bg) 0%, transparent 50%),
+      linear-gradient(to right, rgba(10, 10, 10, 0.5) 0%, transparent 60%);
+    z-index: 1;
+  }
+
+  @keyframes heroShift {
+    0% {
+      filter: brightness(0.9) hue-rotate(0deg);
+    }
+    100% {
+      filter: brightness(1.1) hue-rotate(8deg);
+    }
   }
 
   .vhero__inner {
@@ -201,6 +236,8 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     align-items: flex-end;
     gap: var(--space-lg);
     padding-bottom: var(--space-xl);
+    position: relative;
+    z-index: 2;
   }
 
   .vhero__title {
@@ -256,6 +293,8 @@ const totalLabel = videos.length.toString().padStart(2, "0");
       transparent
     );
     opacity: 0.3;
+    position: relative;
+    z-index: 2;
   }
 
   /* ═══════════════════════════════════════
@@ -387,9 +426,8 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.01em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: break-word;
+    word-break: break-word;
     transition: color 0.3s var(--ease-out-expo);
   }
 
@@ -531,6 +569,7 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     .film-row__header {
       grid-template-columns: auto 1fr auto;
       gap: var(--space-sm);
+      overflow: hidden;
     }
 
     .film-row__date {

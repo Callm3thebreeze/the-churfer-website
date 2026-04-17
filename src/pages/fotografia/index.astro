@@ -57,7 +57,11 @@ const tileClasses = photos.map((photo, i) => {
   <section class="page-hero">
     <div class="page-hero__inner container">
       <span class="label reveal">Portfolio</span>
-      <h1 class="reveal">Fotografía</h1>
+      <h1 class="reveal">
+        <span class="desktop-only">Fotografía</span><span class="mobile-only"
+          >Foto</span
+        >
+      </h1>
       <p class="page-hero__desc reveal">
         Surf, foto marina, jiu-jitsu, skate — capturo deportes de acción con la
         intensidad que merecen. Dentro del agua, al borde del tatami o en el
@@ -535,10 +539,64 @@ const tileClasses = photos.map((photo, i) => {
     padding-top: calc(var(--space-section) + 80px);
     padding-bottom: var(--space-xl);
     border-bottom: 1px solid var(--color-border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      #0c1a2a 0%,
+      #0a1520 30%,
+      #162430 60%,
+      #0d1a25 100%
+    );
+    animation: heroShift 20s ease-in-out infinite alternate;
+    z-index: 0;
+  }
+
+  .page-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--color-bg) 0%, transparent 50%),
+      linear-gradient(to right, rgba(10, 10, 10, 0.5) 0%, transparent 60%);
+    z-index: 1;
+  }
+
+  .page-hero__inner {
+    position: relative;
+    z-index: 2;
+  }
+
+  @keyframes heroShift {
+    0% {
+      filter: brightness(0.9) hue-rotate(0deg);
+    }
+    100% {
+      filter: brightness(1.1) hue-rotate(8deg);
+    }
   }
 
   .page-hero h1 {
     margin-top: var(--space-xs);
+  }
+
+  .mobile-only {
+    display: none;
+  }
+
+  @media (max-width: 480px) {
+    .desktop-only {
+      display: none;
+    }
+    .mobile-only {
+      display: inline;
+    }
   }
 
   .page-hero__desc {

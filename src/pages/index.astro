@@ -202,6 +202,18 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 		gap: var(--space-sm);
 	}
 
+	@media (max-width: 768px) {
+		.hero {
+			min-height: auto;
+			align-items: flex-start;
+		}
+
+		.hero__content {
+			padding-top: calc(var(--space-section) + 80px);
+			padding-bottom: var(--space-xl);
+		}
+	}
+
 	.hero__label {
 		animation: fadeInUp 0.8s var(--ease-out-expo) 0.2s backwards;
 	}
@@ -232,6 +244,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 		right: var(--gutter);
 		color: var(--color-text-muted);
 		animation: fadeIn 1s var(--ease-out-expo) 1.4s backwards;
+		display: none;
+	}
+
+	@media (min-width: 1025px) {
+		.hero__scroll {
+			display: block;
+		}
 	}
 
 	.hero__scroll-dot {
@@ -312,6 +331,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 		.about__image-col {
 			max-width: 400px;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.about {
+			padding-block: 0;
 		}
 	}
 
