@@ -6,126 +6,55 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 	title="Sergi Ortega — Fotografía deportiva & Vídeo comercial"
 	description="Sergi Ortega, fotógrafo deportivo y videógrafo profesional. Especializado en surf, foto marina, deportes de acción y producciones audiovisuales comerciales. Desde El Palmar, Cádiz."
 >
-	<!-- ═══ HERO ═══ -->
-	<section class="hero">
-		<div class="hero__bg">
-			<!-- Placeholder hasta que tengamos imagen real de Cloudinary -->
-			<div class="hero__bg-placeholder"></div>
-		</div>
-		<div class="hero__overlay"></div>
-		<div class="hero__content container">
-			<span class="hero__label label"
-				>Fotografía deportiva &amp; Vídeo comercial</span
-			>
-			<h1 class="hero__title">The<br />Churfer</h1>
-			<div class="hero__rule rule"></div>
-			<p class="hero__tagline">
-				Capturo la fuerza del deporte y la belleza del océano. Fotografía, vídeo
-				y producción audiovisual desde El Palmar.
-			</p>
-			<a href="#about" class="hero__scroll" aria-label="Scroll hacia abajo">
-				<svg width="20" height="30" viewBox="0 0 20 30" fill="none">
-					<rect
-						x="1"
-						y="1"
-						width="18"
-						height="28"
-						rx="9"
-						stroke="currentColor"
-						stroke-width="1.5"
-						opacity="0.4"></rect>
-					<circle
-						class="hero__scroll-dot"
-						cx="10"
-						cy="9"
-						r="2"
-						fill="currentColor"></circle>
-				</svg>
-			</a>
-		</div>
-	</section>
-
-	<!-- ═══ ABOUT INTRO ═══ -->
-	<section class="about" id="about">
-		<div class="about__inner container">
-			<div class="about__image-col reveal">
-				<!-- Placeholder para retrato -->
-				<div class="about__portrait-placeholder"></div>
-				<span class="about__image-caption label"
-					>Sergi Ortega — Est. Mediterranean Coast</span
-				>
-			</div>
-			<div class="about__text-col">
-				<span class="label reveal">Sobre mí</span>
-				<h2 class="about__heading reveal"><em>Sergi Ortega</em></h2>
-				<p class="about__bio reveal">
-					Cámara profesional especializado en fotografía deportiva y producción
-					audiovisual. El surf y la foto marina son mi terreno natural, pero mi
-					objetivo también apunta al jiu-jitsu, el skate y cualquier disciplina
-					que transmita fuerza y movimiento. Grabo y edito vídeos comerciales
-					para marcas y he trabajado en videoclips musicales.
-				</p>
-				<p class="about__bio reveal">
-					De origen mediterráneo y afincado en El Palmar, donde además de la
-					cámara gestiono <strong>Santa Killa</strong>, una tienda y marca de
-					surf. Cada proyecto es único y mi objetivo es capturarlo con la
-					intensidad que merece.
-				</p>
-				<div class="about__stats reveal">
-					<div class="about__stat">
-						<span class="about__stat-number">+500</span>
-						<span class="about__stat-label label">Sesiones</span>
-					</div>
-					<div class="about__stat">
-						<span class="about__stat-number">+30</span>
-						<span class="about__stat-label label">Producciones</span>
-					</div>
-					<div class="about__stat">
-						<span class="about__stat-number">+8</span>
-						<span class="about__stat-label label">Años</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<!-- ═══ WORK SECTIONS ═══ -->
-	<section class="work">
-		<div class="work__header container">
-			<span class="label reveal">Portfolio</span>
-			<h2 class="reveal">Mi trabajo</h2>
-		</div>
-
-		<div class="work__grid container">
-			<a href="/fotografia" class="work__card reveal img-zoom">
-				<div class="work__card-media">
-					<div class="work__card-placeholder work__card-placeholder--foto">
-					</div>
-				</div>
-				<div class="work__card-content">
-					<span class="label">01</span>
-					<h3>Fotografía</h3>
-					<p>
-						Surf, foto marina, jiu-jitsu, skate y más. Deportes de acción
-						capturados con intensidad.
-					</p>
-					<span class="work__card-arrow">&rarr;</span>
+	<!-- ═══ MOSAIC HERO ═══ -->
+	<section class="mosaic">
+		<div class="mosaic__grid">
+			<a href="/fotografia" class="mosaic__cell mosaic__cell--main">
+				<div class="mosaic__img mosaic__img--1"></div>
+				<div class="mosaic__caption">
+					<span class="label">Surf & Mar</span>
 				</div>
 			</a>
 
-			<a href="/video" class="work__card reveal img-zoom">
-				<div class="work__card-media">
-					<div class="work__card-placeholder work__card-placeholder--video">
-					</div>
+			<a href="/fotografia" class="mosaic__cell mosaic__cell--tall">
+				<div class="mosaic__img mosaic__img--2"></div>
+				<div class="mosaic__caption">
+					<span class="label">Retratos</span>
 				</div>
-				<div class="work__card-content">
-					<span class="label">02</span>
-					<h3>Vídeo</h3>
-					<p>
-						Producciones comerciales para marcas, videoclips musicales y
-						cobertura de eventos deportivos.
-					</p>
-					<span class="work__card-arrow">&rarr;</span>
+			</a>
+
+			<div class="mosaic__cell mosaic__cell--text">
+				<div class="mosaic__rule"></div>
+				<h1>
+					Capturo la fuerza del deporte y&nbsp;la&nbsp;belleza del&nbsp;océano.
+				</h1>
+				<p>
+					Fotografía, vídeo y producción audiovisual desde&nbsp;El&nbsp;Palmar.
+				</p>
+				<div class="mosaic__actions">
+					<a href="/fotografia" class="cta-button cta-button--sm">Fotografía</a>
+					<a href="/video" class="btn-outline cta-button--sm">Vídeo</a>
+				</div>
+			</div>
+
+			<a href="/fotografia" class="mosaic__cell mosaic__cell--small1">
+				<div class="mosaic__img mosaic__img--3"></div>
+				<div class="mosaic__caption">
+					<span class="label">Deportes</span>
+				</div>
+			</a>
+
+			<a href="/fotografia" class="mosaic__cell mosaic__cell--wide">
+				<div class="mosaic__img mosaic__img--4"></div>
+				<div class="mosaic__caption">
+					<span class="label">Surf & Mar</span>
+				</div>
+			</a>
+
+			<a href="/fotografia" class="mosaic__cell mosaic__cell--small2">
+				<div class="mosaic__img mosaic__img--5"></div>
+				<div class="mosaic__caption">
+					<span class="label">Eventos</span>
 				</div>
 			</a>
 		</div>
@@ -146,293 +75,211 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 </BaseLayout>
 
 <style>
-	/* ═══ HERO ═══ */
-	.hero {
-		position: relative;
+	/* ═══ MOSAIC HERO ═══ */
+	.mosaic {
 		min-height: 100dvh;
-		display: flex;
-		align-items: flex-end;
-		overflow: hidden;
+		padding: calc(80px + 6px) 6px 6px;
 	}
 
-	.hero__bg {
+	.mosaic__grid {
+		display: grid;
+		grid-template-columns: 1.3fr 1fr 1fr;
+		grid-template-rows: 1.4fr 1fr 1fr;
+		gap: 4px;
+		height: calc(100dvh - 80px - 12px);
+		max-width: 1600px;
+		margin: 0 auto;
+		grid-template-areas:
+			"main main   tall"
+			"text small1 tall"
+			"wide wide   small2";
+	}
+
+	/* ── Cells ── */
+	.mosaic__cell {
+		position: relative;
+		overflow: hidden;
+		display: block;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.mosaic__cell--main {
+		grid-area: main;
+	}
+	.mosaic__cell--tall {
+		grid-area: tall;
+	}
+	.mosaic__cell--text {
+		grid-area: text;
+	}
+	.mosaic__cell--small1 {
+		grid-area: small1;
+	}
+	.mosaic__cell--wide {
+		grid-area: wide;
+	}
+	.mosaic__cell--small2 {
+		grid-area: small2;
+	}
+
+	/* ── Staggered entrance ── */
+	.mosaic__cell--main {
+		animation: mosaicIn 0.9s var(--ease-out-expo) 0.05s backwards;
+	}
+	.mosaic__cell--tall {
+		animation: mosaicIn 0.9s var(--ease-out-expo) 0.15s backwards;
+	}
+	.mosaic__cell--text {
+		animation: mosaicIn 0.9s var(--ease-out-expo) 0.25s backwards;
+	}
+	.mosaic__cell--small1 {
+		animation: mosaicIn 0.9s var(--ease-out-expo) 0.3s backwards;
+	}
+	.mosaic__cell--wide {
+		animation: mosaicIn 0.9s var(--ease-out-expo) 0.38s backwards;
+	}
+	.mosaic__cell--small2 {
+		animation: mosaicIn 0.9s var(--ease-out-expo) 0.45s backwards;
+	}
+
+	@keyframes mosaicIn {
+		from {
+			opacity: 0;
+			transform: scale(0.96);
+		}
+	}
+
+	/* ── Photo backgrounds (placeholders) ── */
+	.mosaic__img {
 		position: absolute;
 		inset: 0;
-		z-index: 0;
+		transition:
+			transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+			filter 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 	}
 
-	.hero__bg-placeholder {
-		width: 100%;
-		height: 100%;
+	.mosaic__cell:hover .mosaic__img {
+		transform: scale(1.05);
+		filter: brightness(0.65);
+	}
+
+	.mosaic__img--1 {
 		background: linear-gradient(
 			135deg,
-			#0c1a2a 0%,
-			#0a1520 30%,
-			#162430 60%,
-			#0d1a25 100%
+			#0a1e30 0%,
+			#1b6b93 35%,
+			#0d2535 70%,
+			#060e18 100%
 		);
-		animation: heroShift 20s ease-in-out infinite alternate;
 	}
 
-	@keyframes heroShift {
-		0% {
-			filter: brightness(0.9) hue-rotate(0deg);
-		}
-		100% {
-			filter: brightness(1.1) hue-rotate(8deg);
-		}
+	.mosaic__img--2 {
+		background: linear-gradient(
+			170deg,
+			#1a1510 0%,
+			#2d2418 45%,
+			#1a150d 75%,
+			#0e0c08 100%
+		);
 	}
 
-	.hero__overlay {
+	.mosaic__img--3 {
+		background: linear-gradient(145deg, #101c25 0%, #1a3448 50%, #0c1820 100%);
+	}
+
+	.mosaic__img--4 {
+		background: linear-gradient(
+			120deg,
+			#091420 0%,
+			#155070 40%,
+			#0e2a40 75%,
+			#060e18 100%
+		);
+	}
+
+	.mosaic__img--5 {
+		background: linear-gradient(155deg, #1e1610 0%, #2a2015 45%, #14100a 100%);
+	}
+
+	/* ── Photo captions (on hover) ── */
+	.mosaic__caption {
 		position: absolute;
-		inset: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		padding: var(--space-xl) var(--space-sm) var(--space-sm);
+		background: linear-gradient(
+			to top,
+			rgba(6, 6, 6, 0.85) 0%,
+			transparent 100%
+		);
+		opacity: 0;
+		transform: translateY(6px);
+		transition:
+			opacity 0.4s ease,
+			transform 0.4s ease;
 		z-index: 1;
-		background:
-			linear-gradient(to top, var(--color-bg) 0%, transparent 40%),
-			linear-gradient(to right, rgba(10, 10, 10, 0.5) 0%, transparent 60%);
 	}
 
-	.hero__content {
-		position: relative;
-		z-index: 2;
-		padding-bottom: var(--space-2xl);
-		padding-top: var(--space-section);
+	.mosaic__cell:hover .mosaic__caption {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	.mosaic__caption .label {
+		color: var(--color-sunset);
+	}
+
+	/* ── Text cell ── */
+	.mosaic__cell--text {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-sm);
-	}
-
-	@media (max-width: 768px) {
-		.hero {
-			min-height: auto;
-			align-items: flex-start;
-		}
-
-		.hero__content {
-			padding-top: calc(var(--space-section) + 80px);
-			padding-bottom: var(--space-xl);
-		}
-	}
-
-	.hero__label {
-		animation: fadeInUp 0.8s var(--ease-out-expo) 0.2s backwards;
-	}
-
-	.hero__title {
-		font-size: var(--text-hero);
-		line-height: 0.88;
-		letter-spacing: -0.04em;
-		animation: fadeInUp 1s var(--ease-out-expo) 0.4s backwards;
-	}
-
-	.hero__rule {
-		animation: lineExpand 1s var(--ease-out-expo) 0.7s backwards;
-		transform-origin: left;
-		margin-block: var(--space-xs);
-	}
-
-	.hero__tagline {
-		font-size: var(--text-lg);
-		color: var(--color-text-muted);
-		max-width: 480px;
-		animation: fadeInUp 1s var(--ease-out-expo) 0.9s backwards;
-	}
-
-	.hero__scroll {
-		position: absolute;
-		bottom: var(--space-lg);
-		right: var(--gutter);
-		color: var(--color-text-muted);
-		animation: fadeIn 1s var(--ease-out-expo) 1.4s backwards;
-		display: none;
-	}
-
-	@media (min-width: 1025px) {
-		.hero__scroll {
-			display: block;
-		}
-	}
-
-	.hero__scroll-dot {
-		animation: scrollBounce 2s ease-in-out infinite;
-	}
-
-	@keyframes scrollBounce {
-		0%,
-		100% {
-			cy: 9;
-			opacity: 1;
-		}
-		50% {
-			cy: 20;
-			opacity: 0.2;
-		}
-	}
-
-	/* ═══ ABOUT ═══ */
-	.about {
-		padding-block: var(--space-section);
-	}
-
-	.about__inner {
-		display: grid;
-		grid-template-columns: 1fr 1.3fr;
-		gap: var(--space-xl);
-		align-items: center;
-	}
-
-	.about__portrait-placeholder {
-		aspect-ratio: 3 / 4;
-		background: linear-gradient(160deg, #1a1a1a 0%, #111 50%, #1a1a17 100%);
-		border: 1px solid var(--color-border);
-	}
-
-	.about__image-caption {
-		margin-top: var(--space-sm);
-		display: block;
-	}
-
-	.about__heading {
-		margin-top: var(--space-xs);
-	}
-
-	.about__bio {
-		color: var(--color-text-muted);
-		margin-top: var(--space-sm);
-		line-height: 1.85;
-	}
-
-	.about__stats {
-		display: flex;
-		gap: var(--space-lg);
-		margin-top: var(--space-lg);
-		padding-top: var(--space-md);
-		border-top: 1px solid var(--color-border);
-	}
-
-	.about__stat-number {
-		font-family: var(--font-display);
-		font-size: var(--text-3xl);
-		color: var(--color-sunset);
-		display: block;
-		line-height: 1;
-	}
-
-	.about__stat-label {
-		margin-top: 0.3em;
-		display: block;
-	}
-
-	@media (max-width: 900px) {
-		.about__inner {
-			grid-template-columns: 1fr;
-			gap: var(--space-lg);
-		}
-
-		.about__image-col {
-			max-width: 400px;
-		}
-	}
-
-	@media (max-width: 768px) {
-		.about {
-			padding-block: 0;
-		}
-	}
-
-	/* ═══ WORK ═══ */
-	.work {
-		padding-block: var(--space-section);
-		border-top: 1px solid var(--color-border);
-	}
-
-	.work__header {
-		margin-bottom: var(--space-xl);
-	}
-
-	.work__header h2 {
-		margin-top: var(--space-xs);
-	}
-
-	.work__grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: var(--space-md);
-	}
-
-	.work__card {
-		display: block;
-		position: relative;
-		border: 1px solid var(--color-border);
-		transition:
-			border-color var(--duration-base) var(--ease-out-expo),
-			background var(--duration-base) var(--ease-out-expo);
-	}
-
-	.work__card:hover {
-		border-color: var(--color-border-strong);
-		background: var(--color-bg-raised);
-	}
-
-	.work__card-media {
-		overflow: hidden;
-	}
-
-	.work__card-placeholder {
-		aspect-ratio: 16 / 10;
-	}
-
-	.work__card-placeholder--foto {
-		background: linear-gradient(
-			135deg,
-			#0c1e30 0%,
-			#142838 40%,
-			#1a3045 70%,
-			#0e1a28 100%
-		);
-	}
-
-	.work__card-placeholder--video {
-		background: linear-gradient(
-			135deg,
-			#1a1510 0%,
-			#25200f 40%,
-			#1f1a0d 70%,
-			#12100a 100%
-		);
-	}
-
-	.work__card-content {
+		justify-content: flex-end;
 		padding: var(--space-md);
+		background:
+			radial-gradient(
+				ellipse at 20% 80%,
+				rgba(27, 107, 147, 0.1) 0%,
+				transparent 60%
+			),
+			var(--color-bg);
+		border: 1px solid var(--color-border);
 	}
 
-	.work__card-content h3 {
-		margin-top: var(--space-xs);
-		font-size: var(--text-2xl);
+	.mosaic__rule {
+		width: 32px;
+		height: 2px;
+		background: var(--color-sunset);
+		margin-bottom: var(--space-sm);
 	}
 
-	.work__card-content p {
-		color: var(--color-text-muted);
-		margin-top: var(--space-xs);
+	.mosaic__cell--text h1 {
+		font-family: var(--font-display);
+		font-size: clamp(1.15rem, 0.8rem + 1.3vw, 1.85rem);
+		font-weight: 700;
+		line-height: 1.25;
+		letter-spacing: -0.02em;
+		color: var(--color-text);
+		margin-bottom: var(--space-xs);
+	}
+
+	.mosaic__cell--text p {
 		font-size: var(--text-sm);
+		color: var(--color-text-muted);
+		line-height: 1.45;
+		margin-bottom: var(--space-sm);
 	}
 
-	.work__card-arrow {
-		display: inline-block;
-		margin-top: var(--space-md);
-		font-size: var(--text-xl);
-		color: var(--color-sunset);
-		transition: transform var(--duration-base) var(--ease-out-expo);
+	.mosaic__actions {
+		display: flex;
+		gap: var(--space-xs);
 	}
 
-	.work__card:hover .work__card-arrow {
-		transform: translateX(8px);
-	}
-
-	@media (max-width: 768px) {
-		.work__grid {
-			grid-template-columns: 1fr;
-		}
+	.cta-button--sm {
+		font-size: clamp(0.6rem, 0.55rem + 0.2vw, 0.72rem);
+		padding: 0.7em 1.4em;
+		letter-spacing: 0.1em;
 	}
 
 	/* ═══ CTA ═══ */
@@ -457,5 +304,59 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 		color: var(--color-text-muted);
 		text-align: center;
 		max-width: 50ch;
+	}
+
+	/* ═══ RESPONSIVE ═══ */
+	@media (max-width: 1024px) {
+		.mosaic {
+			min-height: auto;
+			padding: calc(70px + 5px) 5px 5px;
+		}
+
+		.mosaic__grid {
+			height: auto;
+			grid-template-columns: 1fr 1fr;
+			grid-template-rows: 260px auto 200px 220px;
+			grid-template-areas:
+				"main  main"
+				"text  tall"
+				"small1 tall"
+				"wide  small2";
+		}
+	}
+
+	@media (max-width: 640px) {
+		.mosaic {
+			padding: calc(64px + 4px) 4px 4px;
+		}
+
+		.mosaic__grid {
+			grid-template-columns: 1fr 1fr;
+			grid-template-rows: 200px auto 180px 180px;
+			gap: 3px;
+			grid-template-areas:
+				"main  main"
+				"text  text"
+				"tall  small1"
+				"wide  small2";
+		}
+
+		.mosaic__cell--text {
+			padding: var(--space-sm) var(--space-md);
+		}
+
+		.mosaic__cell--text h1 {
+			font-size: clamp(1.1rem, 0.9rem + 1vw, 1.4rem);
+		}
+	}
+
+	@media (max-width: 380px) {
+		.mosaic__actions {
+			flex-direction: column;
+		}
+
+		.cta-button--sm {
+			text-align: center;
+		}
 	}
 </style>

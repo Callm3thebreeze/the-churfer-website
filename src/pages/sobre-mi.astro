@@ -1,0 +1,234 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Sobre mí — Sergi Ortega"
+  description="Conoce a Sergi Ortega, fotógrafo deportivo y videógrafo profesional. Especializado en surf, foto marina y deportes de acción. Desde El Palmar, Cádiz."
+>
+  <!-- ═══ PAGE HERO ═══ -->
+  <section class="page-hero">
+    <div class="page-hero__inner container">
+      <span class="label reveal">The Churfer</span>
+      <h1 class="reveal">Sobre mí</h1>
+      <p class="page-hero__desc reveal">
+        Cámara profesional. Agua salada en las venas y arena en los bolsillos.
+      </p>
+      <div class="rule reveal"></div>
+    </div>
+  </section>
+
+  <!-- ═══ ABOUT ═══ -->
+  <section class="about">
+    <div class="about__inner container">
+      <div class="about__image-col reveal">
+        <div class="about__portrait-placeholder"></div>
+        <span class="about__image-caption label"
+          >Sergi Ortega — Est. Mediterranean Coast</span
+        >
+      </div>
+      <div class="about__text-col">
+        <span class="label reveal">Quién soy</span>
+        <h2 class="about__heading reveal"><em>Sergi Ortega</em></h2>
+        <p class="about__bio reveal">
+          Cámara profesional especializado en fotografía deportiva y producción
+          audiovisual. El surf y la foto marina son mi terreno natural, pero mi
+          objetivo también apunta al jiu-jitsu, el skate y cualquier disciplina
+          que transmita fuerza y movimiento. Grabo y edito vídeos comerciales
+          para marcas y he trabajado en videoclips musicales.
+        </p>
+        <p class="about__bio reveal">
+          De origen mediterráneo y afincado en El Palmar, donde además de la
+          cámara gestiono <strong>Santa Killa</strong>, una tienda y marca de
+          surf. Cada proyecto es único y mi objetivo es capturarlo con la
+          intensidad que merece.
+        </p>
+        <div class="about__stats reveal">
+          <div class="about__stat">
+            <span class="about__stat-number">+500</span>
+            <span class="about__stat-label label">Sesiones</span>
+          </div>
+          <div class="about__stat">
+            <span class="about__stat-number">+30</span>
+            <span class="about__stat-label label">Producciones</span>
+          </div>
+          <div class="about__stat">
+            <span class="about__stat-number">+8</span>
+            <span class="about__stat-label label">Años</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CTA ═══ -->
+  <section class="about-cta">
+    <div class="about-cta__inner container reveal">
+      <span class="label">¿Trabajamos juntos?</span>
+      <h2 class="about-cta__heading">Hablemos de tu <em>proyecto</em></h2>
+      <p class="about-cta__text">
+        Sesiones de foto, vídeo comercial, videoclips o cobertura de eventos —
+        escríbeme.
+      </p>
+      <a href="/contacto" class="cta-button">Contactar</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ═══ PAGE HERO ═══ */
+  .page-hero {
+    padding-top: calc(var(--space-section) + 80px);
+    padding-bottom: var(--space-xl);
+    border-bottom: 1px solid var(--color-border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      #0c1a2a 0%,
+      #0a1520 30%,
+      #162430 60%,
+      #0d1a25 100%
+    );
+    animation: heroShift 20s ease-in-out infinite alternate;
+    z-index: 0;
+  }
+
+  .page-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--color-bg) 0%, transparent 50%),
+      linear-gradient(to right, rgba(10, 10, 10, 0.5) 0%, transparent 60%);
+    z-index: 1;
+  }
+
+  .page-hero__inner {
+    position: relative;
+    z-index: 2;
+  }
+
+  @keyframes heroShift {
+    0% {
+      filter: brightness(0.9) hue-rotate(0deg);
+    }
+    100% {
+      filter: brightness(1.1) hue-rotate(8deg);
+    }
+  }
+
+  .page-hero h1 {
+    margin-top: var(--space-xs);
+  }
+
+  .page-hero__desc {
+    color: var(--color-text-muted);
+    margin-top: var(--space-sm);
+    max-width: 55ch;
+    line-height: 1.8;
+  }
+
+  .page-hero .rule {
+    margin-top: var(--space-md);
+  }
+
+  /* ═══ ABOUT ═══ */
+  .about {
+    padding-block: var(--space-section);
+  }
+
+  .about__inner {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .about__portrait-placeholder {
+    aspect-ratio: 3 / 4;
+    background: linear-gradient(160deg, #1a1a1a 0%, #111 50%, #1a1a17 100%);
+    border: 1px solid var(--color-border);
+  }
+
+  .about__image-caption {
+    margin-top: var(--space-sm);
+    display: block;
+  }
+
+  .about__heading {
+    margin-top: var(--space-xs);
+  }
+
+  .about__bio {
+    color: var(--color-text-muted);
+    margin-top: var(--space-sm);
+    line-height: 1.85;
+  }
+
+  .about__stats {
+    display: flex;
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .about__stat-number {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    color: var(--color-sunset);
+    display: block;
+    line-height: 1;
+  }
+
+  .about__stat-label {
+    margin-top: 0.3em;
+    display: block;
+  }
+
+  @media (max-width: 900px) {
+    .about {
+      padding-block: 0;
+    }
+
+    .about__inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+    }
+
+    .about__image-col {
+      max-width: 400px;
+    }
+  }
+
+  /* ═══ CTA ═══ */
+  .about-cta {
+    padding-block: var(--space-section);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .about-cta__inner {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .about-cta__heading {
+    margin-top: var(--space-xs);
+  }
+
+  .about-cta__text {
+    color: var(--color-text-muted);
+    text-align: center;
+    max-width: 50ch;
+  }
+</style>
