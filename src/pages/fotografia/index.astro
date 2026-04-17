@@ -39,6 +39,14 @@ const photos = [
   { id: 11, title: "Retrato en la playa", category: "portrait", aspect: "3/4" },
   { id: 12, title: "Océano al amanecer", category: "surf", aspect: "16/10" },
 ];
+
+// Clases de tamaño para la vista panorámica
+const tileClasses = photos.map((photo, i) => {
+  if (i === 3 || i === 9) return "pano-tile--lg";
+  if (photo.aspect === "3/4") return "pano-tile--tall";
+  if ([1, 4, 7, 11].includes(i)) return "pano-tile--wide";
+  return "";
+});
 ---
 
 <BaseLayout
@@ -59,20 +67,38 @@ const photos = [
     </div>
   </section>
 
-  <!-- ═══ FILTERS ═══ -->
-  <nav class="filters container reveal" aria-label="Filtrar por categoría">
-    {
-      categories.map(({ id, label }) => (
-        <button
-          class="filters__btn"
-          data-filter={id}
-          aria-pressed={id === "all" ? "true" : "false"}
-        >
-          {label}
-        </button>
-      ))
-    }
-  </nav>
+  <!-- ═══ TOOLBAR ═══ -->
+  <div class="gallery-toolbar container reveal">
+    <nav class="filters" aria-label="Filtrar por categoría">
+      {
+        categories.map(({ id, label }) => (
+          <button
+            class="filters__btn"
+            data-filter={id}
+            aria-pressed={id === "all" ? "true" : "false"}
+          >
+            {label}
+          </button>
+        ))
+      }
+    </nav>
+    <button class="panorama-trigger" id="panorama-open" type="button">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+      >
+        <rect x="1" y="1" width="5.5" height="5.5" rx="0.5"></rect>
+        <rect x="9.5" y="1" width="5.5" height="5.5" rx="0.5"></rect>
+        <rect x="1" y="9.5" width="5.5" height="5.5" rx="0.5"></rect>
+        <rect x="9.5" y="9.5" width="5.5" height="5.5" rx="0.5"></rect>
+      </svg>
+      Vista global
+    </button>
+  </div>
 
   <!-- ═══ GALLERY ═══ -->
   <section class="gallery container">
@@ -167,6 +193,64 @@ const photos = [
         <span class="lightbox__counter" id="lightbox-counter"></span>
       </div>
     </div>
+  </div>
+
+  <!-- ═══ PANORAMA (Vista Global) ═══ -->
+  <div
+    class="panorama"
+    id="panorama"
+    aria-hidden="true"
+    role="dialog"
+    aria-label="Vista global de fotografías"
+  >
+    <div class="panorama__header">
+      <span class="panorama__label label">Vista global</span>
+      <button
+        class="panorama__close"
+        id="panorama-close"
+        aria-label="Cerrar vista global"
+      >
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <path d="M18 6L6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="panorama__scroll" id="panorama-scroll">
+      <div class="panorama__canvas" id="panorama-canvas">
+        {
+          photos.map((photo, i) => (
+            <div
+              class={`pano-tile ${tileClasses[i]}`}
+              data-pano-index={i}
+              style={`transition-delay: ${0.06 + i * 0.04}s`}
+            >
+              <div class="pano-tile__media">
+                <div class="pano-tile__placeholder">
+                  <span class="gallery__placeholder-icon">&#9744;</span>
+                </div>
+                <div class="pano-tile__overlay">
+                  <h3 class="pano-tile__title">{photo.title}</h3>
+                  <span class="pano-tile__cat">
+                    {categories.find((c) => c.id === photo.category)?.label}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+    <div class="panorama__edge panorama__edge--top"></div>
+    <div class="panorama__edge panorama__edge--right"></div>
+    <div class="panorama__edge panorama__edge--bottom"></div>
+    <div class="panorama__edge panorama__edge--left"></div>
   </div>
 </BaseLayout>
 
@@ -323,11 +407,125 @@ const photos = [
     if (e.target === lightbox) closeLightbox();
   });
 
+  // ── Panorama (Vista Global) ──
+  const panorama = document.getElementById("panorama")!;
+  const panoScroll = document.getElementById("panorama-scroll")!;
+  const panoCanvas = document.getElementById("panorama-canvas")!;
+  const panoOpen = document.getElementById("panorama-open")!;
+  const panoCl = document.getElementById("panorama-close")!;
+  const panoEdges = {
+    top: panorama.querySelector<HTMLElement>(".panorama__edge--top")!,
+    right: panorama.querySelector<HTMLElement>(".panorama__edge--right")!,
+    bottom: panorama.querySelector<HTMLElement>(".panorama__edge--bottom")!,
+    left: panorama.querySelector<HTMLElement>(".panorama__edge--left")!,
+  };
+
+  const EDGE_ZONE = 100;
+  const MAX_SPEED = 14;
+  let panoRAF: number | null = null;
+  let panoMouseX = window.innerWidth / 2;
+  let panoMouseY = window.innerHeight / 2;
+
+  function openPanorama() {
+    panorama.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => {
+      panoScroll.scrollLeft =
+        (panoCanvas.scrollWidth - panoScroll.clientWidth) / 2;
+      panoScroll.scrollTop =
+        (panoCanvas.scrollHeight - panoScroll.clientHeight) / 2;
+      startEdgeScroll();
+    });
+  }
+
+  function closePanorama() {
+    stopEdgeScroll();
+    panorama.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  function startEdgeScroll() {
+    function tick() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      let vx = 0,
+        vy = 0;
+
+      if (panoMouseX < EDGE_ZONE) {
+        vx = -MAX_SPEED * Math.pow(1 - panoMouseX / EDGE_ZONE, 1.5);
+      } else if (panoMouseX > vw - EDGE_ZONE) {
+        vx = MAX_SPEED * Math.pow(1 - (vw - panoMouseX) / EDGE_ZONE, 1.5);
+      }
+
+      if (panoMouseY < EDGE_ZONE) {
+        vy = -MAX_SPEED * Math.pow(1 - panoMouseY / EDGE_ZONE, 1.5);
+      } else if (panoMouseY > vh - EDGE_ZONE) {
+        vy = MAX_SPEED * Math.pow(1 - (vh - panoMouseY) / EDGE_ZONE, 1.5);
+      }
+
+      if (vx !== 0 || vy !== 0) {
+        panoScroll.scrollLeft += vx;
+        panoScroll.scrollTop += vy;
+      }
+
+      const canLeft = panoScroll.scrollLeft > 0;
+      const canRight =
+        panoScroll.scrollLeft <
+        panoScroll.scrollWidth - panoScroll.clientWidth - 1;
+      const canTop = panoScroll.scrollTop > 0;
+      const canBottom =
+        panoScroll.scrollTop <
+        panoScroll.scrollHeight - panoScroll.clientHeight - 1;
+
+      panoEdges.left.classList.toggle(
+        "is-active",
+        panoMouseX < EDGE_ZONE && canLeft,
+      );
+      panoEdges.right.classList.toggle(
+        "is-active",
+        panoMouseX > vw - EDGE_ZONE && canRight,
+      );
+      panoEdges.top.classList.toggle(
+        "is-active",
+        panoMouseY < EDGE_ZONE && canTop,
+      );
+      panoEdges.bottom.classList.toggle(
+        "is-active",
+        panoMouseY > vh - EDGE_ZONE && canBottom,
+      );
+
+      panoRAF = requestAnimationFrame(tick);
+    }
+    panoRAF = requestAnimationFrame(tick);
+  }
+
+  function stopEdgeScroll() {
+    if (panoRAF !== null) {
+      cancelAnimationFrame(panoRAF);
+      panoRAF = null;
+    }
+    Object.values(panoEdges).forEach((el) => el.classList.remove("is-active"));
+  }
+
+  panorama.addEventListener("mousemove", (e) => {
+    panoMouseX = e.clientX;
+    panoMouseY = e.clientY;
+  });
+
+  panoOpen.addEventListener("click", openPanorama);
+  panoCl.addEventListener("click", closePanorama);
+
+  // ── Keyboard (unified) ──
   document.addEventListener("keydown", (e) => {
-    if (lightbox.getAttribute("aria-hidden") === "true") return;
-    if (e.key === "Escape") closeLightbox();
-    if (e.key === "ArrowLeft") showImage(currentIndex - 1);
-    if (e.key === "ArrowRight") showImage(currentIndex + 1);
+    if (lightbox.getAttribute("aria-hidden") !== "true") {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") showImage(currentIndex - 1);
+      if (e.key === "ArrowRight") showImage(currentIndex + 1);
+      return;
+    }
+    if (panorama.getAttribute("aria-hidden") !== "true") {
+      if (e.key === "Escape") closePanorama();
+    }
   });
 </script>
 
@@ -354,12 +552,21 @@ const photos = [
     margin-top: var(--space-md);
   }
 
+  /* ═══ TOOLBAR ═══ */
+  .gallery-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--space-lg);
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
   /* ═══ FILTERS ═══ */
   .filters {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5em;
-    padding-block: var(--space-lg);
   }
 
   .filters__btn {
@@ -702,6 +909,315 @@ const photos = [
 
     .lightbox__info {
       flex-wrap: wrap;
+    }
+  }
+
+  /* ═══ PANORAMA TRIGGER ═══ */
+  .panorama-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.65em 1.5em;
+    color: var(--color-text-dim);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 100px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      background 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .panorama-trigger:hover {
+    color: var(--color-text);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .panorama-trigger:focus-visible {
+    outline: 2px solid var(--color-sunset);
+    outline-offset: 2px;
+  }
+
+  .panorama-trigger svg {
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+
+  .panorama-trigger:hover svg {
+    opacity: 1;
+  }
+
+  /* ═══ PANORAMA OVERLAY ═══ */
+  .panorama {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: var(--color-black);
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0s;
+  }
+
+  .panorama[aria-hidden="true"] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0.4s;
+  }
+
+  .panorama::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 40%,
+      rgba(6, 6, 6, 0.5) 100%
+    );
+  }
+
+  .panorama__header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md);
+    background: linear-gradient(
+      to bottom,
+      rgba(6, 6, 6, 0.85) 0%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  .panorama__header > * {
+    pointer-events: auto;
+  }
+
+  .panorama__label {
+    color: var(--color-text-muted);
+  }
+
+  .panorama__close {
+    color: var(--color-text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5em;
+    transition: color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .panorama__close:hover {
+    color: var(--color-text);
+  }
+
+  .panorama__close:focus-visible {
+    outline: 2px solid var(--color-sunset);
+    outline-offset: 2px;
+  }
+
+  /* ── Scroll container ── */
+  .panorama__scroll {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    z-index: 0;
+  }
+
+  @media (hover: none) {
+    .panorama__scroll {
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* ── Canvas grid ── */
+  .panorama__canvas {
+    display: grid;
+    grid-template-columns: repeat(6, clamp(240px, 25vw, 380px));
+    grid-auto-rows: clamp(200px, 22vh, 350px);
+    gap: 8px;
+    padding: 20vh 15vw;
+    grid-auto-flow: dense;
+  }
+
+  /* ── Tiles ── */
+  .pano-tile {
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    opacity: 0;
+    transform: scale(0.92);
+    transition:
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .panorama:not([aria-hidden="true"]) .pano-tile {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .pano-tile--tall {
+    grid-row: span 2;
+  }
+
+  .pano-tile--wide {
+    grid-column: span 2;
+  }
+
+  .pano-tile--lg {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .pano-tile__media {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pano-tile__placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      filter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  .pano-tile:hover .pano-tile__placeholder {
+    transform: scale(1.06);
+    filter: brightness(0.75);
+  }
+
+  .pano-tile__overlay {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: var(--space-lg) var(--space-sm) var(--space-xs);
+    background: linear-gradient(
+      to top,
+      rgba(6, 6, 6, 0.85) 0%,
+      transparent 100%
+    );
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    pointer-events: none;
+  }
+
+  .pano-tile:hover .pano-tile__overlay {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .pano-tile__title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: 1.2;
+  }
+
+  .pano-tile__cat {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-sunset);
+  }
+
+  /* ── Edge scroll indicators ── */
+  .panorama__edge {
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .panorama__edge.is-active {
+    opacity: 1;
+  }
+
+  .panorama__edge--top {
+    inset: 0 0 auto 0;
+    height: 100px;
+    background: linear-gradient(
+      to bottom,
+      rgba(224, 178, 86, 0.06) 0%,
+      transparent 100%
+    );
+  }
+
+  .panorama__edge--bottom {
+    inset: auto 0 0 0;
+    height: 100px;
+    background: linear-gradient(
+      to top,
+      rgba(224, 178, 86, 0.06) 0%,
+      transparent 100%
+    );
+  }
+
+  .panorama__edge--left {
+    inset: 0 auto 0 0;
+    width: 100px;
+    background: linear-gradient(
+      to right,
+      rgba(224, 178, 86, 0.06) 0%,
+      transparent 100%
+    );
+  }
+
+  .panorama__edge--right {
+    inset: 0 0 0 auto;
+    width: 100px;
+    background: linear-gradient(
+      to left,
+      rgba(224, 178, 86, 0.06) 0%,
+      transparent 100%
+    );
+  }
+
+  @media (max-width: 768px) {
+    .panorama__canvas {
+      grid-template-columns: repeat(4, clamp(180px, 40vw, 300px));
+      grid-auto-rows: clamp(160px, 25vh, 280px);
+      padding: 15vh 10vw;
     }
   }
 </style>
