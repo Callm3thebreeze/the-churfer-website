@@ -16,14 +16,14 @@
 
   /* Texto */
   --color-text:         #F0EDE8;
-  --color-text-muted:   #8A8577;
-  --color-text-dim:     #5A5750;
+  --color-text-muted:   #d9dde0;
+  --color-text-dim:     #c1d4e2;
 
   /* Acentos */
   --color-ocean:        #1B6B93;
   --color-ocean-light:  #2A8AB8;
   --color-ocean-glow:   rgba(27, 107, 147, 0.15);
-  --color-sunset:       #D4A853;
+  --color-sunset:       #e0b256;
   --color-sunset-light: #E4BE73;
   --color-sunset-glow:  rgba(212, 168, 83, 0.12);
 
