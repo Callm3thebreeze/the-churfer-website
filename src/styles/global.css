@@ -28,7 +28,7 @@
   --color-sunset-glow:  rgba(212, 168, 83, 0.12);
 
   /* Tipografía */
-  --font-display:  'Instrument Serif', 'Georgia', serif;
+  --font-display:  'Syne', 'Helvetica Neue', sans-serif;
   --font-body:     'DM Sans', 'Helvetica Neue', sans-serif;
 
   /* Escala tipográfica (fluid, clamp) */
@@ -157,7 +157,7 @@ ul, ol {
 /* ─── TIPOGRAFÍA ─── */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--color-text);
@@ -166,6 +166,7 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
   font-size: var(--text-hero);
+  font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 0.95;
 }
@@ -176,10 +177,12 @@ h2 {
 
 h3 {
   font-size: var(--text-2xl);
+  font-weight: 600;
 }
 
 h4 {
   font-size: var(--text-xl);
+  font-weight: 600;
 }
 
 p {
