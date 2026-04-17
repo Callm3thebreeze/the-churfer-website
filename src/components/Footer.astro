@@ -1,4 +1,6 @@
 ---
+import altLogo from "../assets/alt-logo.png";
+
 const year = new Date().getFullYear();
 
 const socialLinks = [
@@ -10,7 +12,17 @@ const socialLinks = [
 <footer class="site-footer">
   <div class="site-footer__inner container">
     <div class="site-footer__top">
-      <a href="/" class="site-footer__logo">The Churfer</a>
+      <a href="/" class="site-footer__logo">
+        <img
+          src={altLogo.src}
+          alt="The Churfer"
+          class="site-footer__logo-img"
+          width={altLogo.width}
+          height={altLogo.height}
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
 
       <nav class="site-footer__social" aria-label="Redes sociales">
         {
@@ -32,7 +44,7 @@ const socialLinks = [
     <div class="site-footer__divider"></div>
 
     <div class="site-footer__bottom">
-      <p class="site-footer__copy">&copy; {year} The Churfer — ga</p>
+      <p class="site-footer__copy">&copy; {year} The Churfer</p>
       <p class="site-footer__location">El Palmar, Cádiz</p>
     </div>
   </div>
@@ -58,11 +70,13 @@ const socialLinks = [
   }
 
   .site-footer__logo {
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    color: var(--color-text);
-    letter-spacing: -0.01em;
     transition: opacity var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .site-footer__logo-img {
+    height: 28px;
+    width: auto;
+    display: block;
   }
 
   .site-footer__logo:hover {
