@@ -9,7 +9,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <!-- ═══ PAGE HERO ═══ -->
   <section class="page-hero">
     <div class="page-hero__inner container">
-      <span class="label reveal">The Churfer</span>
       <h1 class="reveal">Sobre mí</h1>
       <p class="page-hero__desc reveal">
         Cámara profesional. Agua salada en las venas y arena en los bolsillos.
@@ -76,69 +75,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 </BaseLayout>
 
 <style>
-  /* ═══ PAGE HERO ═══ */
-  .page-hero {
-    padding-top: calc(var(--space-section) + 80px);
-    padding-bottom: var(--space-xl);
-    border-bottom: 1px solid var(--color-border);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .page-hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      135deg,
-      #0c1a2a 0%,
-      #0a1520 30%,
-      #162430 60%,
-      #0d1a25 100%
-    );
-    animation: heroShift 20s ease-in-out infinite alternate;
-    z-index: 0;
-  }
-
-  .page-hero::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(to top, var(--color-bg) 0%, transparent 50%),
-      linear-gradient(to right, rgba(10, 10, 10, 0.5) 0%, transparent 60%);
-    z-index: 1;
-  }
-
-  .page-hero__inner {
-    position: relative;
-    z-index: 2;
-  }
-
-  @keyframes heroShift {
-    0% {
-      filter: brightness(0.9) hue-rotate(0deg);
-    }
-    100% {
-      filter: brightness(1.1) hue-rotate(8deg);
-    }
-  }
-
-  .page-hero h1 {
-    margin-top: var(--space-xs);
-  }
-
-  .page-hero__desc {
-    color: var(--color-text-muted);
-    margin-top: var(--space-sm);
-    max-width: 55ch;
-    line-height: 1.8;
-  }
-
-  .page-hero .rule {
-    margin-top: var(--space-md);
-  }
-
   /* ═══ ABOUT ═══ */
   .about {
     padding-block: var(--space-section);
