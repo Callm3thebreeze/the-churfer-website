@@ -368,21 +368,12 @@ const tileClasses = photos.map((photo, i) => {
 		z-index: 1;
 		background: linear-gradient(
 			135deg,
-			#0c1a2a 0%,
-			#0a1520 30%,
-			#162430 60%,
-			#0d1a25 100%
+			var(--color-hero-1) 0%,
+			var(--color-hero-2) 30%,
+			var(--color-hero-3) 60%,
+			var(--color-hero-4) 100%
 		);
 		animation: heroShift 20s ease-in-out infinite alternate;
-	}
-
-	@keyframes heroShift {
-		0% {
-			filter: brightness(0.9) hue-rotate(0deg);
-		}
-		100% {
-			filter: brightness(1.1) hue-rotate(8deg);
-		}
 	}
 
 	.home-pano__scroll {
