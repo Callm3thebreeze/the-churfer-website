@@ -33,155 +33,217 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     <div class="vhero__line"></div>
   </section>
 
-  <!-- ═══ FILTERS ═══ -->
-  <nav class="vfilters container reveal" aria-label="Filtrar por tipo">
-    {
-      categories.map(({ id, label }) => (
-        <button
-          class="vfilters__btn pill-btn"
-          data-filter={id}
-          aria-pressed={id === "all" ? "true" : "false"}
-        >
-          {label}
-        </button>
-      ))
-    }
-  </nav>
+  <!-- ═══ HORIZONTAL SCROLL GALLERY ═══ -->
+  <section class="hscroll" id="hscroll" aria-label="Lista de producciones">
+    <div class="hscroll__sticky">
+      <nav class="hscroll__nav container" aria-label="Filtrar por tipo">
+        {
+          categories.map(({ id, label }) => (
+            <button
+              class="vfilters__btn pill-btn"
+              data-filter={id}
+              aria-pressed={id === "all" ? "true" : "false"}
+            >
+              {label}
+            </button>
+          ))
+        }
+      </nav>
 
-  <!-- ═══ FILM INDEX ═══ -->
-  <section class="film-index container" aria-label="Lista de producciones">
-    {
-      videos.map((video, i) => (
-        <article
-          class={`film-row reveal ${i === 0 ? "is-expanded" : ""}`}
-          data-category={video.category}
-          data-index={i}
-        >
-          {/* ── Header (always visible) ── */}
-          <button
-            class="film-row__header"
-            aria-expanded={i === 0 ? "true" : "false"}
-            aria-controls={`film-body-${i}`}
-          >
-            <span class="film-row__num">
-              {(i + 1).toString().padStart(2, "0")}
-            </span>
-            <div class="film-row__titles">
-              <h2 class="film-row__title">{video.title}</h2>
-              <span class="film-row__cat label">
-                {categories.find((c) => c.id === video.category)?.label}
-              </span>
-            </div>
-            <time class="film-row__date" datetime={video.date}>
-              {formatDate(video.date)}
-            </time>
-            <span class="film-row__toggle" aria-hidden="true">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            </span>
-          </button>
+      <div class="hscroll__track" id="hscroll-track">
+        {
+          videos.map((video, i) => (
+            <article class="vcard" data-category={video.category}>
+              <div class="vcard__inner">
+                <div class="vcard__embed">
+                  <YouTubeEmbed videoId={video.youtubeId} title={video.title} />
+                </div>
+                <div class="vcard__footer">
+                  <span class="vcard__num">
+                    {(i + 1).toString().padStart(2, "0")}
+                  </span>
+                  <h2 class="vcard__title">{video.title}</h2>
+                  <a href={`/video/${video.slug}`} class="vcard__link">
+                    Ver proyecto
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
 
-          {/* ── Body (expandable) ── */}
-          <div class="film-row__body" id={`film-body-${i}`}>
-            <div class="film-row__body-inner">
-              <div class="film-row__embed">
-                <YouTubeEmbed videoId={video.youtubeId} title={video.title} />
-              </div>
-              <div class="film-row__info">
-                <p class="film-row__desc">{video.description}</p>
-                <a href={`/video/${video.slug}`} class="film-row__link">
-                  Ver proyecto completo
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  >
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-        </article>
-      ))
-    }
+      <div class="hscroll__bar">
+        <div class="hscroll__bar-fill" id="hscroll-bar"></div>
+      </div>
+    </div>
   </section>
 </BaseLayout>
 
 <script>
-  const rows = document.querySelectorAll<HTMLElement>(".film-row");
-  const btns = document.querySelectorAll<HTMLButtonElement>(".vfilters__btn");
+  const section = document.getElementById("hscroll")!;
+  const track = document.getElementById("hscroll-track")!;
+  const bar = document.getElementById("hscroll-bar")!;
+  const filterBtns =
+    document.querySelectorAll<HTMLButtonElement>(".vfilters__btn");
+  const allCards = track.querySelectorAll<HTMLElement>(".vcard");
 
-  // ── Accordion ──
-  function toggleRow(row: HTMLElement, forceOpen?: boolean) {
-    const header = row.querySelector<HTMLButtonElement>(".film-row__header")!;
-    const isOpen = row.classList.contains("is-expanded");
-    const shouldOpen = forceOpen ?? !isOpen;
+  const DESKTOP_MIN = 769;
 
-    if (shouldOpen && !isOpen) {
-      // Close others first
-      rows.forEach((r) => {
-        if (r !== row && r.classList.contains("is-expanded")) {
-          r.classList.remove("is-expanded");
-          r.querySelector<HTMLButtonElement>(".film-row__header")!.setAttribute(
-            "aria-expanded",
-            "false",
-          );
-        }
-      });
-      row.classList.add("is-expanded");
-      header.setAttribute("aria-expanded", "true");
-    } else if (!shouldOpen && isOpen) {
-      row.classList.remove("is-expanded");
-      header.setAttribute("aria-expanded", "false");
+  function isDesktop(): boolean {
+    return window.innerWidth >= DESKTOP_MIN;
+  }
+
+  function getVisibleCards(): HTMLElement[] {
+    return Array.from(allCards).filter(
+      (c) => !c.classList.contains("is-hidden"),
+    );
+  }
+
+  // ── Lerp state ──
+  let currentX = 0;
+  let targetX = 0;
+  let currentBar = 0;
+  let targetBar = 0;
+  const LERP_SPEED = 0.08; // lower = smoother (0.05–0.12 sweet spot)
+  const SCALE_MIN = 0.85;
+  const SCALE_MAX = 1;
+
+  // Cache inner elements for scale
+  const cardInners = Array.from(allCards).map(
+    (c) => c.querySelector<HTMLElement>(".vcard__inner")!,
+  );
+
+  function lerp(a: number, b: number, t: number): number {
+    return a + (b - a) * t;
+  }
+
+  // Ease-in-out: smooths entry/exit of horizontal zone
+  function easeInOutCubic(t: number): number {
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 1) / 2;
+  }
+
+  function updateDimensions(): void {
+    const visible = getVisibleCards();
+    if (isDesktop() && visible.length > 1) {
+      // Extra 0.5 screen at start + end for breathing room
+      section.style.height = `${(visible.length + 1) * 100}vh`;
+    } else {
+      section.style.height = "";
+      track.style.transform = "";
     }
   }
 
-  rows.forEach((row) => {
-    const header = row.querySelector<HTMLButtonElement>(".film-row__header")!;
-    header.addEventListener("click", () => toggleRow(row));
+  function computeTargets(): void {
+    if (!isDesktop()) {
+      targetX = 0;
+      targetBar = 0;
+      return;
+    }
+
+    const visible = getVisibleCards();
+    if (visible.length <= 1) {
+      targetX = 0;
+      targetBar = 100;
+      return;
+    }
+
+    const rect = section.getBoundingClientRect();
+    const scrollRange = section.offsetHeight - window.innerHeight;
+    if (scrollRange <= 0) return;
+
+    const rawProgress = Math.max(0, Math.min(1, -rect.top / scrollRange));
+    const easedProgress = easeInOutCubic(rawProgress);
+    const maxTranslate = (visible.length - 1) * window.innerWidth;
+
+    targetX = -easedProgress * maxTranslate;
+    targetBar = rawProgress * 100;
+  }
+
+  // ── rAF loop ──
+  let rafId: number;
+  function animate(): void {
+    currentX = lerp(currentX, targetX, LERP_SPEED);
+    currentBar = lerp(currentBar, targetBar, LERP_SPEED);
+
+    // Snap when close enough to avoid infinite micro-updates
+    if (Math.abs(currentX - targetX) < 0.5) currentX = targetX;
+    if (Math.abs(currentBar - targetBar) < 0.1) currentBar = targetBar;
+
+    track.style.transform = `translateX(${currentX}px)`;
+    bar.style.width = `${currentBar}%`;
+
+    // ── Per-card scale based on distance to viewport center ──
+    if (isDesktop()) {
+      const vpCenter = window.innerWidth / 2;
+      allCards.forEach((card, i) => {
+        if (card.classList.contains("is-hidden")) return;
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.left + rect.width / 2;
+        // 0 = perfectly centered, 1 = one full viewport width away
+        const dist = Math.min(
+          1,
+          Math.abs(cardCenter - vpCenter) / window.innerWidth,
+        );
+        // Smooth falloff
+        const scale = SCALE_MAX - (SCALE_MAX - SCALE_MIN) * dist * dist;
+        cardInners[i].style.transform = `scale(${scale})`;
+        cardInners[i].style.opacity = `${0.4 + 0.6 * (1 - dist)}`;
+      });
+    } else {
+      cardInners.forEach((inner) => {
+        inner.style.transform = "";
+        inner.style.opacity = "";
+      });
+    }
+
+    rafId = requestAnimationFrame(animate);
+  }
+
+  rafId = requestAnimationFrame(animate);
+
+  // ── Scroll → update targets ──
+  window.addEventListener("scroll", computeTargets, { passive: true });
+  window.addEventListener("resize", () => {
+    updateDimensions();
+    computeTargets();
   });
 
   // ── Filters ──
-  btns.forEach((btn) => {
+  filterBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const filter = btn.dataset.filter;
-      btns.forEach((b) => b.setAttribute("aria-pressed", "false"));
+      filterBtns.forEach((b) => b.setAttribute("aria-pressed", "false"));
       btn.setAttribute("aria-pressed", "true");
 
-      let firstVisible: HTMLElement | null = null;
-
-      rows.forEach((row) => {
-        const match = filter === "all" || row.dataset.category === filter;
-        row.classList.toggle("is-hidden", !match);
-        if (match && !firstVisible) firstVisible = row;
-
-        // Close all during filter
-        if (row.classList.contains("is-expanded")) {
-          row.classList.remove("is-expanded");
-          row
-            .querySelector<HTMLButtonElement>(".film-row__header")!
-            .setAttribute("aria-expanded", "false");
-        }
+      allCards.forEach((card) => {
+        const match = filter === "all" || card.dataset.category === filter;
+        card.classList.toggle("is-hidden", !match);
       });
 
-      // Open first visible
-      if (firstVisible) {
-        toggleRow(firstVisible, true);
-      }
+      // Reset lerp state so it doesn't animate from old position
+      currentX = 0;
+      targetX = 0;
+      currentBar = 0;
+      targetBar = 0;
+
+      updateDimensions();
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
+
+  updateDimensions();
+  computeTargets();
 </script>
 
 <style>
@@ -263,11 +325,12 @@ const totalLabel = videos.length.toString().padStart(2, "0");
   /* ═══════════════════════════════════════
      FILTERS
      ═══════════════════════════════════════ */
-  .vfilters {
+  .hscroll__nav {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5em;
-    padding-block: var(--space-lg) var(--space-md);
+    padding-block: var(--space-md);
+    flex-shrink: 0;
   }
 
   .vfilters__btn:focus-visible {
@@ -283,193 +346,98 @@ const totalLabel = videos.length.toString().padStart(2, "0");
   }
 
   /* ═══════════════════════════════════════
-     FILM INDEX
+     HORIZONTAL SCROLL
      ═══════════════════════════════════════ */
-  .film-index {
-    padding-bottom: var(--space-section);
+  .hscroll {
+    position: relative;
   }
 
-  /* ── Row ── */
-  .film-row {
-    border-top: 1px solid var(--color-border);
-    transition: opacity 0.4s var(--ease-out-expo);
-  }
-
-  .film-row:last-child {
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .film-row.is-hidden {
-    display: none;
-  }
-
-  /* ── Header ── */
-  .film-row__header {
-    display: grid;
-    grid-template-columns: auto 1fr auto auto;
-    align-items: center;
-    gap: var(--space-md);
-    width: 100%;
-    padding: var(--space-md) 0;
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    text-align: left;
-    transition: background 0.3s var(--ease-out-expo);
-  }
-
-  .film-row__header:hover {
-    background: rgba(255, 255, 255, 0.02);
-  }
-
-  .film-row__header:focus-visible {
-    outline: 2px solid var(--color-sunset);
-    outline-offset: -2px;
-  }
-
-  /* Number */
-  .film-row__num {
-    font-family: var(--font-display);
-    font-size: clamp(1.8rem, 1.5rem + 1.5vw, 3rem);
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    color: var(--color-text-dim);
-    opacity: 0.25;
-    min-width: 2.2em;
-    transition:
-      color 0.4s var(--ease-out-expo),
-      opacity 0.4s var(--ease-out-expo);
-  }
-
-  .film-row__header:hover .film-row__num,
-  .film-row.is-expanded .film-row__num {
-    color: var(--color-sunset);
-    opacity: 0.7;
-  }
-
-  /* Titles block */
-  .film-row__titles {
+  .hscroll__sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
     display: flex;
-    align-items: baseline;
-    gap: var(--space-sm);
-    min-width: 0;
-  }
-
-  .film-row__title {
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    transition: color 0.3s var(--ease-out-expo);
-  }
-
-  .film-row__header:hover .film-row__title {
-    color: var(--color-text);
-  }
-
-  .film-row__cat {
-    flex-shrink: 0;
-  }
-
-  /* Date */
-  .film-row__date {
-    font-family: var(--font-display);
-    font-size: var(--text-xs);
-    font-style: italic;
-    color: var(--color-text-dim);
-    white-space: nowrap;
-  }
-
-  /* Toggle icon */
-  .film-row__toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--color-border);
-    border-radius: 50%;
-    color: var(--color-text-dim);
-    flex-shrink: 0;
-    transition:
-      transform 0.5s var(--ease-out-expo),
-      border-color 0.3s var(--ease-out-expo),
-      color 0.3s var(--ease-out-expo),
-      background 0.3s var(--ease-out-expo);
-  }
-
-  .film-row__header:hover .film-row__toggle {
-    border-color: var(--color-border-strong);
-    color: var(--color-text-muted);
-  }
-
-  .film-row.is-expanded .film-row__toggle {
-    transform: rotate(45deg);
-    border-color: var(--color-sunset);
-    color: var(--color-sunset);
-    background: rgba(212, 168, 83, 0.08);
-  }
-
-  /* ── Body (expandable) ── */
-  .film-row__body {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.6s var(--ease-out-expo);
-  }
-
-  .film-row.is-expanded .film-row__body {
-    grid-template-rows: 1fr;
-  }
-
-  .film-row__body-inner {
+    flex-direction: column;
     overflow: hidden;
   }
 
-  /* Content inside body */
-  .film-row__embed {
-    padding-bottom: var(--space-md);
-    opacity: 0;
-    transform: translateY(12px);
-    transition:
-      opacity 0.5s var(--ease-out-expo) 0.15s,
-      transform 0.5s var(--ease-out-expo) 0.15s;
-  }
-
-  .film-row.is-expanded .film-row__embed {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .film-row__info {
+  .hscroll__track {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-lg);
-    padding-bottom: var(--space-lg);
-    opacity: 0;
-    transform: translateY(8px);
+    flex: 1;
+    min-height: 0;
+    will-change: transform;
+  }
+
+  .hscroll__bar {
+    height: 2px;
+    background: var(--color-border);
+    flex-shrink: 0;
+  }
+
+  .hscroll__bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--color-sunset);
+  }
+
+  /* ═══════════════════════════════════════
+     VIDEO CARDS
+     ═══════════════════════════════════════ */
+  .vcard {
+    flex: 0 0 100vw;
+    width: 100vw;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--gutter);
+  }
+
+  .vcard.is-hidden {
+    display: none;
+  }
+
+  .vcard__inner {
+    width: 100%;
+    max-width: 900px;
+    will-change: transform, opacity;
     transition:
-      opacity 0.5s var(--ease-out-expo) 0.25s,
-      transform 0.5s var(--ease-out-expo) 0.25s;
+      transform 0.15s ease-out,
+      opacity 0.15s ease-out;
   }
 
-  .film-row.is-expanded .film-row__info {
-    opacity: 1;
-    transform: translateY(0);
+  .vcard__embed {
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px -12px rgba(0, 0, 0, 0.6);
   }
 
-  .film-row__desc {
-    font-size: var(--text-base);
-    color: var(--color-text-muted);
-    line-height: 1.75;
-    max-width: 60ch;
+  .vcard__footer {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    padding-top: var(--space-md);
   }
 
-  .film-row__link {
+  .vcard__num {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--color-sunset);
+    opacity: 0.35;
+  }
+
+  .vcard__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .vcard__link {
     display: inline-flex;
     align-items: center;
     gap: 0.5em;
@@ -481,11 +449,10 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     color: var(--color-sunset);
     white-space: nowrap;
     flex-shrink: 0;
-    padding-top: 0.3em;
     transition: gap 0.3s var(--ease-out-expo);
   }
 
-  .film-row__link:hover {
+  .vcard__link:hover {
     gap: 0.85em;
   }
 
@@ -502,42 +469,31 @@ const totalLabel = videos.length.toString().padStart(2, "0");
       align-items: flex-start;
     }
 
-    .film-row__header {
-      grid-template-columns: auto 1fr auto;
-      gap: var(--space-sm);
-      overflow: hidden;
+    .hscroll__sticky {
+      position: static;
+      height: auto;
     }
 
-    .film-row__date {
+    .hscroll__track {
+      flex-direction: column;
+      gap: var(--space-xl);
+      padding-block: var(--space-lg);
+    }
+
+    .vcard {
+      flex: none;
+      width: 100%;
+      height: auto;
+      padding: 0 var(--gutter);
+    }
+
+    .vcard__footer {
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .hscroll__bar {
       display: none;
-    }
-
-    .film-row__titles {
-      flex-direction: column;
-      gap: 0.2em;
-    }
-
-    .film-row__title {
-      font-size: var(--text-lg);
-    }
-
-    .film-row__num {
-      font-size: clamp(1.4rem, 1.2rem + 1vw, 2rem);
-    }
-
-    .film-row__toggle {
-      width: 34px;
-      height: 34px;
-    }
-
-    .film-row__toggle svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .film-row__info {
-      flex-direction: column;
-      gap: var(--space-sm);
     }
   }
 
@@ -545,18 +501,8 @@ const totalLabel = videos.length.toString().padStart(2, "0");
      REDUCED MOTION
      ═══════════════════════════════════════ */
   @media (prefers-reduced-motion: reduce) {
-    .film-row__body {
-      transition-duration: 0.01ms;
-    }
-
-    .film-row__embed,
-    .film-row__info {
-      transition-duration: 0.01ms;
-      transition-delay: 0ms;
-    }
-
-    .film-row__toggle {
-      transition-duration: 0.01ms;
+    .hscroll__track {
+      will-change: auto;
     }
   }
 </style>
