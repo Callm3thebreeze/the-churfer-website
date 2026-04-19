@@ -29,6 +29,7 @@
 
   /* Tipografía */
   --font-display:  'Syne', 'Helvetica Neue', sans-serif;
+  --font-title:    'Bricolage Grotesque', 'Syne', 'Helvetica Neue', sans-serif;
   --font-body:     'DM Sans', 'Helvetica Neue', sans-serif;
 
   /* Escala tipográfica (fluid, clamp) */
@@ -165,9 +166,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
+  font-family: var(--font-title);
   font-size: var(--text-hero);
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 0.95;
 }
 
