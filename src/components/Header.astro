@@ -101,8 +101,22 @@ const navLinks = [
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   }
 
+  /* backdrop-filter creates a containing block that traps position:fixed children.
+     Remove it when the mobile menu is open so inset:0 references the viewport. */
+  .site-header.is-scrolled:has(.is-open) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: transparent;
+    border-bottom: none;
+  }
+
   .site-header.is-hidden {
     transform: translateY(-100%);
+  }
+
+  /* Keep header visible when menu is open (transform also creates containing block) */
+  .site-header.is-hidden:has(.is-open) {
+    transform: none;
   }
 
   .site-header__nav {
