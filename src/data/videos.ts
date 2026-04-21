@@ -161,3 +161,4 @@ export function getVideoBySlug(slug: string): Video | undefined {
 export function getCategoryLabel(categoryId: string): string | undefined {
   return videoCategories.find((c) => c.id === categoryId)?.label;
 }
+                                                          

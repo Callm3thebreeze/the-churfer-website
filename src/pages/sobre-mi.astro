@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import sergi from "../assets/sergi.jpg";
 ---
 
 <BaseLayout
@@ -21,7 +22,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <section class="about">
     <div class="about__inner container">
       <div class="about__image-col reveal">
-        <div class="about__portrait-placeholder"></div>
+        <img
+          src={sergi.src}
+          alt="Retrato de Sergi Ortega"
+          width={sergi.width}
+          height={sergi.height}
+          class="about__portrait"
+          loading="eager"
+          decoding="async"
+        />
         <span class="about__image-caption label"
           >Sergi Ortega — Est. Mediterranean Coast</span
         >
@@ -87,10 +96,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     align-items: center;
   }
 
-  .about__portrait-placeholder {
+  .about__portrait {
     aspect-ratio: 3 / 4;
-    background: linear-gradient(160deg, #1a1a1a 0%, #111 50%, #1a1a17 100%);
     border: 1px solid var(--color-border);
+    width: 100%;
+    object-fit: cover;
   }
 
   .about__image-caption {

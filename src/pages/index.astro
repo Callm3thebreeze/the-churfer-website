@@ -1,50 +1,40 @@
 ---
+import { Image, getImage } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import smallLogo from "../assets/small-logo.png";
+import { galleryPhotos, getPanoramaTileClass } from "../data/photos";
 
-const photos = [
-	{ id: 1, title: "Barrel al amanecer", category: "surf", aspect: "3/4" },
-	{ id: 2, title: "Cutback en El Palmar", category: "surf", aspect: "16/10" },
-	{ id: 3, title: "Sumisión en el tatami", category: "sport", aspect: "3/4" },
-	{
-		id: 4,
-		title: "Aerial sobre la sección",
-		category: "surf",
-		aspect: "16/10",
-	},
-	{ id: 5, title: "Kickflip en el bowl", category: "sport", aspect: "16/10" },
-	{ id: 6, title: "Retrato con neopreno", category: "portrait", aspect: "3/4" },
-	{
-		id: 7,
-		title: "Bottom turn al atardecer",
-		category: "surf",
-		aspect: "16/10",
-	},
-	{
-		id: 8,
-		title: "Campeonato de jiu-jitsu",
-		category: "event",
-		aspect: "16/10",
-	},
-	{ id: 9, title: "Tubo desde dentro", category: "surf", aspect: "3/4" },
-	{ id: 10, title: "Ollie en la calle", category: "sport", aspect: "16/10" },
-	{ id: 11, title: "Retrato en la playa", category: "portrait", aspect: "3/4" },
-	{ id: 12, title: "Océano al amanecer", category: "surf", aspect: "16/10" },
-];
+const HOME_GALLERY_CATEGORIES = new Set([
+	"surf",
+	"mar",
+	"lugares",
+	"naturaleza",
+	"skate",
+]);
 
-const categories: Record<string, string> = {
-	surf: "Surf & Mar",
-	sport: "Deportes",
-	portrait: "Retratos",
-	event: "Eventos",
-};
+const filteredPhotos = galleryPhotos.filter((photo) =>
+	HOME_GALLERY_CATEGORIES.has(photo.category),
+);
+
+const photos = await Promise.all(
+	filteredPhotos.map(async (photo) => {
+		const lightboxImage = await getImage({
+			src: photo.image,
+			width: 2200,
+			format: "webp",
+			quality: 74,
+		});
+
+		return {
+			...photo,
+			lightboxSrc: lightboxImage.src,
+		};
+	}),
+);
 
 const tileClasses = photos.map((photo, i) => {
-	if (i === 3 || i === 9) return "pano-tile--lg";
-	if (photo.aspect === "3/4") return "pano-tile--tall";
-	if ([1, 4, 7, 11].includes(i)) return "pano-tile--wide";
-	return "";
+	return getPanoramaTileClass(photo, i);
 });
 ---
 
@@ -63,7 +53,9 @@ const tileClasses = photos.map((photo, i) => {
 							class={`pano-tile ${tileClasses[i]}`}
 							data-pano-index={i}
 							data-title={photo.title}
-							data-cat={categories[photo.category]}
+							data-cat={photo.displayCategory}
+							data-src={photo.lightboxSrc}
+							data-aspect={photo.aspect}
 							role="button"
 							tabindex="0"
 							aria-label={`Ver ${photo.title}`}
@@ -71,13 +63,20 @@ const tileClasses = photos.map((photo, i) => {
 						>
 							<div class="pano-tile__media">
 								<div class="pano-tile__placeholder">
-									<span class="pano-tile__icon">&#9744;</span>
+									<Image
+										src={photo.image}
+										alt={photo.alt}
+										class="pano-tile__image"
+										loading="lazy"
+										format="webp"
+										quality={68}
+										sizes="(max-width: 768px) 45vw, 25vw"
+										widths={[420, 840, 1260]}
+									/>
 								</div>
 								<div class="pano-tile__overlay">
 									<h3 class="pano-tile__title">{photo.title}</h3>
-									<span class="pano-tile__cat">
-										{categories[photo.category]}
-									</span>
+									<span class="pano-tile__cat">{photo.displayCategory}</span>
 								</div>
 							</div>
 						</div>
@@ -152,9 +151,14 @@ const tileClasses = photos.map((photo, i) => {
 		</button>
 
 		<div class="home-lb__content">
-			<div class="home-lb__placeholder" id="home-lb-image">
-				<span class="pano-tile__icon">&#9744;</span>
-			</div>
+			<img
+				class="home-lb__placeholder is-ready"
+				id="home-lb-image"
+				src={photos[0]?.lightboxSrc ?? ""}
+				alt="Imagen ampliada"
+				loading="eager"
+				decoding="async"
+			/>
 			<div class="home-lb__info" id="home-lb-info">
 				<h3 class="home-lb__title" id="home-lb-title"></h3>
 				<span class="home-lb__cat label" id="home-lb-cat"></span>
@@ -285,7 +289,7 @@ const tileClasses = photos.map((photo, i) => {
 	const lbTitle = document.getElementById("home-lb-title")!;
 	const lbCat = document.getElementById("home-lb-cat")!;
 	const lbCounter = document.getElementById("home-lb-counter")!;
-	const lbImage = document.getElementById("home-lb-image")!;
+	const lbImage = document.getElementById("home-lb-image") as HTMLImageElement;
 	const lbBack = document.getElementById("home-lb-back")!;
 	const prevBtn = lightbox.querySelector<HTMLButtonElement>(
 		".home-lb__arrow--prev",
@@ -298,42 +302,78 @@ const tileClasses = photos.map((photo, i) => {
 	);
 
 	let currentIndex = 0;
+	let lightboxImageToken = 0;
 
-	function showImage(index: number) {
+	function swapLightboxImage(src: string, alt: string, aspect?: string) {
+		return new Promise<void>((resolve) => {
+			const currentSrc = lbImage.getAttribute("src") ?? "";
+			if (currentSrc === src) {
+				lbImage.alt = alt;
+				if (aspect) lbImage.style.aspectRatio = aspect;
+				lbImage.classList.add("is-ready");
+				return resolve();
+			}
+
+			const token = ++lightboxImageToken;
+			lbImage.classList.remove("is-ready");
+			if (aspect) lbImage.style.aspectRatio = aspect;
+
+			const preloaded = new window.Image();
+			preloaded.decoding = "async";
+			preloaded.src = src;
+
+			const applyImage = () => {
+				if (token !== lightboxImageToken) return resolve();
+				lbImage.src = src;
+				lbImage.alt = alt;
+				requestAnimationFrame(() => {
+					lbImage.classList.add("is-ready");
+					resolve();
+				});
+			};
+
+			preloaded.addEventListener("load", applyImage, { once: true });
+			preloaded.addEventListener("error", applyImage, { once: true });
+		});
+	}
+
+	async function showImage(index: number) {
 		const count = tiles.length;
 		currentIndex = ((index % count) + count) % count;
 		const tile = tiles[currentIndex];
 		lbTitle.textContent = tile.dataset.title ?? "";
 		lbCat.textContent = tile.dataset.cat ?? "";
 		lbCounter.textContent = `${currentIndex + 1} / ${count}`;
-
-		const placeholder = tile.querySelector<HTMLElement>(
-			".pano-tile__placeholder",
+		await swapLightboxImage(
+			tile.dataset.src ?? "",
+			tile.dataset.title ? `Foto de ${tile.dataset.title}` : "Foto ampliada",
+			tile.dataset.aspect,
 		);
-		if (placeholder) {
-			const aspect = getComputedStyle(placeholder).aspectRatio;
-			if (aspect && aspect !== "auto") {
-				lbImage.style.aspectRatio = aspect;
-			}
-		}
 	}
 
-	function openLightbox(index: number) {
-		showImage(index);
+	async function openLightbox(index: number) {
 		stopEdgeScroll();
 		lightbox.setAttribute("aria-hidden", "false");
 		document.body.style.overflow = "hidden";
+		lbImage.classList.remove("is-ready");
+		lbImage.removeAttribute("src");
+		lbImage.dataset.currentSrc = "";
+		await showImage(index);
+		if (lightbox.getAttribute("aria-hidden") === "true") return;
 		lbBack.focus();
 	}
 
 	function closeLightbox() {
+		lightboxImageToken += 1;
 		lightbox.setAttribute("aria-hidden", "true");
 		document.body.style.overflow = "";
 		requestAnimationFrame(() => startEdgeScroll());
 	}
 
 	tiles.forEach((tile, i) => {
-		const handler = () => openLightbox(i);
+		const handler = () => {
+			void openLightbox(i);
+		};
 		tile.addEventListener("click", handler);
 		tile.addEventListener("keydown", (e) => {
 			if (e.key === "Enter" || e.key === " ") {
@@ -343,8 +383,12 @@ const tileClasses = photos.map((photo, i) => {
 		});
 	});
 
-	prevBtn.addEventListener("click", () => showImage(currentIndex - 1));
-	nextBtn.addEventListener("click", () => showImage(currentIndex + 1));
+	prevBtn.addEventListener("click", () => {
+		void showImage(currentIndex - 1);
+	});
+	nextBtn.addEventListener("click", () => {
+		void showImage(currentIndex + 1);
+	});
 	lbBack.addEventListener("click", closeLightbox);
 
 	lightbox.addEventListener("click", (e) => {
@@ -354,8 +398,8 @@ const tileClasses = photos.map((photo, i) => {
 	document.addEventListener("keydown", (e) => {
 		if (lightbox.getAttribute("aria-hidden") !== "true") {
 			if (e.key === "Escape") closeLightbox();
-			if (e.key === "ArrowLeft") showImage(currentIndex - 1);
-			if (e.key === "ArrowRight") showImage(currentIndex + 1);
+			if (e.key === "ArrowLeft") void showImage(currentIndex - 1);
+			if (e.key === "ArrowRight") void showImage(currentIndex + 1);
 		}
 	});
 </script>
@@ -395,7 +439,7 @@ const tileClasses = photos.map((photo, i) => {
 		display: grid;
 		grid-template-columns: repeat(6, clamp(240px, 25vw, 380px));
 		grid-auto-rows: clamp(200px, 22vh, 350px);
-		gap: 8px;
+		gap: 6px;
 		padding: 2vh 1vw;
 		grid-auto-flow: dense;
 	}
@@ -485,15 +529,16 @@ const tileClasses = photos.map((photo, i) => {
 		will-change: transform;
 	}
 
+	.pano-tile__image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
 	.pano-tile:hover .pano-tile__placeholder {
 		transform: scale(1.06);
 		filter: brightness(0.75);
-	}
-
-	.pano-tile__icon {
-		font-size: var(--text-2xl);
-		color: var(--color-text-dim);
-		opacity: 0.3;
 	}
 
 	.pano-tile__overlay {
@@ -767,14 +812,20 @@ const tileClasses = photos.map((photo, i) => {
 	}
 
 	.home-lb__placeholder {
-		background: var(--color-bg-surface);
 		border: 1px solid var(--color-border);
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		display: block;
 		width: min(80vw, 1000px);
 		max-height: 70vh;
-		transition: aspect-ratio 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+		height: auto;
+		object-fit: contain;
+		opacity: 0;
+		transition:
+			aspect-ratio 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.home-lb__placeholder.is-ready {
+		opacity: 1;
 	}
 
 	.home-lb__info {
