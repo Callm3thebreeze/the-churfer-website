@@ -94,13 +94,6 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
           >
             Reset
           </button>
-          <button
-            class="hero-gradient-panel__action"
-            id="gradient-lab-close"
-            type="button"
-          >
-            Cerrar
-          </button>
         </div>
       </div>
 
@@ -531,9 +524,6 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
     "gradient-lab-toggle",
   ) as HTMLButtonElement | null;
   const gradientPanel = document.getElementById("gradient-lab-panel");
-  const gradientClose = document.getElementById(
-    "gradient-lab-close",
-  ) as HTMLButtonElement | null;
   const gradientReset = document.getElementById(
     "gradient-lab-reset",
   ) as HTMLButtonElement | null;
@@ -555,6 +545,9 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
     if (!gradientToggle || !gradientPanel) return;
     gradientPanel.hidden = !open;
     gradientToggle.setAttribute("aria-expanded", String(open));
+    gradientToggle.textContent = open
+      ? "Ocultar degradado"
+      : "Ajustar degradado";
   }
 
   function syncGradientCode() {
@@ -674,6 +667,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   }
 
   hydrateGradientControls();
+  setGradientPanelState(false);
 
   gradientControls.forEach((control) => {
     control.addEventListener("input", () => {
@@ -683,17 +677,16 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
     });
   });
 
-  gradientToggle?.addEventListener("click", () => {
-    const open = gradientToggle.getAttribute("aria-expanded") !== "true";
-    setGradientPanelState(open);
-  });
+  if (gradientToggle) {
+    gradientToggle.onclick = () => {
+      if (!gradientPanel) return;
+      setGradientPanelState(!gradientPanel.hidden);
+    };
+  }
 
-  gradientClose?.addEventListener("click", () => {
-    setGradientPanelState(false);
-    gradientToggle?.focus();
-  });
-
-  gradientReset?.addEventListener("click", resetGradientControls);
+  if (gradientReset) {
+    gradientReset.onclick = resetGradientControls;
+  }
 
   const grid = document.querySelector<HTMLElement>(".gallery__grid")!;
   const btns = document.querySelectorAll<HTMLButtonElement>(".filters__btn");
@@ -1128,6 +1121,10 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
     -webkit-backdrop-filter: blur(18px);
     display: grid;
     gap: var(--space-md);
+  }
+
+  .hero-gradient-panel[hidden] {
+    display: none !important;
   }
 
   .hero-gradient-panel__top {
