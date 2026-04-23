@@ -4,7 +4,7 @@ import smallLogo from "../assets/small-logo.png";
 const currentPath = Astro.url.pathname;
 
 const navLinks = [
-  { href: "/fotografia", label: "Fotografía" },
+  { href: "/", label: "Fotografía" },
   { href: "/video", label: "Vídeo" },
   { href: "/sobre-mi", label: "Sobre mí" },
   { href: "/contacto", label: "Contacto" },
@@ -42,7 +42,15 @@ const navLinks = [
             <a
               href={href}
               class="site-header__link"
-              aria-current={currentPath.startsWith(href) ? "page" : undefined}
+              aria-current={
+                label === "Fotografía"
+                  ? currentPath === "/" || currentPath.startsWith("/fotografia")
+                    ? "page"
+                    : undefined
+                  : currentPath.startsWith(href)
+                    ? "page"
+                    : undefined
+              }
               style={`--delay: ${i * 60}ms`}
             >
               {label}

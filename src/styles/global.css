@@ -32,6 +32,11 @@
   --color-hero-2:       #0a1520;
   --color-hero-3:       #043966;
   --color-hero-4:       #0d1a25;
+  --hero-gradient-angle: 135deg;
+  --hero-stop-1:        0%;
+  --hero-stop-2:        30%;
+  --hero-stop-3:        60%;
+  --hero-stop-4:        100%;
 
   /* Overlay alphas (white) */
   --color-glass-subtle: rgba(255, 255, 255, 0.03);
@@ -552,11 +557,11 @@ select {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    135deg,
-    var(--color-hero-1) 0%,
-    var(--color-hero-2) 30%,
-    var(--color-hero-3) 60%,
-    var(--color-hero-4) 100%
+    var(--hero-gradient-angle),
+    var(--color-hero-1) var(--hero-stop-1),
+    var(--color-hero-2) var(--hero-stop-2),
+    var(--color-hero-3) var(--hero-stop-3),
+    var(--color-hero-4) var(--hero-stop-4)
   );
   animation: heroShift 20s ease-in-out infinite alternate;
   z-index: 0;

@@ -1,0 +1,1941 @@
+---
+import { Image, getImage } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import {
+  galleryPhotos,
+  getPanoramaTileClass,
+  photoFilters,
+} from "../data/photos";
+
+const HOME_GALLERY_CATEGORIES = new Set([
+  "surf",
+  "mar",
+  "lugares",
+  "naturaleza",
+  "skate",
+]);
+
+const photos = await Promise.all(
+  galleryPhotos.map(async (photo) => {
+    const lightboxImage = await getImage({
+      src: photo.image,
+      width: 2200,
+      format: "webp",
+      quality: 74,
+    });
+
+    return {
+      ...photo,
+      lightboxSrc: lightboxImage.src,
+    };
+  }),
+);
+const categories = photoFilters;
+const panoramaPhotos = photos.filter((photo) =>
+  HOME_GALLERY_CATEGORIES.has(photo.category),
+);
+const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
+  getPanoramaTileClass(photo, i),
+);
+---
+
+<BaseLayout
+  title="Fotografía"
+  description="Portfolio de fotografía deportiva de Sergi Ortega — The Churfer. Surf, foto marina, jiu-jitsu, skate y más. Desde El Palmar, Cádiz."
+>
+  <!-- ═══ PAGE HERO ═══ -->
+  <section class="page-hero">
+    <div class="page-hero__inner container">
+      <h1 class="reveal">Fotografía</h1>
+      <p class="page-hero__desc reveal">
+        Surf, foto marina, jiu-jitsu, skate — capturo deportes de acción con la
+        intensidad que merecen. Dentro del agua, al borde del tatami o en el
+        bowl, mi cámara está donde pasa la acción.
+      </p>
+      <div class="rule reveal"></div>
+    </div>
+  </section>
+
+  <section class="hero-gradient-lab-shell container reveal">
+    <div class="hero-gradient-lab">
+      <div class="hero-gradient-lab__intro">
+        <span class="label">Gradient Lab</span>
+        <p>
+          Abre el panel, prueba tonos más verdosos y pásame un pantallazo con
+          los valores que más te convenzan.
+        </p>
+      </div>
+      <button
+        class="hero-gradient-lab__toggle pill-btn"
+        id="gradient-lab-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="gradient-lab-panel"
+      >
+        Ajustar degradado
+      </button>
+    </div>
+    <section
+      class="hero-gradient-panel"
+      id="gradient-lab-panel"
+      aria-label="Editor visual del degradado del hero"
+      hidden
+    >
+      <div class="hero-gradient-panel__top">
+        <div>
+          <span class="label">Preview en vivo</span>
+          <h2>Control del hero</h2>
+        </div>
+        <div class="hero-gradient-panel__actions">
+          <button
+            class="hero-gradient-panel__action"
+            id="gradient-lab-reset"
+            type="button"
+          >
+            Reset
+          </button>
+          <button
+            class="hero-gradient-panel__action"
+            id="gradient-lab-close"
+            type="button"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-gradient-panel__preview" aria-hidden="true"></div>
+
+      <div class="hero-gradient-panel__grid">
+        <div class="hero-gradient-panel__group">
+          <span class="label">Colores</span>
+
+          <label class="gradient-control">
+            <span class="gradient-control__meta">
+              <span class="gradient-control__name">--color-hero-1</span>
+              <span
+                class="gradient-control__value"
+                data-gradient-value-for="--color-hero-1"></span>
+            </span>
+            <input
+              class="gradient-control__picker"
+              type="color"
+              value="#0c1a2a"
+              data-gradient-control
+              data-var="--color-hero-1"
+            />
+          </label>
+
+          <label class="gradient-control">
+            <span class="gradient-control__meta">
+              <span class="gradient-control__name">--color-hero-2</span>
+              <span
+                class="gradient-control__value"
+                data-gradient-value-for="--color-hero-2"></span>
+            </span>
+            <input
+              class="gradient-control__picker"
+              type="color"
+              value="#0a1520"
+              data-gradient-control
+              data-var="--color-hero-2"
+            />
+          </label>
+
+          <label class="gradient-control">
+            <span class="gradient-control__meta">
+              <span class="gradient-control__name">--color-hero-3</span>
+              <span
+                class="gradient-control__value"
+                data-gradient-value-for="--color-hero-3"></span>
+            </span>
+            <input
+              class="gradient-control__picker"
+              type="color"
+              value="#043966"
+              data-gradient-control
+              data-var="--color-hero-3"
+            />
+          </label>
+
+          <label class="gradient-control">
+            <span class="gradient-control__meta">
+              <span class="gradient-control__name">--color-hero-4</span>
+              <span
+                class="gradient-control__value"
+                data-gradient-value-for="--color-hero-4"></span>
+            </span>
+            <input
+              class="gradient-control__picker"
+              type="color"
+              value="#0d1a25"
+              data-gradient-control
+              data-var="--color-hero-4"
+            />
+          </label>
+        </div>
+
+        <div class="hero-gradient-panel__group">
+          <span class="label">Dirección y stops</span>
+
+          <label class="gradient-slider">
+            <span class="gradient-slider__meta">
+              <span class="gradient-slider__name">Ángulo</span>
+              <span
+                class="gradient-slider__value"
+                data-gradient-value-for="--hero-gradient-angle"
+              >
+              </span>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="360"
+              step="1"
+              value="135"
+              data-gradient-control
+              data-var="--hero-gradient-angle"
+              data-unit="deg"
+            />
+          </label>
+
+          <label class="gradient-slider">
+            <span class="gradient-slider__meta">
+              <span class="gradient-slider__name">Stop 1</span>
+              <span
+                class="gradient-slider__value"
+                data-gradient-value-for="--hero-stop-1"
+              >
+              </span>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="0"
+              data-gradient-control
+              data-var="--hero-stop-1"
+              data-unit="%"
+            />
+          </label>
+
+          <label class="gradient-slider">
+            <span class="gradient-slider__meta">
+              <span class="gradient-slider__name">Stop 2</span>
+              <span
+                class="gradient-slider__value"
+                data-gradient-value-for="--hero-stop-2"
+              >
+              </span>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="30"
+              data-gradient-control
+              data-var="--hero-stop-2"
+              data-unit="%"
+            />
+          </label>
+
+          <label class="gradient-slider">
+            <span class="gradient-slider__meta">
+              <span class="gradient-slider__name">Stop 3</span>
+              <span
+                class="gradient-slider__value"
+                data-gradient-value-for="--hero-stop-3"
+              >
+              </span>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="60"
+              data-gradient-control
+              data-var="--hero-stop-3"
+              data-unit="%"
+            />
+          </label>
+
+          <label class="gradient-slider">
+            <span class="gradient-slider__meta">
+              <span class="gradient-slider__name">Stop 4</span>
+              <span
+                class="gradient-slider__value"
+                data-gradient-value-for="--hero-stop-4"
+              >
+              </span>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="100"
+              data-gradient-control
+              data-var="--hero-stop-4"
+              data-unit="%"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div class="hero-gradient-panel__code">
+        <span class="label">Valores para captura</span>
+        <pre id="gradient-css-output"></pre>
+      </div>
+    </section>
+  </section>
+
+  <!-- ═══ TOOLBAR ═══ -->
+  <div class="gallery-toolbar container reveal">
+    <nav class="filters" aria-label="Filtrar por categoría">
+      {
+        categories.map(({ id, label }) => (
+          <button
+            class="filters__btn pill-btn"
+            data-filter={id}
+            aria-pressed={id === "all" ? "true" : "false"}
+          >
+            {label}
+          </button>
+        ))
+      }
+    </nav>
+    <button class="panorama-trigger pill-btn" id="panorama-open" type="button">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+      >
+        <rect x="1" y="1" width="5.5" height="5.5" rx="0.5"></rect>
+        <rect x="9.5" y="1" width="5.5" height="5.5" rx="0.5"></rect>
+        <rect x="1" y="9.5" width="5.5" height="5.5" rx="0.5"></rect>
+        <rect x="9.5" y="9.5" width="5.5" height="5.5" rx="0.5"></rect>
+      </svg>
+      Vista global
+    </button>
+  </div>
+
+  <!-- ═══ GALLERY ═══ -->
+  <section class="gallery container">
+    <div class="gallery__grid">
+      {
+        photos.map((photo, i) => (
+          <article
+            class={`gallery__item reveal reveal-delay-${(i % 4) + 1}`}
+            data-category={photo.category}
+            data-index={i}
+            data-src={photo.lightboxSrc}
+            data-alt={photo.alt}
+            data-aspect={photo.aspect}
+            role="button"
+            tabindex="0"
+            aria-label={`Ver ${photo.title}`}
+          >
+            <div class="gallery__item-media">
+              <div
+                class="gallery__placeholder"
+                style={`aspect-ratio: ${photo.aspect};`}
+              >
+                <Image
+                  src={photo.image}
+                  alt={photo.alt}
+                  class="gallery__image"
+                  loading="lazy"
+                  format="webp"
+                  quality={68}
+                  sizes="(max-width: 540px) 95vw, (max-width: 900px) 48vw, 33vw"
+                  widths={[520, 960, 1440]}
+                />
+              </div>
+              <div class="gallery__overlay">
+                <h3 class="gallery__overlay-title">{photo.title}</h3>
+                <span class="gallery__overlay-cat">
+                  {photo.displayCategory}
+                </span>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ═══ LIGHTBOX ═══ -->
+  <div
+    class="lightbox"
+    id="lightbox"
+    aria-hidden="true"
+    role="dialog"
+    aria-label="Galería ampliada"
+  >
+    <button class="lightbox__close" aria-label="Cerrar galería">
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M18 6L6 18M6 6l12 12"></path>
+      </svg>
+    </button>
+    <button
+      class="lightbox__arrow lightbox__arrow--prev"
+      aria-label="Imagen anterior"
+    >
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+    </button>
+    <button
+      class="lightbox__arrow lightbox__arrow--next"
+      aria-label="Imagen siguiente"
+    >
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M9 18l6-6-6-6"></path>
+      </svg>
+    </button>
+    <div class="lightbox__content">
+      <img
+        class="lightbox__placeholder is-ready"
+        id="lightbox-image"
+        src={photos[0]?.lightboxSrc ?? ""}
+        alt="Imagen ampliada"
+        loading="eager"
+        decoding="async"
+      />
+      <div class="lightbox__info" id="lightbox-info">
+        <h3 class="lightbox__title" id="lightbox-title"></h3>
+        <span class="lightbox__cat label" id="lightbox-cat"></span>
+        <span class="lightbox__counter" id="lightbox-counter"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANORAMA (Vista Global) ═══ -->
+  <div
+    class="panorama"
+    id="panorama"
+    aria-hidden="true"
+    role="dialog"
+    aria-label="Vista global de fotografías"
+  >
+    <div class="panorama__header">
+      <span class="panorama__label label">Vista global</span>
+      <button
+        class="panorama__close"
+        id="panorama-close"
+        aria-label="Cerrar vista global"
+      >
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <path d="M18 6L6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="panorama__scroll" id="panorama-scroll">
+      <div class="panorama__canvas" id="panorama-canvas">
+        {
+          panoramaPhotos.map((photo, i) => (
+            <div
+              class={`pano-tile ${panoramaTileClasses[i]}`}
+              data-pano-index={i}
+              data-src={photo.lightboxSrc}
+              data-alt={photo.alt}
+              data-title={photo.title}
+              data-cat={photo.displayCategory}
+              data-aspect={photo.aspect}
+              role="button"
+              tabindex="0"
+              aria-label={`Ver ${photo.title}`}
+              style={`transition-delay: ${0.06 + i * 0.04}s`}
+            >
+              <div class="pano-tile__media">
+                <div class="pano-tile__placeholder">
+                  <Image
+                    src={photo.image}
+                    alt={photo.alt}
+                    class="pano-tile__image"
+                    loading="lazy"
+                    format="webp"
+                    quality={68}
+                    sizes="(max-width: 768px) 45vw, 25vw"
+                    widths={[420, 840, 1260]}
+                  />
+                </div>
+                <div class="pano-tile__overlay">
+                  <h3 class="pano-tile__title">{photo.title}</h3>
+                  <span class="pano-tile__cat">{photo.displayCategory}</span>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+    <div class="panorama__vignette"></div>
+    <div class="panorama__edge panorama__edge--top"></div>
+    <div class="panorama__edge panorama__edge--right"></div>
+    <div class="panorama__edge panorama__edge--bottom"></div>
+    <div class="panorama__edge panorama__edge--left"></div>
+  </div>
+</BaseLayout>
+
+<script>
+  const gradientStorageKey = "the-churfer-photo-hero-gradient";
+  const gradientDefaults = {
+    "--color-hero-1": "#0c1a2a",
+    "--color-hero-2": "#0a1520",
+    "--color-hero-3": "#043966",
+    "--color-hero-4": "#0d1a25",
+    "--hero-gradient-angle": "135deg",
+    "--hero-stop-1": "0%",
+    "--hero-stop-2": "30%",
+    "--hero-stop-3": "60%",
+    "--hero-stop-4": "100%",
+  } as const;
+
+  const root = document.documentElement;
+  const gradientToggle = document.getElementById(
+    "gradient-lab-toggle",
+  ) as HTMLButtonElement | null;
+  const gradientPanel = document.getElementById("gradient-lab-panel");
+  const gradientClose = document.getElementById(
+    "gradient-lab-close",
+  ) as HTMLButtonElement | null;
+  const gradientReset = document.getElementById(
+    "gradient-lab-reset",
+  ) as HTMLButtonElement | null;
+  const gradientCode = document.getElementById("gradient-css-output");
+  const gradientControls = Array.from(
+    document.querySelectorAll<HTMLInputElement>("[data-gradient-control]"),
+  );
+  const gradientValueNodes = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-gradient-value-for]"),
+  );
+
+  function readGradientValue(variable: string) {
+    const inlineValue = root.style.getPropertyValue(variable).trim();
+    if (inlineValue) return inlineValue;
+    return getComputedStyle(root).getPropertyValue(variable).trim();
+  }
+
+  function setGradientPanelState(open: boolean) {
+    if (!gradientToggle || !gradientPanel) return;
+    gradientPanel.hidden = !open;
+    gradientToggle.setAttribute("aria-expanded", String(open));
+  }
+
+  function syncGradientCode() {
+    if (!gradientCode) return;
+
+    const values = Object.keys(gradientDefaults).map((key) => [
+      key,
+      readGradientValue(key),
+    ]);
+
+    gradientCode.textContent = `:root {
+  --color-hero-1: ${values.find(([key]) => key === "--color-hero-1")?.[1]};
+  --color-hero-2: ${values.find(([key]) => key === "--color-hero-2")?.[1]};
+  --color-hero-3: ${values.find(([key]) => key === "--color-hero-3")?.[1]};
+  --color-hero-4: ${values.find(([key]) => key === "--color-hero-4")?.[1]};
+  --hero-gradient-angle: ${values.find(([key]) => key === "--hero-gradient-angle")?.[1]};
+  --hero-stop-1: ${values.find(([key]) => key === "--hero-stop-1")?.[1]};
+  --hero-stop-2: ${values.find(([key]) => key === "--hero-stop-2")?.[1]};
+  --hero-stop-3: ${values.find(([key]) => key === "--hero-stop-3")?.[1]};
+  --hero-stop-4: ${values.find(([key]) => key === "--hero-stop-4")?.[1]};
+}`;
+  }
+
+  function syncGradientReadout(variable: string, value: string) {
+    gradientValueNodes
+      .filter((node) => node.dataset.gradientValueFor === variable)
+      .forEach((node) => {
+        node.textContent = value;
+      });
+  }
+
+  function persistGradientSettings() {
+    try {
+      const payload = Object.fromEntries(
+        Object.keys(gradientDefaults).map((key) => [
+          key,
+          readGradientValue(key),
+        ]),
+      );
+      localStorage.setItem(gradientStorageKey, JSON.stringify(payload));
+    } catch {
+      // Ignore persistence failures in restricted environments.
+    }
+  }
+
+  function applyGradientValue(
+    variable: string,
+    rawValue: string,
+    unit = "",
+    persist = true,
+  ) {
+    const value = `${rawValue}${unit}`;
+    root.style.setProperty(variable, value);
+    syncGradientReadout(variable, value);
+    syncGradientCode();
+    if (persist) persistGradientSettings();
+  }
+
+  function hydrateGradientControls() {
+    let storedValues: Partial<Record<keyof typeof gradientDefaults, string>> =
+      {};
+
+    try {
+      storedValues = JSON.parse(
+        localStorage.getItem(gradientStorageKey) ?? "{}",
+      ) as Partial<Record<keyof typeof gradientDefaults, string>>;
+    } catch {
+      storedValues = {};
+    }
+
+    gradientControls.forEach((control) => {
+      const variable = control.dataset.var;
+      if (!variable) return;
+
+      const unit = control.dataset.unit ?? "";
+      const fallbackValue =
+        gradientDefaults[variable as keyof typeof gradientDefaults];
+      const initialValue =
+        storedValues[variable as keyof typeof gradientDefaults] ??
+        fallbackValue;
+
+      root.style.setProperty(variable, initialValue);
+
+      if (unit) {
+        control.value = initialValue.replace(unit, "");
+      } else {
+        control.value = initialValue;
+      }
+
+      syncGradientReadout(variable, initialValue);
+    });
+
+    syncGradientCode();
+  }
+
+  function resetGradientControls() {
+    gradientControls.forEach((control) => {
+      const variable = control.dataset.var;
+      if (!variable) return;
+
+      const unit = control.dataset.unit ?? "";
+      const defaultValue =
+        gradientDefaults[variable as keyof typeof gradientDefaults];
+
+      root.style.setProperty(variable, defaultValue);
+      control.value = unit ? defaultValue.replace(unit, "") : defaultValue;
+      syncGradientReadout(variable, defaultValue);
+    });
+
+    try {
+      localStorage.removeItem(gradientStorageKey);
+    } catch {
+      // Ignore storage failures.
+    }
+
+    syncGradientCode();
+  }
+
+  hydrateGradientControls();
+
+  gradientControls.forEach((control) => {
+    control.addEventListener("input", () => {
+      const variable = control.dataset.var;
+      if (!variable) return;
+      applyGradientValue(variable, control.value, control.dataset.unit ?? "");
+    });
+  });
+
+  gradientToggle?.addEventListener("click", () => {
+    const open = gradientToggle.getAttribute("aria-expanded") !== "true";
+    setGradientPanelState(open);
+  });
+
+  gradientClose?.addEventListener("click", () => {
+    setGradientPanelState(false);
+    gradientToggle?.focus();
+  });
+
+  gradientReset?.addEventListener("click", resetGradientControls);
+
+  const grid = document.querySelector<HTMLElement>(".gallery__grid")!;
+  const btns = document.querySelectorAll<HTMLButtonElement>(".filters__btn");
+  const items = Array.from(
+    document.querySelectorAll<HTMLElement>(".gallery__item"),
+  );
+
+  // ── Masonry: shortest column first ──
+  function getColCount(): number {
+    const w = grid.offsetWidth;
+    if (w < 540) return 1;
+    if (w < 900) return 2;
+    return 3;
+  }
+
+  function layoutMasonry() {
+    const cols = getColCount();
+    const style = getComputedStyle(document.documentElement);
+    const gap = parseFloat(style.getPropertyValue("--space-xs")) * 16 || 8;
+    const gridWidth = grid.offsetWidth;
+    const colWidth = (gridWidth - gap * (cols - 1)) / cols;
+    const colHeights = new Array(cols).fill(0);
+
+    // Visible items — lay out in shortest column
+    const visible = items.filter((el) => !el.classList.contains("hidden"));
+    visible.forEach((item) => {
+      const shortest = colHeights.indexOf(Math.min(...colHeights));
+
+      item.style.width = `${colWidth}px`;
+      item.style.transform = `translate(${shortest * (colWidth + gap)}px, ${colHeights[shortest]}px)`;
+      item.style.opacity = "1";
+
+      colHeights[shortest] += item.offsetHeight + gap;
+    });
+
+    // Hidden items — fade out
+    items
+      .filter((el) => el.classList.contains("hidden"))
+      .forEach((item) => {
+        item.style.opacity = "0";
+        item.style.pointerEvents = "none";
+      });
+
+    // Set container height
+    grid.style.height = `${Math.max(...colHeights, 0)}px`;
+  }
+
+  // Initial layout (no transitions)
+  layoutMasonry();
+  requestAnimationFrame(() => grid.classList.add("masonry-ready"));
+
+  // ── Filters ──
+  btns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const filter = btn.dataset.filter;
+      btns.forEach((b) => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+
+      items.forEach((item) => {
+        const match = filter === "all" || item.dataset.category === filter;
+        item.classList.toggle("hidden", !match);
+        item.style.pointerEvents = match ? "" : "none";
+      });
+
+      layoutMasonry();
+    });
+  });
+
+  // ── Resize (debounced) ──
+  let resizeTimer: ReturnType<typeof setTimeout>;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(layoutMasonry, 100);
+  });
+
+  // ── Lightbox ──
+  const lightbox = document.getElementById("lightbox")!;
+  const lbTitle = document.getElementById("lightbox-title")!;
+  const lbCat = document.getElementById("lightbox-cat")!;
+  const lbCounter = document.getElementById("lightbox-counter")!;
+  const lbImage = document.getElementById("lightbox-image") as HTMLImageElement;
+  const closeBtn =
+    lightbox.querySelector<HTMLButtonElement>(".lightbox__close")!;
+  const prevBtn = lightbox.querySelector<HTMLButtonElement>(
+    ".lightbox__arrow--prev",
+  )!;
+  const nextBtn = lightbox.querySelector<HTMLButtonElement>(
+    ".lightbox__arrow--next",
+  )!;
+
+  let currentIndex = 0;
+  let activeLightboxItems: HTMLElement[] = [];
+  let lightboxImageToken = 0;
+
+  function getVisibleItems(): HTMLElement[] {
+    return items.filter((el) => !el.classList.contains("hidden"));
+  }
+
+  function getLightboxItems(): HTMLElement[] {
+    return activeLightboxItems.length > 0
+      ? activeLightboxItems
+      : getVisibleItems();
+  }
+
+  function getLightboxText(item: HTMLElement, kind: "title" | "cat") {
+    if (kind === "title") {
+      return (
+        item.dataset.title ??
+        item.querySelector<HTMLElement>(".gallery__overlay-title")
+          ?.textContent ??
+        ""
+      );
+    }
+
+    return (
+      item.dataset.cat ??
+      item.querySelector<HTMLElement>(".gallery__overlay-cat")?.textContent ??
+      ""
+    );
+  }
+
+  function swapLightboxImage(src: string, alt: string, aspect?: string) {
+    return new Promise<void>((resolve) => {
+      const currentSrc = lbImage.getAttribute("src") ?? "";
+      if (currentSrc === src) {
+        lbImage.alt = alt;
+        if (aspect) lbImage.style.aspectRatio = aspect;
+        lbImage.classList.add("is-ready");
+        return resolve();
+      }
+
+      const token = ++lightboxImageToken;
+      lbImage.classList.remove("is-ready");
+      if (aspect) lbImage.style.aspectRatio = aspect;
+
+      const preloaded = new window.Image();
+      preloaded.decoding = "async";
+      preloaded.src = src;
+
+      const applyImage = () => {
+        if (token !== lightboxImageToken) return resolve();
+        lbImage.src = src;
+        lbImage.alt = alt;
+        requestAnimationFrame(() => {
+          lbImage.classList.add("is-ready");
+          resolve();
+        });
+      };
+
+      preloaded.addEventListener("load", applyImage, { once: true });
+      preloaded.addEventListener("error", applyImage, { once: true });
+    });
+  }
+
+  async function showImage(index: number) {
+    const sourceItems = getLightboxItems();
+    if (sourceItems.length === 0) return;
+    currentIndex =
+      ((index % sourceItems.length) + sourceItems.length) % sourceItems.length;
+    const item = sourceItems[currentIndex];
+
+    lbTitle.textContent = getLightboxText(item, "title");
+    lbCat.textContent = getLightboxText(item, "cat");
+    lbCounter.textContent = `${currentIndex + 1} / ${sourceItems.length}`;
+
+    await swapLightboxImage(
+      item.dataset.src ?? "",
+      item.dataset.alt ?? "Imagen ampliada",
+      item.dataset.aspect,
+    );
+  }
+
+  async function openLightbox(index: number, sourceItems = getVisibleItems()) {
+    activeLightboxItems = sourceItems;
+    lightbox.setAttribute("aria-hidden", "false");
+    syncScrollLock();
+    lbImage.classList.remove("is-ready");
+    lbImage.removeAttribute("src");
+    await showImage(index);
+    if (lightbox.getAttribute("aria-hidden") === "true") return;
+    closeBtn.focus();
+  }
+
+  function closeLightbox() {
+    lightboxImageToken += 1;
+    activeLightboxItems = [];
+    lightbox.setAttribute("aria-hidden", "true");
+    syncScrollLock();
+  }
+
+  items.forEach((item) => {
+    const handler = () => {
+      const visible = getVisibleItems();
+      const idx = visible.indexOf(item);
+      if (idx !== -1) void openLightbox(idx, visible);
+    };
+    item.addEventListener("click", handler);
+    item.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handler();
+      }
+    });
+  });
+
+  const galleryImages =
+    document.querySelectorAll<HTMLImageElement>(".gallery__image");
+  galleryImages.forEach((img) => {
+    if (!img.complete) {
+      img.addEventListener("load", layoutMasonry, { once: true });
+    }
+  });
+
+  prevBtn.addEventListener("click", () => void showImage(currentIndex - 1));
+  nextBtn.addEventListener("click", () => void showImage(currentIndex + 1));
+  closeBtn.addEventListener("click", closeLightbox);
+
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  // ── Panorama (Vista Global) ──
+  const panorama = document.getElementById("panorama")!;
+  const panoScroll = document.getElementById("panorama-scroll")!;
+  const panoCanvas = document.getElementById("panorama-canvas")!;
+  const panoOpen = document.getElementById("panorama-open")!;
+  const panoCl = document.getElementById("panorama-close")!;
+  const panoTiles = Array.from(
+    document.querySelectorAll<HTMLElement>(".pano-tile"),
+  );
+  const panoEdges = {
+    top: panorama.querySelector<HTMLElement>(".panorama__edge--top")!,
+    right: panorama.querySelector<HTMLElement>(".panorama__edge--right")!,
+    bottom: panorama.querySelector<HTMLElement>(".panorama__edge--bottom")!,
+    left: panorama.querySelector<HTMLElement>(".panorama__edge--left")!,
+  };
+
+  const EDGE_ZONE = 100;
+  const MAX_SPEED = 14;
+  let panoRAF: number | null = null;
+  let panoMouseX = window.innerWidth / 2;
+  let panoMouseY = window.innerHeight / 2;
+
+  function syncScrollLock() {
+    document.body.style.overflow =
+      lightbox.getAttribute("aria-hidden") !== "true" ||
+      panorama.getAttribute("aria-hidden") !== "true"
+        ? "hidden"
+        : "";
+  }
+
+  function openPanorama() {
+    panorama.setAttribute("aria-hidden", "false");
+    syncScrollLock();
+    requestAnimationFrame(() => {
+      panoScroll.scrollLeft =
+        (panoCanvas.scrollWidth - panoScroll.clientWidth) / 2;
+      panoScroll.scrollTop =
+        (panoCanvas.scrollHeight - panoScroll.clientHeight) / 2;
+      startEdgeScroll();
+    });
+  }
+
+  function closePanorama() {
+    stopEdgeScroll();
+    panorama.setAttribute("aria-hidden", "true");
+    syncScrollLock();
+  }
+
+  function startEdgeScroll() {
+    function tick() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      let vx = 0,
+        vy = 0;
+
+      if (panoMouseX < EDGE_ZONE) {
+        vx = -MAX_SPEED * Math.pow(1 - panoMouseX / EDGE_ZONE, 1.5);
+      } else if (panoMouseX > vw - EDGE_ZONE) {
+        vx = MAX_SPEED * Math.pow(1 - (vw - panoMouseX) / EDGE_ZONE, 1.5);
+      }
+
+      if (panoMouseY < EDGE_ZONE) {
+        vy = -MAX_SPEED * Math.pow(1 - panoMouseY / EDGE_ZONE, 1.5);
+      } else if (panoMouseY > vh - EDGE_ZONE) {
+        vy = MAX_SPEED * Math.pow(1 - (vh - panoMouseY) / EDGE_ZONE, 1.5);
+      }
+
+      if (vx !== 0 || vy !== 0) {
+        panoScroll.scrollLeft += vx;
+        panoScroll.scrollTop += vy;
+      }
+
+      const canLeft = panoScroll.scrollLeft > 0;
+      const canRight =
+        panoScroll.scrollLeft <
+        panoScroll.scrollWidth - panoScroll.clientWidth - 1;
+      const canTop = panoScroll.scrollTop > 0;
+      const canBottom =
+        panoScroll.scrollTop <
+        panoScroll.scrollHeight - panoScroll.clientHeight - 1;
+
+      panoEdges.left.classList.toggle(
+        "is-active",
+        panoMouseX < EDGE_ZONE && canLeft,
+      );
+      panoEdges.right.classList.toggle(
+        "is-active",
+        panoMouseX > vw - EDGE_ZONE && canRight,
+      );
+      panoEdges.top.classList.toggle(
+        "is-active",
+        panoMouseY < EDGE_ZONE && canTop,
+      );
+      panoEdges.bottom.classList.toggle(
+        "is-active",
+        panoMouseY > vh - EDGE_ZONE && canBottom,
+      );
+
+      panoRAF = requestAnimationFrame(tick);
+    }
+    panoRAF = requestAnimationFrame(tick);
+  }
+
+  function stopEdgeScroll() {
+    if (panoRAF !== null) {
+      cancelAnimationFrame(panoRAF);
+      panoRAF = null;
+    }
+    Object.values(panoEdges).forEach((el) => el.classList.remove("is-active"));
+  }
+
+  panorama.addEventListener("mousemove", (e) => {
+    panoMouseX = e.clientX;
+    panoMouseY = e.clientY;
+  });
+
+  panoTiles.forEach((tile, index) => {
+    const handler = () => {
+      void openLightbox(index, panoTiles);
+    };
+
+    tile.addEventListener("click", handler);
+    tile.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handler();
+      }
+    });
+  });
+
+  panoOpen.addEventListener("click", openPanorama);
+  panoCl.addEventListener("click", closePanorama);
+
+  // ── Keyboard (unified) ──
+  document.addEventListener("keydown", (e) => {
+    if (
+      e.key === "Escape" &&
+      gradientPanel &&
+      !gradientPanel.hidden &&
+      lightbox.getAttribute("aria-hidden") === "true" &&
+      panorama.getAttribute("aria-hidden") === "true"
+    ) {
+      setGradientPanelState(false);
+      gradientToggle?.focus();
+      return;
+    }
+
+    if (lightbox.getAttribute("aria-hidden") !== "true") {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") void showImage(currentIndex - 1);
+      if (e.key === "ArrowRight") void showImage(currentIndex + 1);
+      return;
+    }
+    if (panorama.getAttribute("aria-hidden") !== "true") {
+      if (e.key === "Escape") closePanorama();
+    }
+  });
+</script>
+
+<style>
+  /* ═══ TOOLBAR ═══ */
+  .hero-gradient-lab-shell {
+    padding-top: var(--space-lg);
+    padding-bottom: var(--space-sm);
+  }
+
+  .hero-gradient-lab {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .hero-gradient-lab__intro {
+    max-width: 40rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .hero-gradient-lab__intro p {
+    margin: 0;
+    color: var(--color-text-dim);
+    font-size: var(--text-sm);
+    line-height: 1.7;
+  }
+
+  .hero-gradient-lab__toggle[aria-expanded="true"] {
+    color: var(--color-text);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+
+  .hero-gradient-lab__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-gradient-panel {
+    margin-top: var(--space-md);
+    padding: clamp(1.1rem, 1rem + 1vw, 1.75rem);
+    border: 1px solid rgba(120, 226, 233, 0.18);
+    background:
+      linear-gradient(180deg, rgba(112, 234, 242, 0.12), rgba(11, 16, 20, 0.9)),
+      rgba(8, 10, 12, 0.84);
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  .hero-gradient-panel__top {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .hero-gradient-panel__top h2 {
+    font-size: clamp(1.45rem, 1.2rem + 1vw, 2rem);
+    line-height: 1;
+    margin-top: 0.35rem;
+  }
+
+  .hero-gradient-panel__actions {
+    display: inline-flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-gradient-panel__action {
+    min-height: 2.6rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    transition:
+      border-color var(--duration-fast) var(--ease-out-quart),
+      background var(--duration-fast) var(--ease-out-quart),
+      color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .hero-gradient-panel__action:hover {
+    color: var(--color-text);
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .hero-gradient-lab__toggle:focus-visible,
+  .hero-gradient-panel__action:focus-visible,
+  .gradient-control__picker:focus-visible,
+  .gradient-slider input[type="range"]:focus-visible {
+    outline: 2px solid rgba(121, 220, 227, 0.95);
+    outline-offset: 3px;
+  }
+
+  .hero-gradient-panel__preview {
+    min-height: 5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(
+      var(--hero-gradient-angle),
+      var(--color-hero-1) var(--hero-stop-1),
+      var(--color-hero-2) var(--hero-stop-2),
+      var(--color-hero-3) var(--hero-stop-3),
+      var(--color-hero-4) var(--hero-stop-4)
+    );
+    box-shadow: inset 0 -40px 80px rgba(0, 0, 0, 0.28);
+  }
+
+  .hero-gradient-panel__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-md);
+  }
+
+  .hero-gradient-panel__group {
+    display: grid;
+    gap: 0.8rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .gradient-control,
+  .gradient-slider {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .gradient-control__meta,
+  .gradient-slider__meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .gradient-control__name,
+  .gradient-slider__name {
+    color: var(--color-text);
+    font-size: var(--text-sm);
+  }
+
+  .gradient-control__name {
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+  }
+
+  .gradient-control__value,
+  .gradient-slider__value {
+    color: rgba(193, 212, 226, 0.9);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .gradient-control__picker {
+    width: 100%;
+    height: 3rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.3rem;
+  }
+
+  .gradient-control__picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  .gradient-control__picker::-webkit-color-swatch {
+    border: none;
+  }
+
+  .gradient-control__picker::-moz-color-swatch {
+    border: none;
+  }
+
+  .gradient-slider input[type="range"] {
+    width: 100%;
+    accent-color: #79dce3;
+  }
+
+  .hero-gradient-panel__code {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .hero-gradient-panel__code pre {
+    overflow-x: auto;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(2, 6, 9, 0.76);
+    color: #dffcff;
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  .gallery-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--space-lg);
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  /* ═══ FILTERS ═══ */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+
+  .filters__btn:focus-visible {
+    outline: 2px solid var(--color-sunset);
+    outline-offset: 2px;
+  }
+
+  .filters__btn[aria-pressed="true"] {
+    color: var(--color-text);
+    background: var(--color-sunset-glow);
+    border-color: rgba(212, 168, 83, 0.3);
+    box-shadow: 0 0 16px -4px rgba(212, 168, 83, 0.15);
+  }
+
+  /* ═══ GALLERY ═══ */
+  .gallery {
+    padding-bottom: var(--space-section);
+  }
+
+  .gallery__grid {
+    position: relative;
+  }
+
+  .gallery__item {
+    position: absolute;
+    cursor: pointer;
+    outline: none;
+    transition:
+      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .gallery__grid:not(.masonry-ready) .gallery__item {
+    transition: none;
+  }
+
+  .gallery__item:focus-visible .gallery__placeholder {
+    outline: 2px solid var(--color-sunset);
+    outline-offset: 2px;
+  }
+
+  /* ── Item media (hover zoom + overlay) ── */
+  .gallery__item-media {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gallery__placeholder {
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      filter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  .gallery__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .gallery__item:hover .gallery__placeholder {
+    transform: scale(1.06);
+    filter: brightness(0.75);
+  }
+
+  /* ── Info overlay (bottom-left) ── */
+  .gallery__overlay {
+    position: absolute;
+    inset: auto auto 0 0;
+    width: 100%;
+    padding: var(--space-lg) var(--space-md) var(--space-sm);
+    background: linear-gradient(
+      to top,
+      rgba(6, 6, 6, 0.85) 0%,
+      transparent 100%
+    );
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    pointer-events: none;
+  }
+
+  .gallery__item:hover .gallery__overlay {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .gallery__overlay-title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--color-text);
+    line-height: 1.2;
+  }
+
+  .gallery__overlay-cat {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-sunset);
+  }
+
+  /* ═══ LIGHTBOX ═══ */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 6, 6, 0.94);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0s,
+      backdrop-filter 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lightbox[aria-hidden="true"] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition:
+      opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0.4s,
+      backdrop-filter 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lightbox__close {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    color: var(--color-text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5em;
+    z-index: 2;
+    opacity: 1;
+    transition:
+      color var(--duration-fast) var(--ease-out-quart),
+      opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0.18s;
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__close {
+    opacity: 0;
+    transition-delay: 0s;
+  }
+
+  .lightbox__close:hover {
+    color: var(--color-text);
+  }
+
+  /* ── Arrows ── */
+  .lightbox__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    color: var(--color-text-dim);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-border);
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 1;
+    transition:
+      color var(--duration-fast) var(--ease-out-quart),
+      background var(--duration-fast) var(--ease-out-quart),
+      border-color var(--duration-fast) var(--ease-out-quart),
+      opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0.12s;
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__arrow {
+    opacity: 0;
+    transition-delay: 0s;
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__arrow--prev {
+    transform: translateY(-50%) translateX(-12px);
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__arrow--next {
+    transform: translateY(-50%) translateX(12px);
+  }
+
+  .lightbox__arrow:hover {
+    color: var(--color-text);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--color-border-strong);
+  }
+
+  .lightbox__arrow--prev {
+    left: var(--space-md);
+  }
+  .lightbox__arrow--next {
+    right: var(--space-md);
+  }
+
+  /* ── Content ── */
+  .lightbox__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: min(85vw, 1100px);
+    max-height: 85vh;
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    transition:
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0.06s;
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__content {
+    transform: scale(0.92) translateY(12px);
+    opacity: 0;
+    transition-delay: 0s;
+  }
+
+  .lightbox__placeholder {
+    border: 1px solid var(--color-border);
+    display: block;
+    width: min(80vw, 1000px);
+    max-height: 70vh;
+    height: auto;
+    object-fit: contain;
+    opacity: 0;
+    transition:
+      aspect-ratio 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lightbox__placeholder.is-ready {
+    opacity: 1;
+  }
+
+  .lightbox__info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding-top: var(--space-sm);
+    width: 100%;
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0.15s;
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__info {
+    opacity: 0;
+    transform: translateY(8px);
+    transition-delay: 0s;
+  }
+
+  .lightbox__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--color-text);
+  }
+
+  .lightbox__counter {
+    margin-left: auto;
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ═══ RESPONSIVE ═══ */
+  @media (max-width: 900px) {
+    /* column count handled by JS masonry */
+
+    .hero-gradient-panel__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 540px) {
+    /* column count handled by JS masonry */
+
+    .hero-gradient-lab {
+      align-items: stretch;
+    }
+
+    .hero-gradient-lab__toggle {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .hero-gradient-panel__actions {
+      width: 100%;
+    }
+
+    .hero-gradient-panel__action {
+      flex: 1 1 0;
+    }
+
+    .lightbox__arrow {
+      width: 40px;
+      height: 40px;
+    }
+
+    .lightbox__arrow--prev {
+      left: var(--space-xs);
+    }
+    .lightbox__arrow--next {
+      right: var(--space-xs);
+    }
+
+    .lightbox__placeholder {
+      width: 95vw;
+    }
+
+    .lightbox__info {
+      flex-wrap: wrap;
+    }
+  }
+
+  /* ═══ PANORAMA TRIGGER ═══ */
+  .panorama-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    white-space: nowrap;
+  }
+
+  .panorama-trigger svg {
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+
+  .panorama-trigger:hover svg {
+    opacity: 1;
+  }
+
+  /* ═══ PANORAMA OVERLAY ═══ */
+  .panorama {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: linear-gradient(
+      var(--hero-gradient-angle),
+      var(--color-hero-1) var(--hero-stop-1),
+      var(--color-hero-2) var(--hero-stop-2),
+      var(--color-hero-3) var(--hero-stop-3),
+      var(--color-hero-4) var(--hero-stop-4)
+    );
+    animation: heroShift 20s ease-in-out infinite alternate;
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0s;
+  }
+
+  .panorama[aria-hidden="true"] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0.4s;
+  }
+
+  .panorama__vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 40%,
+      rgba(6, 6, 6, 0.5) 100%
+    );
+  }
+
+  .panorama__header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md);
+    background: linear-gradient(
+      to bottom,
+      rgba(6, 6, 6, 0.85) 0%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  .panorama__header > * {
+    pointer-events: auto;
+  }
+
+  .panorama__label {
+    color: var(--color-text-muted);
+  }
+
+  .panorama__close {
+    color: var(--color-text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5em;
+    transition: color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .panorama__close:hover {
+    color: var(--color-text);
+  }
+
+  .panorama__close:focus-visible {
+    outline: 2px solid var(--color-sunset);
+    outline-offset: 2px;
+  }
+
+  /* ── Scroll container ── */
+  .panorama__scroll {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    z-index: 0;
+  }
+
+  @media (hover: none) {
+    .panorama__scroll {
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* ── Canvas grid ── */
+  .panorama__canvas {
+    display: grid;
+    grid-template-columns: repeat(6, clamp(240px, 25vw, 380px));
+    grid-auto-rows: clamp(200px, 22vh, 350px);
+    gap: 6px;
+    padding: 2vh 1vw;
+    grid-auto-flow: dense;
+  }
+
+  /* ── Tiles ── */
+  .pano-tile {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.92);
+    transition:
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .pano-tile:focus-visible .pano-tile__placeholder {
+    outline: 2px solid var(--color-sunset);
+    outline-offset: 2px;
+  }
+
+  .panorama:not([aria-hidden="true"]) .pano-tile {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .pano-tile--tall {
+    grid-row: span 2;
+  }
+
+  .pano-tile--wide {
+    grid-column: span 2;
+  }
+
+  .pano-tile--lg {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .pano-tile__media {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pano-tile__placeholder {
+    width: 100%;
+    height: 100%;
+
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      filter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  .pano-tile__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .pano-tile:hover .pano-tile__placeholder {
+    transform: scale(1.06);
+    filter: brightness(0.75);
+  }
+
+  .pano-tile__overlay {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: var(--space-lg) var(--space-sm) var(--space-xs);
+    background: linear-gradient(
+      to top,
+      rgba(6, 6, 6, 0.85) 0%,
+      transparent 100%
+    );
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    pointer-events: none;
+  }
+
+  .pano-tile:hover .pano-tile__overlay {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .pano-tile__title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: 1.2;
+  }
+
+  .pano-tile__cat {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-sunset);
+  }
+
+  /* ── Edge scroll indicators ── */
+  .panorama__edge {
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .panorama__edge.is-active {
+    opacity: 1;
+  }
+
+  .panorama__edge--top {
+    inset: 0 0 auto 0;
+    height: 100px;
+    background: linear-gradient(
+      to bottom,
+      rgba(224, 178, 86, 0.06) 0%,
+      transparent 100%
+    );
+  }
+
+  .panorama__edge--bottom {
+    inset: auto 0 0 0;
+    height: 100px;
+    background: linear-gradient(
+      to top,
+      rgba(224, 178, 86, 0.06) 0%,
+      transparent 100%
+    );
+  }
+
+  .panorama__edge--left {
+    inset: 0 auto 0 0;
+    width: 100px;
+    background: linear-gradient(
+      to right,
+      rgba(224, 178, 86, 0.06) 0%,
+      transparent 100%
+    );
+  }
+
+  .panorama__edge--right {
+    inset: 0 0 0 auto;
+    width: 100px;
+    background: linear-gradient(
+      to left,
+      rgba(224, 178, 86, 0.06) 0%,
+      transparent 100%
+    );
+  }
+
+  @media (max-width: 768px) {
+    .panorama__canvas {
+      grid-template-columns: repeat(4, clamp(180px, 40vw, 300px));
+      grid-auto-rows: clamp(160px, 25vh, 280px);
+      padding: 15vh 10vw;
+    }
+  }
+</style>
