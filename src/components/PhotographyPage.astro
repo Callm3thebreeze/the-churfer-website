@@ -1,6 +1,5 @@
 ---
 import { Image as AstroImage, getImage } from "astro:assets";
-import { Image as EmDashImage } from "emdash/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getPanoramaTileClass } from "../data/photos";
 import { getGalleryData } from "../lib/photo-gallery";
@@ -365,11 +364,12 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
                     widths={[520, 960, 1440]}
                   />
                 ) : (
-                  <EmDashImage
-                    image={photo.media ?? photo.src}
+                  <img
+                    src={photo.src}
                     alt={photo.alt}
                     class="gallery__image"
                     loading="lazy"
+                    decoding="async"
                     width={photo.width}
                     height={photo.height}
                   />
@@ -513,11 +513,12 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
                       widths={[420, 840, 1260]}
                     />
                   ) : (
-                    <EmDashImage
-                      image={photo.media ?? photo.src}
+                    <img
+                      src={photo.src}
                       alt={photo.alt}
                       class="pano-tile__image"
                       loading="lazy"
+                      decoding="async"
                       width={photo.width}
                       height={photo.height}
                     />
@@ -635,11 +636,14 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
     unit = "",
     persist = true,
   ) {
-    const value = `${rawValue}${unit}`;
-    root.style.setProperty(variable, value);
-    syncGradientReadout(variable, value);
+    const nextValue = unit ? `${rawValue}${unit}` : rawValue;
+    root.style.setProperty(variable, nextValue);
+    syncGradientReadout(variable, nextValue);
     syncGradientCode();
-    if (persist) persistGradientSettings();
+
+    if (persist) {
+      persistGradientSettings();
+    }
   }
 
   function hydrateGradientControls() {
@@ -1080,14 +1084,9 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   // ── Keyboard (unified) ──
   document.addEventListener("keydown", (e) => {
     if (
-      e.key === "Escape" &&
-      gradientPanel &&
-      !gradientPanel.hidden &&
       lightbox.getAttribute("aria-hidden") === "true" &&
       panorama.getAttribute("aria-hidden") === "true"
     ) {
-      setGradientPanelState(false);
-      gradientToggle?.focus();
       return;
     }
 

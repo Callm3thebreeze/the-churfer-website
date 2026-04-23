@@ -1,4 +1,5 @@
 // @ts-check
+import react from "@astrojs/react";
 import cloudflare from "@astrojs/cloudflare";
 import { defineConfig } from "astro/config";
 import { cloudflareImages, d1, r2 } from "@emdash-cms/cloudflare";
@@ -10,6 +11,7 @@ export default defineConfig({
   output: "server",
   adapter: cloudflare(),
   integrations: [
+    react(),
     emdash({
       database: d1({ binding: "DB" }),
       storage: r2({ binding: "MEDIA" }),
