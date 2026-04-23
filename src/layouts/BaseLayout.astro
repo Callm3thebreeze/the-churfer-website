@@ -1,19 +1,57 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import altLogo from "../assets/alt-logo.png";
+import {
+  buildAbsoluteUrl,
+  buildBaseSchemas,
+  buildDocumentTitle,
+  DEFAULT_LOCALE,
+  SITE_NAME,
+  type SeoSchema,
+} from "../lib/seo";
 import "../styles/global.css";
 
 interface Props {
   title: string;
   description?: string;
+  canonicalPath?: string;
+  ogImage?: string;
+  ogType?: "website" | "article" | "video.other";
+  noindex?: boolean;
+  schema?: SeoSchema | SeoSchema[];
   hideChrome?: boolean;
 }
 
 const {
   title,
   description = "Portfolio de fotografía y vídeo",
+  canonicalPath,
+  ogImage,
+  ogType = "website",
+  noindex = false,
+  schema,
   hideChrome = false,
 } = Astro.props;
+
+const siteUrl = import.meta.env.SITE ?? "https://thechurfer.com";
+const canonicalUrl = buildAbsoluteUrl(
+  canonicalPath ?? Astro.url.pathname,
+  siteUrl,
+);
+const socialImageUrl = buildAbsoluteUrl(ogImage ?? altLogo.src, siteUrl);
+const fullTitle = buildDocumentTitle(title);
+const robots = noindex ? "noindex, follow" : "index, follow";
+const schemaItems = [
+  ...buildBaseSchemas({
+    title: fullTitle,
+    description,
+    canonicalUrl,
+    imageUrl: socialImageUrl,
+  }),
+  ...(Array.isArray(schema) ? schema : schema ? [schema] : []),
+];
+const jsonLd = JSON.stringify(schemaItems);
 ---
 
 <!doctype html>
@@ -22,9 +60,27 @@ const {
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="canonical" href={canonicalUrl} />
     <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <meta name="googlebot" content={robots} />
     <meta name="generator" content={Astro.generator} />
-    <title>{title} | The Churfer</title>
+    <title>{fullTitle}</title>
+
+    <meta property="og:locale" content={DEFAULT_LOCALE} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImageUrl} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageUrl} />
+
+    <script type="application/ld+json" set:html={jsonLd} />
 
     <!-- Tipografías: Bricolage Grotesque (h1) + Syne (display) + DM Sans (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

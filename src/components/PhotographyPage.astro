@@ -7,6 +7,13 @@ import {
   photoFilters,
 } from "../data/photos";
 
+interface Props {
+  canonicalPath?: string;
+  noindex?: boolean;
+}
+
+const { canonicalPath, noindex = false } = Astro.props;
+
 const HOME_GALLERY_CATEGORIES = new Set([
   "surf",
   "mar",
@@ -42,6 +49,8 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
 <BaseLayout
   title="Fotografía"
   description="Portfolio de fotografía deportiva de Sergi Ortega — The Churfer. Surf, foto marina, jiu-jitsu, skate y más. Desde El Palmar, Cádiz."
+  canonicalPath={canonicalPath}
+  noindex={noindex}
 >
   <!-- ═══ PAGE HERO ═══ -->
   <section class="page-hero">
@@ -680,7 +689,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   if (gradientToggle) {
     gradientToggle.onclick = () => {
       if (!gradientPanel) return;
-      setGradientPanelState(gradientPanel.hidden);
+      setGradientPanelState(!gradientPanel.hasAttribute("hidden"));
     };
   }
 

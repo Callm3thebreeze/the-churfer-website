@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import YouTubeEmbed from "../../components/YouTubeEmbed.astro";
+import { buildVideoSchema } from "../../lib/seo";
 import {
   videos,
   formatDateLong,
@@ -21,9 +22,26 @@ interface Props {
 
 const { video } = Astro.props;
 const paragraphs = video.body.split("\n\n").filter(Boolean);
+const videoSchema = buildVideoSchema({
+  title: video.title,
+  description: video.description,
+  canonicalUrl: new URL(
+    `/video/${video.slug}`,
+    import.meta.env.SITE ?? "https://thechurfer.com",
+  ).toString(),
+  imageUrl: `https://i.ytimg.com/vi/${video.youtubeId}/maxresdefault.jpg`,
+  uploadDate: video.date,
+  embedUrl: `https://www.youtube-nocookie.com/embed/${video.youtubeId}`,
+});
 ---
 
-<BaseLayout title={video.title} description={video.description}>
+<BaseLayout
+  title={video.title}
+  description={video.description}
+  ogType="video.other"
+  ogImage={`https://i.ytimg.com/vi/${video.youtubeId}/maxresdefault.jpg`}
+  schema={videoSchema}
+>
   <article class="video-detail">
     <!-- ═══ HERO / EMBED ═══ -->
     <section class="video-detail__hero">
