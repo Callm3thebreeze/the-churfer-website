@@ -17,3 +17,4 @@ User-agent: PerplexityBot
 Allow: /
 
 Sitemap: https://thechurfer.com/sitemap.xml
+Sitemap: https://thechurfer.com/sitemap-static.xml
