@@ -680,7 +680,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   if (gradientToggle) {
     gradientToggle.onclick = () => {
       if (!gradientPanel) return;
-      setGradientPanelState(!gradientPanel.hidden);
+      setGradientPanelState(gradientPanel.hidden);
     };
   }
 
