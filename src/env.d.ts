@@ -2,9 +2,11 @@
 
 interface ImportMetaEnv {
   readonly PUBLIC_CLOUDINARY_CLOUD_NAME: string;
-  readonly EMDASH_API_URL: string;
-  readonly EMDASH_API_KEY: string;
-  readonly EMDASH_SITE_ID: string;
+  readonly CF_ACCOUNT_ID: string;
+  readonly CF_IMAGES_ACCOUNT_HASH: string;
+  readonly CF_IMAGES_TOKEN: string;
+  readonly EMDASH_AUTH_SECRET: string;
+  readonly EMDASH_PREVIEW_SECRET: string;
 }
 
 interface ImportMeta {

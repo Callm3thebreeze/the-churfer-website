@@ -19,7 +19,7 @@ function escapeXml(value: string): string {
 
 export function GET() {
   const pages = ["/", "/video", "/sobre-mi", "/contacto"];
-  const entries = [
+  const entries: Array<{ loc: string; lastmod?: string }> = [
     ...pages.map((path) => ({ loc: toAbsoluteUrl(path) })),
     ...videos.map((video) => ({
       loc: toAbsoluteUrl(`/video/${video.slug}`),

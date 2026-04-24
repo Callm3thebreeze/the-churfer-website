@@ -1,11 +1,8 @@
 ---
-import { Image, getImage } from "astro:assets";
+import { Image as AstroImage, getImage } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import {
-  galleryPhotos,
-  getPanoramaTileClass,
-  photoFilters,
-} from "../data/photos";
+import { getPanoramaTileClass } from "../data/photos";
+import { getGalleryData } from "../lib/photo-gallery";
 
 interface Props {
   canonicalPath?: string;
@@ -22,8 +19,16 @@ const HOME_GALLERY_CATEGORIES = new Set([
   "skate",
 ]);
 
+const { photos: basePhotos, filters: categories } = await getGalleryData();
 const photos = await Promise.all(
-  galleryPhotos.map(async (photo) => {
+  basePhotos.map(async (photo) => {
+    if (!photo.image) {
+      return {
+        ...photo,
+        lightboxSrc: photo.src,
+      };
+    }
+
     const lightboxImage = await getImage({
       src: photo.image,
       width: 2200,
@@ -37,7 +42,6 @@ const photos = await Promise.all(
     };
   }),
 );
-const categories = photoFilters;
 const panoramaPhotos = photos.filter((photo) =>
   HOME_GALLERY_CATEGORIES.has(photo.category),
 );
@@ -348,16 +352,28 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
                 class="gallery__placeholder"
                 style={`aspect-ratio: ${photo.aspect};`}
               >
-                <Image
-                  src={photo.image}
-                  alt={photo.alt}
-                  class="gallery__image"
-                  loading="lazy"
-                  format="webp"
-                  quality={68}
-                  sizes="(max-width: 540px) 95vw, (max-width: 900px) 48vw, 33vw"
-                  widths={[520, 960, 1440]}
-                />
+                {photo.image ? (
+                  <AstroImage
+                    src={photo.image}
+                    alt={photo.alt}
+                    class="gallery__image"
+                    loading="lazy"
+                    format="webp"
+                    quality={68}
+                    sizes="(max-width: 540px) 95vw, (max-width: 900px) 48vw, 33vw"
+                    widths={[520, 960, 1440]}
+                  />
+                ) : (
+                  <img
+                    src={photo.src}
+                    alt={photo.alt}
+                    class="gallery__image"
+                    loading="lazy"
+                    decoding="async"
+                    width={photo.width}
+                    height={photo.height}
+                  />
+                )}
               </div>
               <div class="gallery__overlay">
                 <h3 class="gallery__overlay-title">{photo.title}</h3>
@@ -485,16 +501,28 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
             >
               <div class="pano-tile__media">
                 <div class="pano-tile__placeholder">
-                  <Image
-                    src={photo.image}
-                    alt={photo.alt}
-                    class="pano-tile__image"
-                    loading="lazy"
-                    format="webp"
-                    quality={68}
-                    sizes="(max-width: 768px) 45vw, 25vw"
-                    widths={[420, 840, 1260]}
-                  />
+                  {photo.image ? (
+                    <AstroImage
+                      src={photo.image}
+                      alt={photo.alt}
+                      class="pano-tile__image"
+                      loading="lazy"
+                      format="webp"
+                      quality={68}
+                      sizes="(max-width: 768px) 45vw, 25vw"
+                      widths={[420, 840, 1260]}
+                    />
+                  ) : (
+                    <img
+                      src={photo.src}
+                      alt={photo.alt}
+                      class="pano-tile__image"
+                      loading="lazy"
+                      decoding="async"
+                      width={photo.width}
+                      height={photo.height}
+                    />
+                  )}
                 </div>
                 <div class="pano-tile__overlay">
                   <h3 class="pano-tile__title">{photo.title}</h3>
@@ -608,11 +636,14 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
     unit = "",
     persist = true,
   ) {
-    const value = `${rawValue}${unit}`;
-    root.style.setProperty(variable, value);
-    syncGradientReadout(variable, value);
+    const nextValue = unit ? `${rawValue}${unit}` : rawValue;
+    root.style.setProperty(variable, nextValue);
+    syncGradientReadout(variable, nextValue);
     syncGradientCode();
-    if (persist) persistGradientSettings();
+
+    if (persist) {
+      persistGradientSettings();
+    }
   }
 
   function hydrateGradientControls() {
@@ -1053,14 +1084,9 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   // ── Keyboard (unified) ──
   document.addEventListener("keydown", (e) => {
     if (
-      e.key === "Escape" &&
-      gradientPanel &&
-      !gradientPanel.hidden &&
       lightbox.getAttribute("aria-hidden") === "true" &&
       panorama.getAttribute("aria-hidden") === "true"
     ) {
-      setGradientPanelState(false);
-      gradientToggle?.focus();
       return;
     }
 

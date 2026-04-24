@@ -15,6 +15,11 @@ export interface PhotoItem {
   relativePath: string;
 }
 
+export interface PhotoDimensions {
+  width: number;
+  height: number;
+}
+
 export interface PhotoCategory {
   id: string;
   label: string;
@@ -115,7 +120,10 @@ export const photoFilters: PhotoCategory[] = [
   ...photoCategories,
 ];
 
-export function getPanoramaTileClass(photo: PhotoItem, index: number): string {
+export function getPanoramaTileClass(
+  photo: PhotoDimensions,
+  index: number,
+): string {
   const isPortrait = photo.height > photo.width * 1.12;
 
   if (index % 19 === 0) return "pano-tile--lg";

@@ -2,6 +2,16 @@
 dist/
 # generated types
 .astro/
+emdash-env.d.ts
+
+# local Cloudflare / EmDash state
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# local agent skills and instructions
+.agents/
 
 # dependencies
 node_modules/
