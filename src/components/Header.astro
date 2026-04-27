@@ -4,11 +4,15 @@ import smallLogo from "../assets/small-logo.png";
 const currentPath = Astro.url.pathname;
 
 const navLinks = [
-  { href: "/", label: "Fotografía" },
+  { href: "/fotografia", label: "Fotografía" },
   { href: "/video", label: "Vídeo" },
   { href: "/sobre-mi", label: "Sobre mí" },
   { href: "/contacto", label: "Contacto" },
 ];
+
+function isCurrentPath(href: string): boolean {
+  return currentPath === href || currentPath.startsWith(`${href}/`);
+}
 ---
 
 <header class="site-header" id="site-header">
@@ -42,15 +46,7 @@ const navLinks = [
             <a
               href={href}
               class="site-header__link"
-              aria-current={
-                label === "Fotografía"
-                  ? currentPath === "/" || currentPath.startsWith("/fotografia")
-                    ? "page"
-                    : undefined
-                  : currentPath.startsWith(href)
-                    ? "page"
-                    : undefined
-              }
+              aria-current={isCurrentPath(href) ? "page" : undefined}
               style={`--delay: ${i * 60}ms`}
             >
               {label}

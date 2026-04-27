@@ -21,7 +21,7 @@ Potenciar al maximo el SEO tecnico y la capacidad de citacion en motores generat
 ## Estado actual tras la primera implementacion
 
 1. La capa SEO global ya esta desplegada en el layout base con canonical, robots, Open Graph, Twitter Cards y JSON-LD.
-2. La duplicidad entre / y /fotografia ya esta contenida a nivel tecnico mediante canonical a la home y noindex en la ruta duplicada.
+2. La home y /fotografia ya no comparten la misma superficie: la home funciona como resumen de marca y /fotografia vuelve a ser una URL indexable propia.
 3. robots.txt y sitemap.xml ya existen y se generan correctamente dentro del proyecto.
 4. Las fichas de video ya incorporan datos estructurados especificos de tipo VideoObject.
 5. La propuesta editorial separada ya existe, pero sigue pendiente de aprobacion antes de tocar literales visibles o literales SEO con carga comercial.
@@ -50,7 +50,7 @@ Resultado:
 
 Impacto: muy alto
 Esfuerzo: bajo
-Estado: completada en su bloque inicial
+Estado: completada y evolucionada a arquitectura diferenciada
 
 Acciones:
 
@@ -60,9 +60,9 @@ Acciones:
 
 Resultado:
 
-1. /fotografia apunta canonicamente a /.
-2. /fotografia queda fuera de la estrategia de indexacion principal mediante noindex.
-3. El sitemap prioriza la URL principal y no incluye la ruta duplicada.
+1. La home ya no replica automaticamente el portfolio de fotografia.
+2. /fotografia vuelve a contar con canonical propia y estrategia de indexacion independiente.
+3. El sitemap incluye ambas URLs al responder ahora a superficies distintas.
 
 ### Fase 3. Rastreo tecnico
 
@@ -119,9 +119,9 @@ Resultado:
 ## Cambios tecnicos completados en esta iteracion
 
 1. Refuerzo del layout SEO global con canonical, robots meta, Open Graph, Twitter Cards y JSON-LD.
-2. Consolidacion tecnica de la ruta duplicada de fotografia con canonical a la home y noindex.
+2. Sustitucion de la consolidacion temporal por una separacion real entre la home y la pagina de fotografia.
 3. Alta de robots.txt con referencia a sitemap y permisos explicitos para bots relevantes.
-4. Generacion de sitemap.xml con paginas clave y fichas de video.
+4. Generacion de sitemap.xml con home, fotografia, paginas clave y fichas de video.
 5. Implementacion de schema base y schema de video.
 
 ## Validacion realizada

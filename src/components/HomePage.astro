@@ -1,0 +1,380 @@
+---
+import { Image as AstroImage } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getGalleryData } from "../lib/photo-gallery";
+import { getVideoLibrary, formatDate, getCategoryLabel } from "../lib/videos";
+
+const { photos } = await getGalleryData();
+const { videos } = await getVideoLibrary();
+
+const featuredPhotos = photos
+  .filter((photo) => photo.category === "surf" || photo.tags.includes("surf"))
+  .slice(0, 6);
+
+const featuredVideos = videos.slice(0, 3);
+
+const homeLinks = [
+  {
+    href: "/sobre-mi",
+    label: "Sobre mí",
+    text: "Sergi Ortega",
+  },
+  {
+    href: "/contacto",
+    label: "Contacto",
+    text: "Foto, vídeo y colaboraciones",
+  },
+];
+---
+
+<BaseLayout
+  title="Fotógrafo de Surf en Cádiz con mirada acuática"
+  description="Fotografía de surf, mar y deporte desde El Palmar, Cádiz. The Churfer une mirada documental, energía visual y sensibilidad cinematográfica para marcas, atletas y proyectos editoriales."
+>
+  <section class="home-hero page-hero">
+    <div class="home-hero__inner page-hero__inner container">
+      <div class="home-hero__copy">
+        <h1 class="reveal">Fotografía de surf en Cádiz</h1>
+        <p class="home-hero__desc page-hero__desc reveal">
+          Fotografía y vídeo desde El Palmar, Cádiz. Surf, agua, deporte y
+          colaboraciones comerciales.
+        </p>
+
+        <div class="home-hero__actions reveal">
+          <a href="/fotografia" class="cta-button">Fotografía</a>
+          <a href="/video" class="btn-outline">Vídeo</a>
+        </div>
+      </div>
+
+      <div class="home-hero__aside reveal">
+        {
+          homeLinks.map(({ href, label, text }) => (
+            <a href={href} class="home-link-card">
+              <span class="label">{label}</span>
+              <strong>{text}</strong>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section home-section--photos container">
+    <div class="home-section__top reveal">
+      <div>
+        <span class="label">Fotografía</span>
+        <h2>Surf, agua y acción</h2>
+      </div>
+
+      <a href="/fotografia" class="btn-outline">Fotografía</a>
+    </div>
+
+    <div class="home-photo-grid">
+      {
+        featuredPhotos.map((photo, index) => (
+          <a
+            href="/fotografia"
+            class={`home-photo-tile reveal reveal-delay-${(index % 4) + 1}`}
+          >
+            <div class="home-photo-tile__media">
+              {photo.image ? (
+                <AstroImage
+                  src={photo.image}
+                  alt={photo.alt}
+                  class="home-photo-tile__image"
+                  loading="lazy"
+                  format="webp"
+                  quality={72}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1100px) 50vw, 33vw"
+                  widths={[520, 920, 1360]}
+                />
+              ) : (
+                <img
+                  src={photo.src}
+                  alt={photo.alt}
+                  class="home-photo-tile__image"
+                  loading="lazy"
+                  decoding="async"
+                  width={photo.width}
+                  height={photo.height}
+                />
+              )}
+            </div>
+
+            <div class="home-photo-tile__meta">
+              <strong>{photo.title}</strong>
+              <span>{photo.displayCategory}</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="home-section container">
+    <div class="home-section__top reveal">
+      <div>
+        <span class="label">Vídeo</span>
+        <h2>Comercial, música y deporte</h2>
+      </div>
+
+      <a href="/video" class="btn-outline">Vídeo</a>
+    </div>
+
+    <div class="home-video-grid">
+      {
+        featuredVideos.map((video, index) => (
+          <article
+            class={`home-video-card reveal reveal-delay-${(index % 3) + 1}`}
+          >
+            <a href={`/video/${video.slug}`} class="home-video-card__media">
+              <img
+                src={`https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg`}
+                alt={video.title}
+                loading="lazy"
+                decoding="async"
+                width="640"
+                height="360"
+              />
+            </a>
+
+            <div class="home-video-card__body">
+              <div class="home-video-card__meta">
+                <span class="label">{getCategoryLabel(video.category)}</span>
+                <time datetime={video.date}>{formatDate(video.date)}</time>
+              </div>
+
+              <h3>{video.title}</h3>
+              <p>{video.description}</p>
+              <a href={`/video/${video.slug}`} class="home-video-card__link">
+                Ver proyecto
+              </a>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .home-hero__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+    gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .home-hero__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .home-hero__desc {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    max-width: 58ch;
+  }
+
+  .home-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+  }
+
+  .home-hero__aside {
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .home-link-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    background: linear-gradient(180deg, var(--color-glass-subtle), transparent);
+    min-height: 120px;
+    transition:
+      transform var(--duration-base) var(--ease-out-expo),
+      border-color var(--duration-fast) var(--ease-out-quart),
+      background var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .home-link-card strong {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 600;
+  }
+
+  .home-link-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-border-strong);
+    background: linear-gradient(180deg, var(--color-glass), transparent);
+  }
+
+  .home-section {
+    padding-bottom: var(--space-section);
+  }
+
+  .home-section__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  .home-section__top h2 {
+    margin-top: 0.35rem;
+  }
+
+  .home-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+
+  .home-photo-tile {
+    grid-column: span 4;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .home-photo-tile:nth-child(4n + 1),
+  .home-photo-tile:nth-child(4n + 4) {
+    grid-column: span 6;
+  }
+
+  .home-photo-tile__media {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-raised);
+  }
+
+  .home-photo-tile__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    aspect-ratio: 4 / 5;
+    transition: transform var(--duration-slow) var(--ease-out-expo);
+  }
+
+  .home-photo-tile:hover .home-photo-tile__image {
+    transform: scale(1.02);
+  }
+
+  .home-photo-tile__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .home-photo-tile__meta strong {
+    color: var(--color-text);
+    font-size: var(--text-base);
+    font-weight: 500;
+  }
+
+  .home-video-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-md);
+  }
+
+  .home-video-card {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
+    border: 1px solid var(--color-border);
+  }
+
+  .home-video-card__media img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .home-video-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+  }
+
+  .home-video-card__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .home-video-card__meta time {
+    color: var(--color-text-dim);
+    font-size: var(--text-xs);
+    font-style: italic;
+    font-family: var(--font-display);
+  }
+
+  .home-video-card h3 {
+    font-size: var(--text-xl);
+  }
+
+  .home-video-card p {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .home-video-card__link {
+    font-size: var(--text-sm);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text);
+  }
+
+  @media (max-width: 1100px) {
+    .home-video-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .home-hero__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .home-section__top {
+      flex-direction: column;
+      align-items: start;
+    }
+
+    .home-photo-tile,
+    .home-photo-tile:nth-child(4n + 1),
+    .home-photo-tile:nth-child(4n + 4) {
+      grid-column: span 6;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .home-photo-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .home-photo-tile,
+    .home-photo-tile:nth-child(4n + 1),
+    .home-photo-tile:nth-child(4n + 4) {
+      grid-column: auto;
+    }
+
+    .home-photo-tile__meta {
+      flex-direction: column;
+    }
+  }
+</style>
