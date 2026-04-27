@@ -1,83 +1,127 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { PortableText } from "emdash/ui";
 import YouTubeEmbed from "../../components/YouTubeEmbed.astro";
 import { buildVideoSchema } from "../../lib/seo";
 import {
-  videos,
   formatDateLong,
   getCategoryLabel,
-  type Video,
-} from "../../data/videos";
+  getVideoEmbedUrl,
+  getVideoEntryBySlug,
+  getVideoOgImage,
+} from "../../lib/videos";
 
-export function getStaticPaths() {
-  return videos.map((video) => ({
-    params: { slug: video.slug },
-    props: { video },
-  }));
+const slug = Astro.params.slug ?? "";
+const video = slug ? await getVideoEntryBySlug(slug) : null;
+
+if (!video) {
+  Astro.response.status = 404;
 }
 
-interface Props {
-  video: Video;
-}
-
-const { video } = Astro.props;
-const paragraphs = video.body.split("\n\n").filter(Boolean);
-const videoSchema = buildVideoSchema({
-  title: video.title,
-  description: video.description,
-  canonicalUrl: new URL(
-    `/video/${video.slug}`,
-    import.meta.env.SITE ?? "https://thechurfer.com",
-  ).toString(),
-  imageUrl: `https://i.ytimg.com/vi/${video.youtubeId}/maxresdefault.jpg`,
-  uploadDate: video.date,
-  embedUrl: `https://www.youtube-nocookie.com/embed/${video.youtubeId}`,
-});
+const paragraphs = video?.contentText.split("\n\n").filter(Boolean) ?? [];
+const videoSchema = video
+  ? buildVideoSchema({
+      title: video.title,
+      description: video.description,
+      canonicalUrl: new URL(
+        `/video/${video.slug}`,
+        import.meta.env.SITE ?? "https://thechurfer.com",
+      ).toString(),
+      imageUrl: getVideoOgImage(video),
+      uploadDate: video.date,
+      embedUrl: getVideoEmbedUrl(video),
+    })
+  : undefined;
 ---
 
 <BaseLayout
-  title={video.title}
-  description={video.description}
-  ogType="video.other"
-  ogImage={`https://i.ytimg.com/vi/${video.youtubeId}/maxresdefault.jpg`}
+  title={video?.title ?? "Proyecto no encontrado"}
+  description={video?.description ??
+    "La entrada de video solicitada no existe o aun no esta publicada."}
+  ogType={video ? "video.other" : undefined}
+  ogImage={video ? getVideoOgImage(video) : undefined}
   schema={videoSchema}
 >
-  <article class="video-detail">
-    <!-- ═══ HERO / EMBED ═══ -->
-    <section class="video-detail__hero">
-      <div class="video-detail__embed container-narrow">
-        <YouTubeEmbed videoId={video.youtubeId} title={video.title} />
-      </div>
-    </section>
+  {
+    video ? (
+      <article class="video-detail">
+        <section class="video-detail__hero">
+          <div class="video-detail__embed container-narrow">
+            {video.youtubeId ? (
+              <YouTubeEmbed videoId={video.youtubeId} title={video.title} />
+            ) : (
+              <a
+                href={video.videoUrl}
+                class="video-detail__video-link"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span class="label">Video externo</span>
+                <strong>{video.title}</strong>
+                <span>Abrir video</span>
+              </a>
+            )}
+          </div>
+        </section>
 
-    <!-- ═══ CONTENT ═══ -->
-    <section class="video-detail__content container-narrow">
-      <div class="video-detail__meta reveal">
-        <span class="label">{getCategoryLabel(video.category)}</span>
-        <time datetime={video.date}>{formatDateLong(video.date)}</time>
-      </div>
+        <section class="video-detail__content container-narrow">
+          <div class="video-detail__meta reveal">
+            {getCategoryLabel(video.category) && (
+              <span class="label">{getCategoryLabel(video.category)}</span>
+            )}
+            {video.date && (
+              <time datetime={video.date}>{formatDateLong(video.date)}</time>
+            )}
+          </div>
 
-      <h1 class="reveal">{video.title}</h1>
+          <h1 class="reveal">{video.title}</h1>
 
-      <div class="video-detail__body reveal">
-        {paragraphs.map((p) => <p>{p}</p>)}
-      </div>
+          <div class="video-detail__body reveal">
+            {video.contentBlocks ? (
+              <PortableText value={video.contentBlocks} />
+            ) : (
+              paragraphs.map((p) => <p>{p}</p>)
+            )}
+          </div>
 
-      <a href="/video" class="back-link reveal">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-        >
-          <path d="M19 12H5M12 5l-7 7 7 7"></path>
-        </svg>
-        Volver a vídeos
-      </a>
-    </section>
-  </article>
+          <a href="/video" class="back-link reveal">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path d="M19 12H5M12 5l-7 7 7 7" />
+            </svg>
+            Volver a vídeos
+          </a>
+        </section>
+      </article>
+    ) : (
+      <section class="video-detail__content container-narrow video-detail__empty">
+        <span class="label">404</span>
+        <h1>Proyecto no encontrado</h1>
+        <p>
+          La entrada de video que buscas no existe o todavia no esta publicada.
+        </p>
+        <a href="/video" class="back-link">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+          Volver a vídeos
+        </a>
+      </section>
+    )
+  }
 </BaseLayout>
 
 <style>
@@ -91,6 +135,42 @@ const videoSchema = buildVideoSchema({
     max-width: 900px;
     margin-inline: auto;
     padding-inline: var(--space-md);
+  }
+
+  .video-detail__video-link {
+    min-height: clamp(260px, 48vw, 520px);
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: var(--space-xs);
+    padding: clamp(1.5rem, 3vw, 2.6rem);
+    text-decoration: none;
+    color: var(--color-text);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      radial-gradient(
+        circle at top right,
+        rgba(212, 168, 83, 0.22),
+        transparent 36%
+      ),
+      linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.04),
+        rgba(255, 255, 255, 0.015)
+      );
+  }
+
+  .video-detail__video-link strong {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    line-height: 1.05;
+  }
+
+  .video-detail__video-link span:last-child {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-sunset);
+    font-size: var(--text-xs);
   }
 
   /* ═══ CONTENT ═══ */
@@ -123,15 +203,46 @@ const videoSchema = buildVideoSchema({
     max-width: 65ch;
   }
 
-  .video-detail__body p {
+  .video-detail__body :global(p) {
     font-size: var(--text-base);
     line-height: 1.85;
     color: var(--color-text-muted);
     margin-bottom: var(--space-md);
   }
 
-  .video-detail__body p:last-child {
+  .video-detail__body :global(p:last-child) {
     margin-bottom: 0;
+  }
+
+  .video-detail__body :global(h2),
+  .video-detail__body :global(h3) {
+    font-family: var(--font-display);
+    line-height: 1.1;
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-sm);
+  }
+
+  .video-detail__body :global(ul),
+  .video-detail__body :global(ol) {
+    color: var(--color-text-muted);
+    padding-left: 1.2em;
+    margin-bottom: var(--space-md);
+  }
+
+  .video-detail__body :global(a) {
+    color: var(--color-sunset);
+  }
+
+  .video-detail__empty {
+    min-height: calc(100vh - 160px);
+    display: grid;
+    align-content: center;
+    gap: var(--space-sm);
+  }
+
+  .video-detail__empty p {
+    max-width: 42ch;
+    color: var(--color-text-muted);
   }
 
   /* ═══ BACK LINK ═══ */

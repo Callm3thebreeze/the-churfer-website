@@ -37,18 +37,20 @@
 
 ## Integración con contenido
 
+- [ ] Si la instancia de EmDash aún no está configurada, completar el setup inicial para que se aplique automáticamente [.emdash/seed.json](.emdash/seed.json).
+- [ ] Si EmDash ya está configurado en la D1 actual, replicar o sincronizar en el panel las colecciones definidas en [.emdash/seed.json](.emdash/seed.json):
+  - `photos` con `title`, `image`, `alt`, `tags`
+  - `videos` con `title`, `video_url`, `content`
 - [ ] Crear la colección `photos` en EmDash.
 - [ ] Definir al menos estos campos para la primera migración:
   - `title`
   - `image`
   - `alt`
-  - `category`
-  - `filterLabel`
-  - `displayCategory`
-  - `width`
-  - `height`
+  - `tags`
 - [ ] Cargar un lote pequeño de fotos de prueba y confirmar que [src/lib/photo-gallery.ts](src/lib/photo-gallery.ts) empieza a devolver contenido desde EmDash en lugar del fallback local.
 - [ ] Validar en el front que los filtros siguen funcionando en [src/components/PhotographyPage.astro](src/components/PhotographyPage.astro).
+- [ ] Crear la colección `videos` en EmDash o verificar que ha sido sembrada desde la seed.
+- [ ] Publicar una entrada de prueba con `title`, `video_url` y `content` y validar el render en [src/pages/video/index.astro](src/pages/video/index.astro) y [src/pages/video/[slug].astro](src/pages/video/[slug].astro).
 
 ## Limpieza posterior
 

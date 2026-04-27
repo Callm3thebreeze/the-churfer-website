@@ -6,10 +6,14 @@ import {
   type PhotoCategory,
 } from "../data/photos";
 
+const BASE_FILTERS = localPhotoFilters.filter(({ id }) => id !== "all");
+const FILTER_LABELS = new Map(BASE_FILTERS.map(({ id, label }) => [id, label]));
+
 export interface GalleryPhoto {
   id: string;
   title: string;
   alt: string;
+  tags: string[];
   category: string;
   filterLabel: string;
   displayCategory: string;
@@ -45,6 +49,10 @@ function formatCategoryLabel(value: string): string {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+function getCategoryLabel(value: string): string {
+  return FILTER_LABELS.get(value) ?? formatCategoryLabel(value);
+}
+
 function getString(
   data: Record<string, unknown>,
   ...keys: string[]
@@ -53,6 +61,38 @@ function getString(
     const value = data[key];
     if (typeof value === "string" && value.trim()) {
       return value.trim();
+    }
+  }
+
+  return undefined;
+}
+
+function getStringArray(
+  data: Record<string, unknown>,
+  ...keys: string[]
+): string[] | undefined {
+  for (const key of keys) {
+    const value = data[key];
+    if (Array.isArray(value)) {
+      const items = value
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      if (items.length > 0) {
+        return items;
+      }
+    }
+
+    if (typeof value === "string" && value.trim()) {
+      const items = value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      if (items.length > 0) {
+        return items;
+      }
     }
   }
 
@@ -101,19 +141,27 @@ function getMediaSrc(value: MediaValue | string | undefined): string {
 }
 
 function buildFilters(photos: GalleryPhoto[]): PhotoCategory[] {
-  const uniqueCategories = new Map<string, string>();
+  const seen = new Set<string>();
 
   for (const photo of photos) {
-    if (!uniqueCategories.has(photo.category)) {
-      uniqueCategories.set(photo.category, photo.filterLabel);
+    const sourceTags = photo.tags.length > 0 ? photo.tags : [photo.category];
+    for (const tag of sourceTags) {
+      if (tag) {
+        seen.add(tag);
+      }
     }
   }
 
+  const ordered = BASE_FILTERS.filter(({ id }) => seen.has(id));
+  const extras = Array.from(seen)
+    .filter((id) => !FILTER_LABELS.has(id))
+    .sort((a, b) => getCategoryLabel(a).localeCompare(getCategoryLabel(b), "es"))
+    .map((id) => ({ id, label: getCategoryLabel(id) }));
+
   return [
     { id: "all", label: "Todo" },
-    ...Array.from(uniqueCategories.entries())
-      .map(([id, label]) => ({ id, label }))
-      .sort((a, b) => a.label.localeCompare(b.label, "es")),
+    ...ordered,
+    ...extras,
   ];
 }
 
@@ -122,6 +170,7 @@ function getFallbackGallery(): GalleryData {
     id: String(photo.id),
     title: photo.title,
     alt: photo.alt,
+    tags: [photo.category],
     category: photo.category,
     filterLabel: photo.filterLabel,
     displayCategory: photo.displayCategory,
@@ -150,15 +199,27 @@ function mapEmDashPhoto(entry: { id: string; data: Record<string, unknown> }): G
     return null;
   }
 
-  const rawCategory =
-    getString(entry.data, "category", "categorySlug", "filter", "tag") ??
-    "Sin categoria";
-  const category = toCategoryId(rawCategory) || "sin-categoria";
-  const filterLabel =
-    getString(entry.data, "filterLabel", "categoryLabel") ??
-    formatCategoryLabel(rawCategory);
+  const rawTags = getStringArray(entry.data, "tags", "categories");
+  const normalizedTags = Array.from(
+    new Set(
+      (rawTags ?? [])
+        .map((tag) => toCategoryId(tag))
+        .filter(Boolean),
+    ),
+  );
+  const legacyCategory = toCategoryId(
+    getString(entry.data, "category", "categorySlug", "filter", "tag") ?? "",
+  );
+  const tags = normalizedTags.length > 0
+    ? normalizedTags
+    : legacyCategory
+      ? [legacyCategory]
+      : ["sin-categoria"];
+  const category = tags[0];
+  const filterLabel = getCategoryLabel(category);
   const displayCategory =
-    getString(entry.data, "displayCategory", "categoryDisplay") ?? filterLabel;
+    getString(entry.data, "displayCategory", "categoryDisplay") ??
+    tags.map((tag) => getCategoryLabel(tag)).join(" / ");
   const width =
     getNumber(entry.data, "width") ??
     (isMediaValue(media) && typeof media.width === "number" ? media.width : undefined) ??
@@ -175,6 +236,7 @@ function mapEmDashPhoto(entry: { id: string; data: Record<string, unknown> }): G
       getString(entry.data, "alt") ??
       (isMediaValue(media) && typeof media.alt === "string" ? media.alt : undefined) ??
       `Sergi Ortega - ${title}`,
+    tags,
     category,
     filterLabel,
     displayCategory,

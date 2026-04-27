@@ -1,0 +1,87 @@
+{
+  "version": "1",
+  "meta": {
+    "name": "The Churfer CMS",
+    "description": "Colecciones editoriales para la galeria fotografica y los proyectos de video"
+  },
+  "collections": [
+    {
+      "slug": "photos",
+      "label": "Fotos",
+      "labelSingular": "Foto",
+      "description": "Imagenes de la galeria fotografica publicadas desde el panel",
+      "supports": ["drafts", "revisions", "search"],
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Titulo",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "image",
+          "label": "Imagen",
+          "type": "image",
+          "required": true
+        },
+        {
+          "slug": "alt",
+          "label": "Texto alternativo",
+          "type": "string",
+          "searchable": true
+        },
+        {
+          "slug": "tags",
+          "label": "Etiquetas de galeria",
+          "type": "multiSelect",
+          "required": true,
+          "validation": {
+            "options": [
+              "animales",
+              "colaboraciones",
+              "jujitsu",
+              "lugares",
+              "mar",
+              "monocroma",
+              "naturaleza",
+              "retratos",
+              "skate",
+              "surf"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "videos",
+      "label": "Videos",
+      "labelSingular": "Proyecto de video",
+      "description": "Entradas editoriales para la seccion de video y proyectos audiovisuales",
+      "supports": ["drafts", "revisions", "search", "seo"],
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Titulo",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "video_url",
+          "label": "URL del video",
+          "type": "url",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "content",
+          "label": "Contenido",
+          "type": "portableText",
+          "required": true,
+          "searchable": true
+        }
+      ]
+    }
+  ]
+}

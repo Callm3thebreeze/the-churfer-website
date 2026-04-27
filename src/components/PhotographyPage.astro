@@ -43,7 +43,7 @@ const photos = await Promise.all(
   }),
 );
 const panoramaPhotos = photos.filter((photo) =>
-  HOME_GALLERY_CATEGORIES.has(photo.category),
+  photo.tags.some((tag) => HOME_GALLERY_CATEGORIES.has(tag)),
 );
 const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   getPanoramaTileClass(photo, i),
@@ -339,6 +339,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
           <article
             class={`gallery__item reveal reveal-delay-${(i % 4) + 1}`}
             data-category={photo.category}
+            data-tags={photo.tags.join("|")}
             data-index={i}
             data-src={photo.lightboxSrc}
             data-alt={photo.alt}
@@ -720,7 +721,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   if (gradientToggle) {
     gradientToggle.onclick = () => {
       if (!gradientPanel) return;
-      setGradientPanelState(gradientPanel.hidden);
+      setGradientPanelState(gradientPanel.hidden === true);
     };
   }
 
@@ -786,7 +787,11 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
       btn.setAttribute("aria-pressed", "true");
 
       items.forEach((item) => {
-        const match = filter === "all" || item.dataset.category === filter;
+        const tags = (item.dataset.tags ?? "")
+          .split("|")
+          .map((tag) => tag.trim())
+          .filter(Boolean);
+        const match = filter === "all" || tags.includes(filter ?? "");
         item.classList.toggle("hidden", !match);
         item.style.pointerEvents = match ? "" : "none";
       });

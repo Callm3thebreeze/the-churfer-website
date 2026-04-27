@@ -1,12 +1,9 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import YouTubeEmbed from "../../components/YouTubeEmbed.astro";
-import {
-  videos,
-  videoCategories as categories,
-  formatDate,
-} from "../../data/videos";
+import { getVideoLibrary } from "../../lib/videos";
 
+const { videos, categories } = await getVideoLibrary();
 const totalLabel = videos.length.toString().padStart(2, "0");
 ---
 
@@ -56,7 +53,23 @@ const totalLabel = videos.length.toString().padStart(2, "0");
             <article class="vcard" data-category={video.category}>
               <div class="vcard__inner">
                 <div class="vcard__embed">
-                  <YouTubeEmbed videoId={video.youtubeId} title={video.title} />
+                  {video.youtubeId ? (
+                    <YouTubeEmbed
+                      videoId={video.youtubeId}
+                      title={video.title}
+                    />
+                  ) : (
+                    <a
+                      href={video.videoUrl}
+                      class="vcard__embed-fallback"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <span class="label">Video externo</span>
+                      <strong>{video.title}</strong>
+                      <span>Abrir video</span>
+                    </a>
+                  )}
                 </div>
                 <div class="vcard__footer">
                   <span class="vcard__num">
@@ -171,7 +184,6 @@ const totalLabel = videos.length.toString().padStart(2, "0");
   }
 
   // ── rAF loop ──
-  let rafId: number;
   function animate(): void {
     currentX = lerp(currentX, targetX, LERP_SPEED);
     currentBar = lerp(currentBar, targetBar, LERP_SPEED);
@@ -207,10 +219,10 @@ const totalLabel = videos.length.toString().padStart(2, "0");
       });
     }
 
-    rafId = requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
   }
 
-  rafId = requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 
   // ── Scroll → update targets ──
   window.addEventListener("scroll", computeTargets, { passive: true });
@@ -410,6 +422,41 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     border-radius: 6px;
     overflow: hidden;
     box-shadow: 0 8px 40px -12px rgba(0, 0, 0, 0.6);
+  }
+
+  .vcard__embed-fallback {
+    min-height: clamp(260px, 48vw, 500px);
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: var(--space-xs);
+    padding: clamp(1.5rem, 3vw, 2.4rem);
+    text-decoration: none;
+    color: var(--color-text);
+    background:
+      radial-gradient(
+        circle at top right,
+        rgba(212, 168, 83, 0.22),
+        transparent 36%
+      ),
+      linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.04),
+        rgba(255, 255, 255, 0.015)
+      );
+  }
+
+  .vcard__embed-fallback strong {
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 2vw, 2.4rem);
+    line-height: 1.05;
+  }
+
+  .vcard__embed-fallback span:last-child {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-sunset);
+    font-size: var(--text-xs);
   }
 
   .vcard__footer {

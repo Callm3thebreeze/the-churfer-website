@@ -1,6 +1,6 @@
-import { videos } from "../data/videos";
+import { getVideoLibrary } from "../lib/videos";
 
-export const prerender = true;
+export const prerender = false;
 
 const siteUrl = import.meta.env.SITE ?? "https://thechurfer.com";
 
@@ -17,13 +17,14 @@ function escapeXml(value: string): string {
     .replaceAll("'", "&apos;");
 }
 
-export function GET() {
+export async function GET() {
+  const { videos } = await getVideoLibrary();
   const pages = ["/", "/video", "/sobre-mi", "/contacto"];
   const entries: Array<{ loc: string; lastmod?: string }> = [
     ...pages.map((path) => ({ loc: toAbsoluteUrl(path) })),
     ...videos.map((video) => ({
       loc: toAbsoluteUrl(`/video/${video.slug}`),
-      lastmod: video.date,
+      lastmod: video.date || undefined,
     })),
   ];
 
