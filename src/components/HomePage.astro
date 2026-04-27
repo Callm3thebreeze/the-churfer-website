@@ -1,5 +1,5 @@
 ---
-import { Image as AstroImage } from "astro:assets";
+import { Image as AstroImage, getImage } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getGalleryData } from "../lib/photo-gallery";
 import { getVideoLibrary, formatDate, getCategoryLabel } from "../lib/videos";
@@ -7,24 +7,35 @@ import { getVideoLibrary, formatDate, getCategoryLabel } from "../lib/videos";
 const { photos } = await getGalleryData();
 const { videos } = await getVideoLibrary();
 
-const featuredPhotos = photos
-  .filter((photo) => photo.category === "surf" || photo.tags.includes("surf"))
-  .slice(0, 6);
+const surfPhotos = photos.filter(
+  (photo) => photo.category === "surf" || photo.tags.includes("surf"),
+);
+const featuredPhotos = await Promise.all(
+  (surfPhotos.length > 0 ? surfPhotos : photos)
+    .slice(0, 20)
+    .map(async (photo) => {
+      if (!photo.image) {
+        return {
+          ...photo,
+          lightboxSrc: photo.src,
+        };
+      }
+
+      const lightboxImage = await getImage({
+        src: photo.image,
+        width: 2200,
+        format: "webp",
+        quality: 74,
+      });
+
+      return {
+        ...photo,
+        lightboxSrc: lightboxImage.src,
+      };
+    }),
+);
 
 const featuredVideos = videos.slice(0, 3);
-
-const homeLinks = [
-  {
-    href: "/sobre-mi",
-    label: "Sobre mí",
-    text: "Sergi Ortega",
-  },
-  {
-    href: "/contacto",
-    label: "Contacto",
-    text: "Foto, vídeo y colaboraciones",
-  },
-];
 ---
 
 <BaseLayout
@@ -45,77 +56,205 @@ const homeLinks = [
           <a href="/video" class="btn-outline">Vídeo</a>
         </div>
       </div>
-
-      <div class="home-hero__aside reveal">
-        {
-          homeLinks.map(({ href, label, text }) => (
-            <a href={href} class="home-link-card">
-              <span class="label">{label}</span>
-              <strong>{text}</strong>
-            </a>
-          ))
-        }
-      </div>
     </div>
   </section>
 
   <section class="home-section home-section--photos container">
-    <div class="home-section__top reveal">
+    <div class="home-section__top reveal is-visible">
       <div>
         <span class="label">Fotografía</span>
-        <h2>Surf, agua y acción</h2>
+        <h2>Surf, cámara y acción</h2>
       </div>
 
-      <a href="/fotografia" class="btn-outline">Fotografía</a>
+      <div class="home-section__actions">
+        <a href="/fotografia" class="btn-outline">Fotografía</a>
+      </div>
     </div>
 
-    <div class="home-photo-grid">
-      {
-        featuredPhotos.map((photo, index) => (
-          <a
-            href="/fotografia"
-            class={`home-photo-tile reveal reveal-delay-${(index % 4) + 1}`}
-          >
-            <div class="home-photo-tile__media">
-              {photo.image ? (
-                <AstroImage
-                  src={photo.image}
-                  alt={photo.alt}
-                  class="home-photo-tile__image"
-                  loading="lazy"
-                  format="webp"
-                  quality={72}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1100px) 50vw, 33vw"
-                  widths={[520, 920, 1360]}
-                />
-              ) : (
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  class="home-photo-tile__image"
-                  loading="lazy"
-                  decoding="async"
-                  width={photo.width}
-                  height={photo.height}
-                />
-              )}
-            </div>
+    <div
+      class="home-photo-carousel reveal is-visible"
+      data-photo-carousel
+      role="region"
+      aria-roledescription="carrusel"
+      aria-label={`Carrusel con ${featuredPhotos.length} fotografías de surf`}
+    >
+      <div class="home-photo-carousel__viewport" data-photo-carousel-viewport>
+        <div class="home-photo-carousel__track" data-photo-carousel-track>
+          {
+            featuredPhotos.map((photo, index) => (
+              <button
+                type="button"
+                class={`home-photo-carousel__slide reveal-delay-${(index % 4) + 1}`}
+                aria-label={`Abrir galería: ${photo.title}`}
+                aria-haspopup="dialog"
+                data-home-lightbox-item
+                data-src={photo.lightboxSrc}
+                data-alt={photo.alt}
+                data-title={photo.title}
+                data-cat={photo.displayCategory}
+                data-aspect={photo.aspect}
+              >
+                <div class="home-photo-carousel__media">
+                  {photo.image ? (
+                    <AstroImage
+                      src={photo.image}
+                      alt={photo.alt}
+                      class="home-photo-carousel__image"
+                      loading="lazy"
+                      format="webp"
+                      quality={72}
+                      sizes="(max-width: 768px) 78vw, (max-width: 1100px) 34vw, 22vw"
+                      widths={[520, 920, 1360]}
+                    />
+                  ) : (
+                    <img
+                      src={photo.src}
+                      alt={photo.alt}
+                      class="home-photo-carousel__image"
+                      loading="lazy"
+                      decoding="async"
+                      width={photo.width}
+                      height={photo.height}
+                    />
+                  )}
+                </div>
+              </button>
+            ))
+          }
+        </div>
+      </div>
 
-            <div class="home-photo-tile__meta">
-              <strong>{photo.title}</strong>
-              <span>{photo.displayCategory}</span>
-            </div>
-          </a>
-        ))
-      }
+      <div
+        class="home-photo-carousel__status sr-only"
+        aria-live="polite"
+        data-carousel-status
+      >
+        Fotografía 1 de {featuredPhotos.length}
+      </div>
+
+      <div class="home-photo-carousel__footer">
+        <div
+          class="home-photo-carousel__controls"
+          aria-label="Controles del carrusel"
+        >
+          <button
+            class="home-photo-carousel__button"
+            type="button"
+            aria-label="Ver fotografías anteriores"
+            data-carousel-prev
+          >
+            <span aria-hidden="true">&larr;</span>
+          </button>
+
+          <div
+            class="home-photo-carousel__pagination"
+            aria-label={`Indicadores del carrusel, ${featuredPhotos.length} fotografías`}
+            role="tablist"
+          >
+            {
+              featuredPhotos.map((photo, index) => (
+                <button
+                  class="home-photo-carousel__dot"
+                  type="button"
+                  role="tab"
+                  aria-label={`Ir a la fotografía ${index + 1} de ${featuredPhotos.length}: ${photo.title}`}
+                  aria-selected={index === 0 ? "true" : "false"}
+                  aria-current={index === 0 ? "true" : "false"}
+                  data-carousel-dot
+                  data-carousel-index={index}
+                >
+                  <span class="sr-only">Fotografía {index + 1}</span>
+                </button>
+              ))
+            }
+          </div>
+
+          <button
+            class="home-photo-carousel__button"
+            type="button"
+            aria-label="Ver fotografías siguientes"
+            data-carousel-next
+          >
+            <span aria-hidden="true">&rarr;</span>
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
+  <div
+    class="lightbox"
+    id="home-lightbox"
+    aria-hidden="true"
+    role="dialog"
+    aria-label="Galería ampliada"
+  >
+    <button class="lightbox__close" type="button" aria-label="Cerrar galería">
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M18 6L6 18M6 6l12 12"></path>
+      </svg>
+    </button>
+    <button
+      class="lightbox__arrow lightbox__arrow--prev"
+      type="button"
+      aria-label="Imagen anterior"
+    >
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+    </button>
+    <button
+      class="lightbox__arrow lightbox__arrow--next"
+      type="button"
+      aria-label="Imagen siguiente"
+    >
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M9 18l6-6-6-6"></path>
+      </svg>
+    </button>
+    <div class="lightbox__content">
+      <img
+        class="lightbox__placeholder is-ready"
+        id="home-lightbox-image"
+        src={featuredPhotos[0]?.lightboxSrc ?? ""}
+        alt="Imagen ampliada"
+        loading="eager"
+        decoding="async"
+      />
+      <div class="lightbox__info">
+        <h3 class="lightbox__title" id="home-lightbox-title"></h3>
+        <span class="lightbox__cat label" id="home-lightbox-cat"></span>
+        <span class="lightbox__counter" id="home-lightbox-counter"></span>
+      </div>
+    </div>
+  </div>
+
   <section class="home-section container">
-    <div class="home-section__top reveal">
+    <div class="home-section__top reveal is-visible">
       <div>
         <span class="label">Vídeo</span>
-        <h2>Comercial, música y deporte</h2>
+        <h2>Trabajos en vídeo</h2>
       </div>
 
       <a href="/video" class="btn-outline">Vídeo</a>
@@ -125,7 +264,7 @@ const homeLinks = [
       {
         featuredVideos.map((video, index) => (
           <article
-            class={`home-video-card reveal reveal-delay-${(index % 3) + 1}`}
+            class={`home-video-card reveal is-visible reveal-delay-${(index % 3) + 1}`}
           >
             <a href={`/video/${video.slug}`} class="home-video-card__media">
               <img
@@ -157,14 +296,294 @@ const homeLinks = [
   </section>
 </BaseLayout>
 
-<style>
-  .home-hero__inner {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
-    gap: var(--space-lg);
-    align-items: start;
+<script>
+  const photoCarousel = document.querySelector("[data-photo-carousel]");
+  const photoCarouselSection = document.querySelector(".home-section--photos");
+  const homeLightbox = document.getElementById("home-lightbox");
+  const homeLightboxItems = Array.from(
+    document.querySelectorAll("[data-home-lightbox-item]"),
+  );
+
+  if (photoCarousel instanceof HTMLElement) {
+    const viewport = photoCarousel.querySelector(
+      "[data-photo-carousel-viewport]",
+    );
+    const track = photoCarousel.querySelector("[data-photo-carousel-track]");
+    const prevButton = photoCarouselSection?.querySelector(
+      "[data-carousel-prev]",
+    );
+    const nextButton = photoCarouselSection?.querySelector(
+      "[data-carousel-next]",
+    );
+    const status = photoCarousel.querySelector("[data-carousel-status]");
+    const dots = Array.from(
+      photoCarousel.querySelectorAll("[data-carousel-dot]"),
+    );
+
+    if (
+      viewport instanceof HTMLElement &&
+      track instanceof HTMLElement &&
+      prevButton instanceof HTMLButtonElement &&
+      nextButton instanceof HTMLButtonElement &&
+      status instanceof HTMLElement
+    ) {
+      let activeIndex = 0;
+
+      const getStep = () => {
+        const firstSlide = track.querySelector(".home-photo-carousel__slide");
+
+        if (!(firstSlide instanceof HTMLElement)) {
+          return viewport.clientWidth * 0.8;
+        }
+
+        const trackStyles = getComputedStyle(track);
+        const gap = Number.parseFloat(
+          trackStyles.columnGap || trackStyles.gap || "0",
+        );
+        return firstSlide.getBoundingClientRect().width + gap;
+      };
+
+      const getActiveIndex = () => {
+        const step = getStep();
+
+        if (!Number.isFinite(step) || step <= 0) {
+          return 0;
+        }
+
+        return Math.max(
+          0,
+          Math.min(dots.length - 1, Math.round(viewport.scrollLeft / step)),
+        );
+      };
+
+      const updateDots = () => {
+        activeIndex = getActiveIndex();
+
+        dots.forEach((dot, index) => {
+          if (!(dot instanceof HTMLButtonElement)) {
+            return;
+          }
+
+          const isActive = index === activeIndex;
+          dot.dataset.active = isActive ? "true" : "false";
+          dot.setAttribute("aria-selected", isActive ? "true" : "false");
+          dot.setAttribute("aria-current", isActive ? "true" : "false");
+        });
+
+        status.textContent = `Fotografía ${activeIndex + 1} de ${dots.length}`;
+      };
+
+      const updateButtons = () => {
+        const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth - 2;
+        const hasOverflow = viewport.scrollWidth > viewport.clientWidth + 2;
+
+        prevButton.disabled = !hasOverflow || viewport.scrollLeft <= 2;
+        nextButton.disabled =
+          !hasOverflow || viewport.scrollLeft >= maxScrollLeft;
+      };
+
+      prevButton.addEventListener("click", () => {
+        viewport.scrollTo({
+          left: getStep() * Math.max(0, activeIndex - 1),
+          behavior: "smooth",
+        });
+      });
+
+      nextButton.addEventListener("click", () => {
+        viewport.scrollTo({
+          left: getStep() * Math.min(dots.length - 1, activeIndex + 1),
+          behavior: "smooth",
+        });
+      });
+
+      dots.forEach((dot, index) => {
+        if (!(dot instanceof HTMLButtonElement)) {
+          return;
+        }
+
+        dot.addEventListener("click", () => {
+          viewport.scrollTo({
+            left: getStep() * index,
+            behavior: "smooth",
+          });
+          dot.focus({ preventScroll: true });
+        });
+      });
+
+      viewport.addEventListener(
+        "scroll",
+        () => {
+          updateButtons();
+          updateDots();
+        },
+        { passive: true },
+      );
+      window.addEventListener("resize", () => {
+        updateButtons();
+        updateDots();
+      });
+      updateButtons();
+      updateDots();
+    }
   }
 
+  if (homeLightbox instanceof HTMLElement && homeLightboxItems.length > 0) {
+    const lightboxImage = document.getElementById("home-lightbox-image");
+    const lightboxTitle = document.getElementById("home-lightbox-title");
+    const lightboxCat = document.getElementById("home-lightbox-cat");
+    const lightboxCounter = document.getElementById("home-lightbox-counter");
+    const closeButton = homeLightbox.querySelector(".lightbox__close");
+    const prevArrow = homeLightbox.querySelector(".lightbox__arrow--prev");
+    const nextArrow = homeLightbox.querySelector(".lightbox__arrow--next");
+
+    if (
+      lightboxImage instanceof HTMLImageElement &&
+      lightboxTitle instanceof HTMLElement &&
+      lightboxCat instanceof HTMLElement &&
+      lightboxCounter instanceof HTMLElement &&
+      closeButton instanceof HTMLButtonElement &&
+      prevArrow instanceof HTMLButtonElement &&
+      nextArrow instanceof HTMLButtonElement
+    ) {
+      let currentLightboxIndex = 0;
+      let lightboxImageToken = 0;
+
+      const syncScrollLock = () => {
+        document.body.style.overflow =
+          homeLightbox.getAttribute("aria-hidden") !== "true" ? "hidden" : "";
+      };
+
+      const swapLightboxImage = (
+        src = "",
+        alt = "Imagen ampliada",
+        aspect = "",
+      ) =>
+        new Promise((resolve) => {
+          const currentSrc = lightboxImage.getAttribute("src") ?? "";
+
+          if (currentSrc === src) {
+            lightboxImage.alt = alt;
+            if (aspect) {
+              lightboxImage.style.aspectRatio = aspect;
+            }
+            lightboxImage.classList.add("is-ready");
+            resolve(undefined);
+            return;
+          }
+
+          const token = ++lightboxImageToken;
+          lightboxImage.classList.remove("is-ready");
+          if (aspect) {
+            lightboxImage.style.aspectRatio = aspect;
+          }
+
+          const preloaded = new window.Image();
+          preloaded.decoding = "async";
+          preloaded.src = src;
+
+          const applyImage = () => {
+            if (token !== lightboxImageToken) {
+              resolve(undefined);
+              return;
+            }
+
+            lightboxImage.src = src;
+            lightboxImage.alt = alt;
+            requestAnimationFrame(() => {
+              lightboxImage.classList.add("is-ready");
+              resolve(undefined);
+            });
+          };
+
+          preloaded.addEventListener("load", applyImage, { once: true });
+          preloaded.addEventListener("error", applyImage, { once: true });
+        });
+
+      const showLightboxImage = async (index = 0) => {
+        currentLightboxIndex =
+          ((index % homeLightboxItems.length) + homeLightboxItems.length) %
+          homeLightboxItems.length;
+
+        const item = homeLightboxItems[currentLightboxIndex];
+        if (!(item instanceof HTMLElement)) {
+          return;
+        }
+
+        lightboxTitle.textContent = item.dataset.title ?? "";
+        lightboxCat.textContent = item.dataset.cat ?? "";
+        lightboxCounter.textContent = `${currentLightboxIndex + 1} / ${homeLightboxItems.length}`;
+
+        await swapLightboxImage(
+          item.dataset.src ?? "",
+          item.dataset.alt ?? "Imagen ampliada",
+          item.dataset.aspect,
+        );
+      };
+
+      const openLightbox = async (index = 0) => {
+        homeLightbox.setAttribute("aria-hidden", "false");
+        syncScrollLock();
+        lightboxImage.classList.remove("is-ready");
+        lightboxImage.removeAttribute("src");
+        await showLightboxImage(index);
+
+        if (homeLightbox.getAttribute("aria-hidden") === "true") {
+          return;
+        }
+
+        closeButton.focus();
+      };
+
+      const closeLightbox = () => {
+        lightboxImageToken += 1;
+        homeLightbox.setAttribute("aria-hidden", "true");
+        syncScrollLock();
+      };
+
+      homeLightboxItems.forEach((item, index) => {
+        if (!(item instanceof HTMLButtonElement)) {
+          return;
+        }
+
+        item.addEventListener("click", () => {
+          void openLightbox(index);
+        });
+      });
+
+      prevArrow.addEventListener("click", () => {
+        void showLightboxImage(currentLightboxIndex - 1);
+      });
+      nextArrow.addEventListener("click", () => {
+        void showLightboxImage(currentLightboxIndex + 1);
+      });
+      closeButton.addEventListener("click", closeLightbox);
+
+      homeLightbox.addEventListener("click", (event) => {
+        if (event.target === homeLightbox) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (homeLightbox.getAttribute("aria-hidden") === "true") {
+          return;
+        }
+
+        if (event.key === "Escape") {
+          closeLightbox();
+        }
+        if (event.key === "ArrowLeft") {
+          void showLightboxImage(currentLightboxIndex - 1);
+        }
+        if (event.key === "ArrowRight") {
+          void showLightboxImage(currentLightboxIndex + 1);
+        }
+      });
+    }
+  }
+</script>
+
+<style>
   .home-hero__copy {
     display: flex;
     flex-direction: column;
@@ -184,37 +603,6 @@ const homeLinks = [
     margin-top: var(--space-sm);
   }
 
-  .home-hero__aside {
-    display: grid;
-    gap: var(--space-sm);
-  }
-
-  .home-link-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    padding: var(--space-md);
-    border: 1px solid var(--color-border);
-    background: linear-gradient(180deg, var(--color-glass-subtle), transparent);
-    min-height: 120px;
-    transition:
-      transform var(--duration-base) var(--ease-out-expo),
-      border-color var(--duration-fast) var(--ease-out-quart),
-      background var(--duration-fast) var(--ease-out-quart);
-  }
-
-  .home-link-card strong {
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    font-weight: 600;
-  }
-
-  .home-link-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--color-border-strong);
-    background: linear-gradient(180deg, var(--color-glass), transparent);
-  }
-
   .home-section {
     padding-bottom: var(--space-section);
   }
@@ -231,55 +619,344 @@ const homeLinks = [
     margin-top: 0.35rem;
   }
 
-  .home-photo-grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
+  .home-section__actions {
+    display: flex;
+    align-items: center;
     gap: var(--space-sm);
   }
 
-  .home-photo-tile {
-    grid-column: span 4;
+  .home-photo-carousel {
+    position: relative;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .home-photo-carousel__status {
+    top: 0;
+    left: 0;
+  }
+
+  .home-photo-carousel__footer {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-md);
+  }
+
+  .home-photo-carousel__viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+    padding-bottom: 0.2rem;
+  }
+
+  .home-photo-carousel__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-photo-carousel__track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: clamp(210px, 22vw, 290px);
+    gap: 0.18rem;
+  }
+
+  .home-photo-carousel__slide {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    cursor: zoom-in;
   }
 
-  .home-photo-tile:nth-child(4n + 1),
-  .home-photo-tile:nth-child(4n + 4) {
-    grid-column: span 6;
+  .home-photo-carousel__slide:focus-visible .home-photo-carousel__media {
+    outline: 2px solid var(--color-ocean);
+    outline-offset: 3px;
   }
 
-  .home-photo-tile__media {
+  .home-photo-carousel__media {
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--color-border);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     background: var(--color-bg-raised);
   }
 
-  .home-photo-tile__image {
+  .home-photo-carousel__image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     aspect-ratio: 4 / 5;
-    transition: transform var(--duration-slow) var(--ease-out-expo);
+    transition:
+      transform var(--duration-slow) var(--ease-out-expo),
+      opacity var(--duration-base) var(--ease-out-expo);
   }
 
-  .home-photo-tile:hover .home-photo-tile__image {
-    transform: scale(1.02);
+  .home-photo-carousel__slide:hover .home-photo-carousel__image {
+    transform: scale(1.015);
   }
 
-  .home-photo-tile__meta {
+  .home-photo-carousel__controls {
     display: flex;
-    justify-content: space-between;
-    gap: var(--space-sm);
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: fit-content;
+    max-width: 100%;
+    flex-wrap: wrap;
   }
 
-  .home-photo-tile__meta strong {
+  .home-photo-carousel__button {
+    width: 2.6rem;
+    height: 2.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--color-text-muted);
+    transition:
+      color var(--duration-fast) var(--ease-out-quart),
+      border-color var(--duration-fast) var(--ease-out-quart),
+      background var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .home-photo-carousel__button:hover:not(:disabled) {
     color: var(--color-text);
-    font-size: var(--text-base);
-    font-weight: 500;
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .home-photo-carousel__button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .home-photo-carousel__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem;
+    max-width: min(100%, 480px);
+  }
+
+  .home-photo-carousel__dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.16);
+    transition:
+      transform var(--duration-fast) var(--ease-out-quart),
+      background var(--duration-fast) var(--ease-out-quart),
+      border-color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .home-photo-carousel__dot[data-active="true"] {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    transform: scale(1.15);
+  }
+
+  .home-photo-carousel__dot:hover,
+  .home-photo-carousel__dot:focus-visible {
+    border-color: rgba(255, 255, 255, 0.52);
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 6, 6, 0.94);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0s,
+      backdrop-filter 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lightbox[aria-hidden="true"] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition:
+      opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0.4s,
+      backdrop-filter 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lightbox__close {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    color: var(--color-text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5em;
+    z-index: 2;
+    opacity: 1;
+    transition:
+      color var(--duration-fast) var(--ease-out-quart),
+      opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0.18s;
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__close {
+    opacity: 0;
+    transition-delay: 0s;
+  }
+
+  .lightbox__close:hover {
+    color: var(--color-text);
+  }
+
+  .lightbox__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    color: var(--color-text-dim);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-border);
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 1;
+    transition:
+      color var(--duration-fast) var(--ease-out-quart),
+      background var(--duration-fast) var(--ease-out-quart),
+      border-color var(--duration-fast) var(--ease-out-quart),
+      opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0.12s;
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__arrow {
+    opacity: 0;
+    transition-delay: 0s;
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__arrow--prev {
+    transform: translateY(-50%) translateX(-12px);
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__arrow--next {
+    transform: translateY(-50%) translateX(12px);
+  }
+
+  .lightbox__arrow:hover {
+    color: var(--color-text);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--color-border-strong);
+  }
+
+  .lightbox__arrow--prev {
+    left: var(--space-md);
+  }
+
+  .lightbox__arrow--next {
+    right: var(--space-md);
+  }
+
+  .lightbox__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: min(85vw, 1100px);
+    max-height: 85vh;
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    transition:
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0.06s;
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__content {
+    transform: scale(0.92) translateY(12px);
+    opacity: 0;
+    transition-delay: 0s;
+  }
+
+  .lightbox__placeholder {
+    border: 1px solid var(--color-border);
+    display: block;
+    width: min(80vw, 1000px);
+    max-height: 70vh;
+    height: auto;
+    object-fit: contain;
+    opacity: 0;
+    transition:
+      aspect-ratio 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lightbox__placeholder.is-ready {
+    opacity: 1;
+  }
+
+  .lightbox__info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding-top: var(--space-sm);
+    width: 100%;
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0.15s;
+  }
+
+  .lightbox[aria-hidden="true"] .lightbox__info {
+    opacity: 0;
+    transform: translateY(8px);
+    transition-delay: 0s;
+  }
+
+  .lightbox__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    color: var(--color-text);
+  }
+
+  .lightbox__counter {
+    margin-left: auto;
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-text-dim);
+    font-variant-numeric: tabular-nums;
   }
 
   .home-video-grid {
@@ -346,35 +1023,57 @@ const homeLinks = [
   }
 
   @media (max-width: 900px) {
-    .home-hero__inner {
-      grid-template-columns: 1fr;
-    }
-
     .home-section__top {
       flex-direction: column;
       align-items: start;
     }
 
-    .home-photo-tile,
-    .home-photo-tile:nth-child(4n + 1),
-    .home-photo-tile:nth-child(4n + 4) {
-      grid-column: span 6;
+    .home-section__actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .home-photo-carousel__track {
+      grid-auto-columns: clamp(200px, 46vw, 280px);
     }
   }
 
   @media (max-width: 640px) {
-    .home-photo-grid {
-      grid-template-columns: 1fr;
+    .home-section__actions {
+      flex-wrap: wrap;
     }
 
-    .home-photo-tile,
-    .home-photo-tile:nth-child(4n + 1),
-    .home-photo-tile:nth-child(4n + 4) {
-      grid-column: auto;
+    .lightbox__arrow {
+      width: 40px;
+      height: 40px;
     }
 
-    .home-photo-tile__meta {
-      flex-direction: column;
+    .lightbox__arrow--prev {
+      left: var(--space-xs);
+    }
+
+    .lightbox__arrow--next {
+      right: var(--space-xs);
+    }
+
+    .lightbox__placeholder {
+      width: 95vw;
+    }
+
+    .lightbox__info {
+      flex-wrap: wrap;
+    }
+
+    .home-photo-carousel__controls {
+      gap: 0.55rem;
+    }
+
+    .home-photo-carousel__pagination {
+      max-width: 220px;
+    }
+
+    .home-photo-carousel__track {
+      grid-auto-columns: 78vw;
     }
   }
 </style>
