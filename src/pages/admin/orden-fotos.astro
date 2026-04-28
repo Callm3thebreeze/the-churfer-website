@@ -13,11 +13,7 @@ export const prerender = false;
   <section class="order-page container reveal">
     <header class="order-header">
       <h1>Orden de fotos publicadas</h1>
-      <p>
-        Reordena con drag and drop y guarda. Esta herramienta usa la API oficial
-        de EmDash y actualiza el campo <code>front_order</code> en la coleccion
-        <code>photos</code>.
-      </p>
+
       <p class="order-link-row">
         <a class="pill-btn" href="/_emdash/admin/content/photos"
           >Abrir lista de fotos en EmDash</a
@@ -95,7 +91,7 @@ export const prerender = false;
     ) as HTMLButtonElement;
 
     const endpoint = app.dataset.endpoint || "/admin/api/photos-order";
-    const ORDER_STEP = 10;
+    const DRAG_HINT_TEXT = "Arrastra para cambiar el orden y pulsa Guardar.";
 
     const state: UIState = {
       items: [],
@@ -162,6 +158,8 @@ export const prerender = false;
     ): void {
       runtimeStatus.textContent = text;
       runtimeStatus.className = `order-status is-${kind}`;
+      runtimeStatus.dataset.mobileHide =
+        text === DRAG_HINT_TEXT ? "true" : "false";
     }
 
     function getSignature(items: PhotoOrderEntry[]): string {
@@ -288,8 +286,11 @@ export const prerender = false;
         dragHandle.className = "drag-handle";
         dragHandle.type = "button";
         dragHandle.setAttribute("aria-label", "Arrastrar para reordenar");
-        dragHandle.textContent = "::";
+        dragHandle.textContent = "::::";
         row.appendChild(dragHandle);
+
+        const visual = document.createElement("div");
+        visual.className = "order-visual";
 
         const imageSrc = getImageSrcFromPhoto(photo);
         if (imageSrc) {
@@ -297,58 +298,38 @@ export const prerender = false;
           image.src = imageSrc;
           image.alt = photo.title || "Foto";
           image.loading = "lazy";
-          row.appendChild(image);
+          visual.appendChild(image);
         } else {
           const placeholder = document.createElement("div");
           placeholder.className = "thumb-placeholder";
           placeholder.textContent = "Sin imagen";
-          row.appendChild(placeholder);
+          visual.appendChild(placeholder);
         }
 
-        const meta = document.createElement("div");
-        meta.className = "order-meta";
-
-        const strong = document.createElement("strong");
-        strong.textContent = photo.title || photo.id;
-        meta.appendChild(strong);
-
-        const idLine = document.createElement("span");
-        idLine.textContent = `ID: ${photo.id}`;
-        meta.appendChild(idLine);
-
-        const orderLine = document.createElement("span");
-        orderLine.textContent = `front_order actual: ${photo.frontOrder ?? "sin definir"}`;
-        meta.appendChild(orderLine);
-
-        row.appendChild(meta);
+        row.appendChild(visual);
 
         const actions = document.createElement("div");
         actions.className = "order-actions";
 
         const upButton = document.createElement("button");
         upButton.type = "button";
-        upButton.className = "move-btn";
+        upButton.className = "move-btn move-btn--up";
         upButton.setAttribute("aria-label", "Subir");
-        upButton.textContent = "Subir";
+        upButton.textContent = "↑ Subir";
         upButton.disabled = index === 0;
         upButton.addEventListener("click", () => moveItem(index, index - 1));
         actions.appendChild(upButton);
 
         const downButton = document.createElement("button");
         downButton.type = "button";
-        downButton.className = "move-btn";
+        downButton.className = "move-btn move-btn--down";
         downButton.setAttribute("aria-label", "Bajar");
-        downButton.textContent = "Bajar";
+        downButton.textContent = "↓ Bajar";
         downButton.disabled = index === state.items.length - 1;
         downButton.addEventListener("click", () => moveItem(index, index + 1));
         actions.appendChild(downButton);
 
-        const orderChip = document.createElement("span");
-        orderChip.className = "order-chip";
-        orderChip.textContent = `Nuevo: ${(index + 1) * ORDER_STEP}`;
-        actions.appendChild(orderChip);
-
-        row.appendChild(actions);
+        visual.appendChild(actions);
 
         row.addEventListener("dragstart", () => {
           state.draggingId = photo.id;
@@ -469,10 +450,7 @@ export const prerender = false;
         state.authenticated = true;
 
         setAuthStatus("Sesion valida", "success");
-        setRuntimeStatus(
-          "Arrastra para cambiar el orden y pulsa Guardar.",
-          "neutral",
-        );
+        setRuntimeStatus(DRAG_HINT_TEXT, "neutral");
         renderList();
       } catch (error) {
         const message =
@@ -590,30 +568,37 @@ export const prerender = false;
     })();
   </script>
 
-  <style>
+  <style is:global>
     .order-page {
       padding-block: clamp(2rem, 5vw, 3.5rem);
     }
 
+    .order-header {
+      display: grid;
+      gap: 0.95rem;
+    }
+
     .order-header h1 {
-      margin: 0;
+      margin: 3rem 0 0;
       font-size: clamp(1.7rem, 4vw, 2.3rem);
     }
 
     .order-header p {
-      margin-top: 0.75rem;
+      margin: 0;
       max-width: 78ch;
     }
 
     .order-link-row {
-      margin-top: 1rem;
+      margin-top: 0.2rem;
     }
 
     .order-app {
-      margin-top: 1.5rem;
+      margin-top: 2rem;
       border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 1rem;
-      padding: 1rem;
+      padding: 1.25rem;
+      display: grid;
+      gap: 1rem;
       background: linear-gradient(
         180deg,
         rgba(255, 255, 255, 0.03),
@@ -623,14 +608,14 @@ export const prerender = false;
 
     .order-toolbar {
       display: flex;
-      gap: 0.65rem;
-      margin-top: 0.75rem;
+      gap: 0.8rem;
+      margin-top: 0;
       flex-wrap: wrap;
     }
 
     .order-status {
-      margin-top: 0.75rem;
-      padding: 0.6rem 0.75rem;
+      margin-top: 0;
+      padding: 0.72rem 0.85rem;
       border-radius: 0.65rem;
       font-size: 0.95rem;
       border: 1px solid transparent;
@@ -657,25 +642,25 @@ export const prerender = false;
     }
 
     .order-counter {
-      margin-top: 0.75rem;
+      margin-top: 0;
       color: rgba(255, 255, 255, 0.8);
       font-size: 0.95rem;
     }
 
     .order-list {
       list-style: none;
-      margin: 1rem 0 0;
+      margin: 0;
       padding: 0;
       display: grid;
-      gap: 0.65rem;
+      gap: 0.85rem;
     }
 
     .order-item {
       display: grid;
-      grid-template-columns: auto 72px minmax(0, 1fr) auto;
-      gap: 0.75rem;
-      align-items: center;
-      padding: 0.6rem;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.9rem;
+      align-items: start;
+      padding: 0.72rem;
       border-radius: 0.75rem;
       border: 1px solid rgba(255, 255, 255, 0.14);
       background: rgba(9, 16, 24, 0.75);
@@ -701,12 +686,20 @@ export const prerender = false;
       line-height: 1;
     }
 
+    .order-visual {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.9rem;
+      min-width: 0;
+    }
+
     .order-item img,
     .thumb-placeholder {
-      width: 72px;
-      height: 72px;
+      width: 216px;
+      height: 216px;
       object-fit: cover;
-      border-radius: 0.5rem;
+      border-radius: 0.6rem;
       background: rgba(255, 255, 255, 0.06);
     }
 
@@ -719,70 +712,121 @@ export const prerender = false;
       color: rgba(255, 255, 255, 0.72);
     }
 
-    .order-meta {
-      min-width: 0;
-      display: grid;
-      gap: 0.2rem;
-    }
-
-    .order-meta strong {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .order-meta span {
-      font-size: 0.82rem;
-      color: rgba(255, 255, 255, 0.74);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
     .order-actions {
       display: flex;
+      width: 100%;
       align-items: center;
-      gap: 0.4rem;
+      justify-content: center;
+      gap: 0.6rem;
+      row-gap: 0.75rem;
+      flex-wrap: wrap;
+      padding-top: 0.35rem;
     }
 
     .move-btn {
-      border: 0;
-      border-radius: 0.45rem;
-      padding: 0.45rem 0.6rem;
-      background: rgba(255, 255, 255, 0.1);
-      color: inherit;
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      border: 1px solid rgba(255, 255, 255, 0.36);
+      border-radius: 0.75rem;
+      padding: 0.5rem 0.88rem;
+      min-height: 2.15rem;
+      min-width: 0;
+      flex: 1 1 0;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.24),
+        rgba(255, 255, 255, 0.1)
+      );
+      color: rgba(255, 255, 255, 0.96);
       cursor: pointer;
       font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 6px 14px rgba(0, 0, 0, 0.32);
+      touch-action: manipulation;
+      transition:
+        background 150ms ease,
+        border-color 150ms ease,
+        transform 120ms ease,
+        box-shadow 150ms ease;
+    }
+
+    .move-btn:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.5);
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.32),
+        rgba(255, 255, 255, 0.16)
+      );
+      transform: translateY(-2px);
+    }
+
+    .move-btn:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.7);
+      outline-offset: 2px;
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .move-btn:active:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 2px 6px rgba(0, 0, 0, 0.24);
     }
 
     .move-btn:disabled {
-      opacity: 0.35;
+      opacity: 0.55;
       cursor: not-allowed;
+      box-shadow: none;
     }
 
-    .order-chip {
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      padding: 0.28rem 0.6rem;
-      font-size: 0.76rem;
-      color: rgba(255, 255, 255, 0.88);
-      white-space: nowrap;
+    .move-btn--up:not(:disabled) {
+      border-color: rgba(56, 161, 105, 0.65);
+      background: linear-gradient(
+        180deg,
+        rgba(56, 161, 105, 0.42),
+        rgba(56, 161, 105, 0.22)
+      );
+    }
+
+    .move-btn--down:not(:disabled) {
+      border-color: rgba(66, 153, 225, 0.65);
+      background: linear-gradient(
+        180deg,
+        rgba(66, 153, 225, 0.4),
+        rgba(66, 153, 225, 0.2)
+      );
     }
 
     @media (max-width: 840px) {
+      #order-runtime-status[data-mobile-hide="true"] {
+        display: none;
+      }
+
       .order-item {
-        grid-template-columns: auto 56px minmax(0, 1fr);
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+
+      .order-visual {
+        gap: 0.7rem;
       }
 
       .order-item img,
       .thumb-placeholder {
-        width: 56px;
-        height: 56px;
+        width: 176px;
+        height: 176px;
       }
 
       .order-actions {
-        grid-column: 1 / -1;
-        justify-content: flex-end;
+        justify-content: center;
+        gap: 0.5rem;
+        row-gap: 0.65rem;
       }
     }
   </style>

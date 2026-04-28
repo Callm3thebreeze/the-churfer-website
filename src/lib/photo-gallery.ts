@@ -254,7 +254,7 @@ function getFallbackGallery(): GalleryData {
 }
 
 function mapEmDashPhoto(entry: { id: string; data: Record<string, unknown> }): GalleryPhoto | null {
-  const title = getString(entry.data, "title") ?? entry.id;
+  const title = getString(entry.data, "title") ?? "";
   const media = getMediaValue(entry.data, "image", "featured_image", "photo", "media");
   const src = getMediaSrc(media);
 
@@ -299,7 +299,7 @@ function mapEmDashPhoto(entry: { id: string; data: Record<string, unknown> }): G
     alt:
       getString(entry.data, "alt") ??
       (isMediaValue(media) && typeof media.alt === "string" ? media.alt : undefined) ??
-      `Sergi Ortega - ${title}`,
+      (title ? `Sergi Ortega - ${title}` : "Sergi Ortega - Fotografia"),
     tags,
     frontOrder,
     category,

@@ -85,7 +85,11 @@ const featuredVideos = videos.slice(0, 3);
               <button
                 type="button"
                 class={`home-photo-carousel__slide reveal-delay-${(index % 4) + 1}`}
-                aria-label={`Abrir galería: ${photo.title}`}
+                aria-label={
+                  photo.title
+                    ? `Abrir galeria: ${photo.title}`
+                    : "Abrir galeria"
+                }
                 aria-haspopup="dialog"
                 data-home-lightbox-item
                 data-src={photo.lightboxSrc}
@@ -157,7 +161,11 @@ const featuredVideos = videos.slice(0, 3);
                   class="home-photo-carousel__dot"
                   type="button"
                   role="tab"
-                  aria-label={`Ir a la fotografía ${index + 1} de ${featuredPhotos.length}: ${photo.title}`}
+                  aria-label={
+                    photo.title
+                      ? `Ir a la fotografia ${index + 1} de ${featuredPhotos.length}: ${photo.title}`
+                      : `Ir a la fotografia ${index + 1} de ${featuredPhotos.length}`
+                  }
                   aria-selected={index === 0 ? "true" : "false"}
                   aria-current={index === 0 ? "true" : "false"}
                   data-carousel-dot
