@@ -1,0 +1,789 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export const prerender = false;
+---
+
+<BaseLayout
+  title="Orden de fotos"
+  description="Herramienta para ordenar fotos publicadas con drag and drop"
+  canonicalPath="/admin/orden-fotos"
+  noindex={true}
+>
+  <section class="order-page container reveal">
+    <header class="order-header">
+      <h1>Orden de fotos publicadas</h1>
+      <p>
+        Reordena con drag and drop y guarda. Esta herramienta usa la API oficial
+        de EmDash y actualiza el campo <code>front_order</code> en la coleccion
+        <code>photos</code>.
+      </p>
+      <p class="order-link-row">
+        <a class="pill-btn" href="/_emdash/admin/content/photos"
+          >Abrir lista de fotos en EmDash</a
+        >
+      </p>
+    </header>
+
+    <div
+      id="photo-order-app"
+      class="order-app"
+      data-endpoint="/admin/api/photos-order"
+    >
+      <p id="order-auth-status" class="order-status is-neutral">
+        Verificando sesion...
+      </p>
+
+      <div class="order-toolbar">
+        <button id="order-reload" class="pill-btn" type="button" disabled
+          >Recargar</button
+        >
+        <button
+          id="order-save"
+          class="pill-btn pill-btn--primary"
+          type="button"
+          disabled
+        >
+          Guardar orden
+        </button>
+      </div>
+
+      <p id="order-runtime-status" class="order-status is-neutral"></p>
+      <p id="order-counter" class="order-counter"></p>
+
+      <ul id="order-list" class="order-list" aria-live="polite"></ul>
+    </div>
+  </section>
+
+  <script>
+    type StatusKind = "neutral" | "success" | "warning" | "error";
+
+    interface PhotoOrderEntry {
+      id: string;
+      title: string;
+      frontOrder: number | null;
+      publishedAt: string | null;
+      imageSrc: string | null;
+    }
+
+    interface SessionData {
+      email?: string;
+    }
+
+    interface UIState {
+      items: PhotoOrderEntry[];
+      initialSignature: string;
+      draggingId: string | null;
+      authenticated: boolean;
+      busy: boolean;
+    }
+
+    const app = document.getElementById("photo-order-app") as HTMLElement;
+    const authStatus = document.getElementById(
+      "order-auth-status",
+    ) as HTMLElement;
+    const runtimeStatus = document.getElementById(
+      "order-runtime-status",
+    ) as HTMLElement;
+    const counter = document.getElementById("order-counter") as HTMLElement;
+    const list = document.getElementById("order-list") as HTMLElement;
+    const saveButton = document.getElementById(
+      "order-save",
+    ) as HTMLButtonElement;
+    const reloadButton = document.getElementById(
+      "order-reload",
+    ) as HTMLButtonElement;
+
+    const endpoint = app.dataset.endpoint || "/admin/api/photos-order";
+    const ORDER_STEP = 10;
+
+    const state: UIState = {
+      items: [],
+      initialSignature: "",
+      draggingId: null,
+      authenticated: false,
+      busy: false,
+    };
+
+    function toObject(value: unknown): Record<string, unknown> | null {
+      if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return null;
+      }
+      return value as Record<string, unknown>;
+    }
+
+    function toString(value: unknown): string | null {
+      return typeof value === "string" && value.trim().length > 0
+        ? value.trim()
+        : null;
+    }
+
+    function toNumber(value: unknown): number | null {
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return Math.trunc(value);
+      }
+      if (typeof value === "string" && value.trim().length > 0) {
+        const parsed = Number(value);
+        if (Number.isFinite(parsed)) {
+          return Math.trunc(parsed);
+        }
+      }
+      return null;
+    }
+
+    function toPhotoOrderEntry(value: unknown): PhotoOrderEntry | null {
+      const obj = toObject(value);
+      if (!obj) {
+        return null;
+      }
+
+      const id = toString(obj.id);
+      if (!id) {
+        return null;
+      }
+
+      return {
+        id,
+        title: toString(obj.title) ?? id,
+        frontOrder: toNumber(obj.frontOrder),
+        publishedAt: toString(obj.publishedAt),
+        imageSrc: toString(obj.imageSrc),
+      };
+    }
+
+    function setAuthStatus(text: string, kind: StatusKind): void {
+      authStatus.textContent = text;
+      authStatus.className = `order-status is-${kind}`;
+    }
+
+    function setRuntimeStatus(
+      text: string,
+      kind: StatusKind = "neutral",
+    ): void {
+      runtimeStatus.textContent = text;
+      runtimeStatus.className = `order-status is-${kind}`;
+    }
+
+    function getSignature(items: PhotoOrderEntry[]): string {
+      return items.map((item) => item.id).join("|");
+    }
+
+    function isDirty(): boolean {
+      return getSignature(state.items) !== state.initialSignature;
+    }
+
+    function updateCounter(): void {
+      const dirtyText = isDirty() ? "Hay cambios sin guardar" : "Sin cambios";
+      counter.textContent = `${state.items.length} fotos cargadas. ${dirtyText}.`;
+    }
+
+    function updateButtons(): void {
+      const canInteract =
+        state.authenticated && !state.busy && state.items.length > 0;
+      reloadButton.disabled = !state.authenticated || state.busy;
+      saveButton.disabled = !canInteract || !isDirty();
+    }
+
+    function normalizeImageField(raw: unknown): unknown {
+      if (typeof raw === "string") {
+        const trimmed = raw.trim();
+        if (!trimmed.startsWith("{")) {
+          return trimmed;
+        }
+        try {
+          return JSON.parse(trimmed) as unknown;
+        } catch {
+          return "";
+        }
+      }
+      return raw;
+    }
+
+    async function responseErrorMessage(
+      response: Response,
+      fallback: string,
+    ): Promise<string> {
+      try {
+        const payload = (await response.json()) as unknown;
+        const payloadObj = toObject(payload);
+        const errorObj = toObject(payloadObj?.error);
+        const message = toString(errorObj?.message);
+        if (message) {
+          return message;
+        }
+      } catch {
+        // Ignore parse errors and keep fallback.
+      }
+
+      return `${fallback} (${response.status})`;
+    }
+
+    function getImageSrcFromPhoto(photo: PhotoOrderEntry): string {
+      const media = normalizeImageField(photo.imageSrc);
+
+      if (typeof media === "string" && media.trim().length > 0) {
+        return media;
+      }
+
+      const mediaObj = toObject(media);
+      if (!mediaObj) {
+        return "";
+      }
+
+      const src = toString(mediaObj.src);
+      if (src) {
+        return src;
+      }
+
+      const preview = toString(mediaObj.previewUrl);
+      if (preview) {
+        return preview;
+      }
+
+      const meta = toObject(mediaObj.meta);
+      const variants = meta?.variants;
+      if (Array.isArray(variants)) {
+        for (const variant of variants) {
+          const value = toString(variant);
+          if (value) {
+            return value;
+          }
+        }
+      }
+
+      return "";
+    }
+
+    function moveItem(fromIndex: number, toIndex: number): void {
+      if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) {
+        return;
+      }
+      const next = [...state.items];
+      const [moved] = next.splice(fromIndex, 1);
+      if (!moved) {
+        return;
+      }
+      next.splice(toIndex, 0, moved);
+      state.items = next;
+      renderList();
+    }
+
+    function moveById(sourceId: string, targetId: string): void {
+      const fromIndex = state.items.findIndex((item) => item.id === sourceId);
+      const toIndex = state.items.findIndex((item) => item.id === targetId);
+      moveItem(fromIndex, toIndex);
+    }
+
+    function renderList(): void {
+      list.innerHTML = "";
+
+      for (let index = 0; index < state.items.length; index += 1) {
+        const photo = state.items[index]!;
+        const row = document.createElement("li");
+        row.className = "order-item";
+        row.draggable = true;
+        row.dataset.id = photo.id;
+
+        const dragHandle = document.createElement("button");
+        dragHandle.className = "drag-handle";
+        dragHandle.type = "button";
+        dragHandle.setAttribute("aria-label", "Arrastrar para reordenar");
+        dragHandle.textContent = "::";
+        row.appendChild(dragHandle);
+
+        const imageSrc = getImageSrcFromPhoto(photo);
+        if (imageSrc) {
+          const image = document.createElement("img");
+          image.src = imageSrc;
+          image.alt = photo.title || "Foto";
+          image.loading = "lazy";
+          row.appendChild(image);
+        } else {
+          const placeholder = document.createElement("div");
+          placeholder.className = "thumb-placeholder";
+          placeholder.textContent = "Sin imagen";
+          row.appendChild(placeholder);
+        }
+
+        const meta = document.createElement("div");
+        meta.className = "order-meta";
+
+        const strong = document.createElement("strong");
+        strong.textContent = photo.title || photo.id;
+        meta.appendChild(strong);
+
+        const idLine = document.createElement("span");
+        idLine.textContent = `ID: ${photo.id}`;
+        meta.appendChild(idLine);
+
+        const orderLine = document.createElement("span");
+        orderLine.textContent = `front_order actual: ${photo.frontOrder ?? "sin definir"}`;
+        meta.appendChild(orderLine);
+
+        row.appendChild(meta);
+
+        const actions = document.createElement("div");
+        actions.className = "order-actions";
+
+        const upButton = document.createElement("button");
+        upButton.type = "button";
+        upButton.className = "move-btn";
+        upButton.setAttribute("aria-label", "Subir");
+        upButton.textContent = "Subir";
+        upButton.disabled = index === 0;
+        upButton.addEventListener("click", () => moveItem(index, index - 1));
+        actions.appendChild(upButton);
+
+        const downButton = document.createElement("button");
+        downButton.type = "button";
+        downButton.className = "move-btn";
+        downButton.setAttribute("aria-label", "Bajar");
+        downButton.textContent = "Bajar";
+        downButton.disabled = index === state.items.length - 1;
+        downButton.addEventListener("click", () => moveItem(index, index + 1));
+        actions.appendChild(downButton);
+
+        const orderChip = document.createElement("span");
+        orderChip.className = "order-chip";
+        orderChip.textContent = `Nuevo: ${(index + 1) * ORDER_STEP}`;
+        actions.appendChild(orderChip);
+
+        row.appendChild(actions);
+
+        row.addEventListener("dragstart", () => {
+          state.draggingId = photo.id;
+          row.classList.add("is-dragging");
+        });
+
+        row.addEventListener("dragend", () => {
+          state.draggingId = null;
+          row.classList.remove("is-dragging");
+          for (const item of list.querySelectorAll<HTMLElement>(
+            ".order-item",
+          )) {
+            item.classList.remove("is-over");
+          }
+        });
+
+        row.addEventListener("dragover", (event: DragEvent) => {
+          event.preventDefault();
+          row.classList.add("is-over");
+        });
+
+        row.addEventListener("dragleave", () => {
+          row.classList.remove("is-over");
+        });
+
+        row.addEventListener("drop", (event: DragEvent) => {
+          event.preventDefault();
+          row.classList.remove("is-over");
+          if (!state.draggingId || state.draggingId === photo.id) {
+            return;
+          }
+          moveById(state.draggingId, photo.id);
+        });
+
+        list.appendChild(row);
+      }
+
+      updateCounter();
+      updateButtons();
+    }
+
+    async function fetchSession(): Promise<SessionData | null> {
+      const response = await fetch("/_emdash/api/auth/me", {
+        credentials: "include",
+      });
+
+      if (response.status === 401) {
+        return null;
+      }
+
+      if (!response.ok) {
+        throw new Error("No se pudo verificar la sesion de EmDash");
+      }
+
+      const payload = (await response.json()) as unknown;
+      const payloadObj = toObject(payload);
+      const data = toObject(payloadObj?.data);
+      if (!data) {
+        return {};
+      }
+
+      return {
+        email: toString(data.email) ?? undefined,
+      };
+    }
+
+    async function loadPhotos(): Promise<void> {
+      state.busy = true;
+      updateButtons();
+      setRuntimeStatus("Cargando fotos publicadas...", "neutral");
+
+      try {
+        const response = await fetch(endpoint, {
+          credentials: "include",
+        });
+
+        if (response.status === 401) {
+          setAuthStatus("Sesion no iniciada en EmDash", "warning");
+          setRuntimeStatus(
+            "Inicia sesion en el panel y vuelve a cargar.",
+            "warning",
+          );
+          list.innerHTML = "";
+          state.items = [];
+          state.initialSignature = "";
+          state.authenticated = false;
+          return;
+        }
+
+        if (response.status === 403) {
+          setAuthStatus("Sin permisos para reordenar contenido", "warning");
+          setRuntimeStatus(
+            "Necesitas un rol con permiso content:edit_any.",
+            "warning",
+          );
+          list.innerHTML = "";
+          state.items = [];
+          state.initialSignature = "";
+          state.authenticated = true;
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            await responseErrorMessage(response, "Error al cargar fotos"),
+          );
+        }
+
+        const payload = (await response.json()) as unknown;
+        const payloadObj = toObject(payload);
+        const data = toObject(payloadObj?.data);
+        const rawItems = Array.isArray(data?.items) ? data.items : [];
+
+        state.items = rawItems
+          .map((item) => toPhotoOrderEntry(item))
+          .filter((item): item is PhotoOrderEntry => item !== null);
+        state.initialSignature = getSignature(state.items);
+        state.authenticated = true;
+
+        setAuthStatus("Sesion valida", "success");
+        setRuntimeStatus(
+          "Arrastra para cambiar el orden y pulsa Guardar.",
+          "neutral",
+        );
+        renderList();
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Fallo al cargar las fotos";
+        setRuntimeStatus(message, "error");
+      } finally {
+        state.busy = false;
+        updateButtons();
+      }
+    }
+
+    async function saveOrder(): Promise<void> {
+      if (state.busy || !isDirty()) {
+        return;
+      }
+
+      state.busy = true;
+      updateButtons();
+      setRuntimeStatus("Guardando orden...", "neutral");
+
+      try {
+        const orderedIds = state.items.map((item) => item.id);
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ orderedIds }),
+        });
+
+        if (response.status === 401) {
+          setAuthStatus("Sesion no iniciada en EmDash", "warning");
+          setRuntimeStatus(
+            "Tu sesion caduco. Vuelve a iniciar sesion.",
+            "warning",
+          );
+          return;
+        }
+
+        if (!response.ok && response.status !== 207) {
+          throw new Error(
+            await responseErrorMessage(response, "Error al guardar el orden"),
+          );
+        }
+
+        const payload = (await response.json()) as unknown;
+        const payloadObj = toObject(payload);
+        const data = toObject(payloadObj?.data);
+        const failed = Array.isArray(data?.failed) ? data.failed : [];
+        const updatedCount = toNumber(data?.updatedCount) ?? 0;
+
+        if (failed.length > 0) {
+          const firstError = toObject(failed[0]);
+          const firstMessage =
+            toString(firstError?.message) ?? "Error desconocido";
+          setRuntimeStatus(
+            `Guardado parcial: ${updatedCount} actualizadas, ${failed.length} fallidas. Primera causa: ${firstMessage}`,
+            "warning",
+          );
+        } else {
+          setRuntimeStatus(
+            `Orden guardado. ${updatedCount} fotos actualizadas.`,
+            "success",
+          );
+        }
+
+        await loadPhotos();
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Fallo al guardar el orden";
+        setRuntimeStatus(message, "error");
+      } finally {
+        state.busy = false;
+        updateButtons();
+      }
+    }
+
+    saveButton.addEventListener("click", () => {
+      void saveOrder();
+    });
+
+    reloadButton.addEventListener("click", () => {
+      void loadPhotos();
+    });
+
+    (async () => {
+      try {
+        const session = await fetchSession();
+        if (!session) {
+          state.authenticated = false;
+          setAuthStatus("Sesion no iniciada en EmDash", "warning");
+          setRuntimeStatus(
+            "Abre /_emdash/admin, inicia sesion y vuelve aqui.",
+            "warning",
+          );
+          updateButtons();
+          return;
+        }
+
+        setAuthStatus(
+          `Sesion valida como ${session.email || "usuario"}`,
+          "success",
+        );
+        state.authenticated = true;
+        await loadPhotos();
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "No se pudo inicializar la herramienta";
+        setAuthStatus("Error de inicializacion", "error");
+        setRuntimeStatus(message, "error");
+      }
+    })();
+  </script>
+
+  <style>
+    .order-page {
+      padding-block: clamp(2rem, 5vw, 3.5rem);
+    }
+
+    .order-header h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 4vw, 2.3rem);
+    }
+
+    .order-header p {
+      margin-top: 0.75rem;
+      max-width: 78ch;
+    }
+
+    .order-link-row {
+      margin-top: 1rem;
+    }
+
+    .order-app {
+      margin-top: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 1rem;
+      padding: 1rem;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.03),
+        rgba(255, 255, 255, 0.01)
+      );
+    }
+
+    .order-toolbar {
+      display: flex;
+      gap: 0.65rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .order-status {
+      margin-top: 0.75rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 0.65rem;
+      font-size: 0.95rem;
+      border: 1px solid transparent;
+    }
+
+    .order-status.is-neutral {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .order-status.is-success {
+      background: rgba(56, 161, 105, 0.16);
+      border-color: rgba(56, 161, 105, 0.45);
+    }
+
+    .order-status.is-warning {
+      background: rgba(221, 107, 32, 0.16);
+      border-color: rgba(221, 107, 32, 0.45);
+    }
+
+    .order-status.is-error {
+      background: rgba(229, 62, 62, 0.16);
+      border-color: rgba(229, 62, 62, 0.45);
+    }
+
+    .order-counter {
+      margin-top: 0.75rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.95rem;
+    }
+
+    .order-list {
+      list-style: none;
+      margin: 1rem 0 0;
+      padding: 0;
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .order-item {
+      display: grid;
+      grid-template-columns: auto 72px minmax(0, 1fr) auto;
+      gap: 0.75rem;
+      align-items: center;
+      padding: 0.6rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(9, 16, 24, 0.75);
+    }
+
+    .order-item.is-over {
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+
+    .order-item.is-dragging {
+      opacity: 0.55;
+    }
+
+    .drag-handle {
+      width: 2rem;
+      height: 2rem;
+      border: 0;
+      border-radius: 0.45rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: inherit;
+      cursor: grab;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .order-item img,
+    .thumb-placeholder {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .thumb-placeholder {
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+      text-align: center;
+      padding: 0.35rem;
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .order-meta {
+      min-width: 0;
+      display: grid;
+      gap: 0.2rem;
+    }
+
+    .order-meta strong {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .order-meta span {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.74);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .order-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .move-btn {
+      border: 0;
+      border-radius: 0.45rem;
+      padding: 0.45rem 0.6rem;
+      background: rgba(255, 255, 255, 0.1);
+      color: inherit;
+      cursor: pointer;
+      font-size: 0.82rem;
+    }
+
+    .move-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .order-chip {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      padding: 0.28rem 0.6rem;
+      font-size: 0.76rem;
+      color: rgba(255, 255, 255, 0.88);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 840px) {
+      .order-item {
+        grid-template-columns: auto 56px minmax(0, 1fr);
+      }
+
+      .order-item img,
+      .thumb-placeholder {
+        width: 56px;
+        height: 56px;
+      }
+
+      .order-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+      }
+    }
+  </style>
+</BaseLayout>

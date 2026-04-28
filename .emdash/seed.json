@@ -32,6 +32,14 @@
           "searchable": true
         },
         {
+          "slug": "front_order",
+          "label": "Orden en galeria",
+          "type": "integer",
+          "validation": {
+            "min": 0
+          }
+        },
+        {
           "slug": "tags",
           "label": "Etiquetas de galeria",
           "type": "multiSelect",

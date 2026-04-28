@@ -14,6 +14,7 @@ export interface GalleryPhoto {
   title: string;
   alt: string;
   tags: string[];
+  frontOrder?: number;
   category: string;
   filterLabel: string;
   displayCategory: string;
@@ -107,6 +108,28 @@ function getNumber(
     const value = data[key];
     if (typeof value === "number" && Number.isFinite(value)) {
       return value;
+    }
+  }
+
+  return undefined;
+}
+
+function getInteger(
+  data: Record<string, unknown>,
+  ...keys: string[]
+): number | undefined {
+  for (const key of keys) {
+    const value = data[key];
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return Math.trunc(value);
+    }
+
+    if (typeof value === "string" && value.trim()) {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) {
+        return Math.trunc(parsed);
+      }
     }
   }
 
@@ -268,6 +291,7 @@ function mapEmDashPhoto(entry: { id: string; data: Record<string, unknown> }): G
     getNumber(entry.data, "height") ??
     (isMediaValue(media) && typeof media.height === "number" ? media.height : undefined) ??
     1067;
+  const frontOrder = getInteger(entry.data, "front_order", "frontOrder", "order");
 
   return {
     id: entry.id,
@@ -277,6 +301,7 @@ function mapEmDashPhoto(entry: { id: string; data: Record<string, unknown> }): G
       (isMediaValue(media) && typeof media.alt === "string" ? media.alt : undefined) ??
       `Sergi Ortega - ${title}`,
     tags,
+    frontOrder,
     category,
     filterLabel,
     displayCategory,
@@ -327,13 +352,25 @@ export async function getGalleryData(): Promise<GalleryData> {
       .map((entry) => mapEmDashPhoto(entry))
       .filter((photo): photo is GalleryPhoto => photo !== null);
 
-    if (photos.length === 0) {
+    const orderedPhotos = [...photos].sort((a, b) => {
+      const aOrder = typeof a.frontOrder === "number" ? a.frontOrder : Number.MAX_SAFE_INTEGER;
+      const bOrder = typeof b.frontOrder === "number" ? b.frontOrder : Number.MAX_SAFE_INTEGER;
+
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+
+      // Keep existing published_at ordering as tie-breaker (stable sort).
+      return 0;
+    });
+
+    if (orderedPhotos.length === 0) {
       return getFallbackGallery();
     }
 
     return {
-      filters: buildFilters(photos),
-      photos,
+      filters: buildFilters(orderedPhotos),
+      photos: orderedPhotos,
       source: "emdash",
     };
   } catch {
