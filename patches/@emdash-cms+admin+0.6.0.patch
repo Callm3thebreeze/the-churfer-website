@@ -1,0 +1,89 @@
+diff --git a/node_modules/@emdash-cms/admin/dist/index.js b/node_modules/@emdash-cms/admin/dist/index.js
+index f878a42..90aefd2 100644
+--- a/node_modules/@emdash-cms/admin/dist/index.js
++++ b/node_modules/@emdash-cms/admin/dist/index.js
+@@ -1412,7 +1412,8 @@ async function fetchMediaProviders() {
+ async function fetchProviderMedia(providerId, options) {
+ 	const params = new URLSearchParams();
+ 	if (options?.cursor) params.set("cursor", options.cursor);
+-	if (options?.limit) params.set("limit", String(options.limit));
++	const effectiveLimit = providerId === "cloudflare-images" ? Math.max(options?.limit ?? 0, 500) : options?.limit;
++	if (effectiveLimit) params.set("limit", String(effectiveLimit));
+ 	if (options?.query) params.set("query", options.query);
+ 	if (options?.mimeType) params.set("mimeType", options.mimeType);
+ 	return parseApiResponse(await apiFetch(`${API_BASE}/media/providers/${providerId}${params.toString() ? `?${params}` : ""}`), "Failed to fetch provider media");
+@@ -17000,6 +17001,9 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
+ 	const [uploadState, setUploadState] = React.useState({ status: "idle" });
+ 	const fileInputRef = React.useRef(null);
+ 	const [loadedDimensions, setLoadedDimensions] = React.useState({});
++	const [providerItems, setProviderItems] = React.useState([]);
++	const [providerNextCursor, setProviderNextCursor] = React.useState(void 0);
++	const [isLoadingMoreProvider, setIsLoadingMoreProvider] = React.useState(false);
+ 	const { data: providers } = useQuery({
+ 		queryKey: ["media-providers"],
+ 		queryFn: fetchMediaProviders,
+@@ -17017,6 +17021,32 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
+ 		}),
+ 		enabled: activeProvider !== "local"
+ 	});
++	React.useEffect(() => {
++		if (activeProvider === "local") {
++			setProviderItems([]);
++			setProviderNextCursor(void 0);
++			return;
++		}
++		if (providerData) {
++			setProviderItems(providerData.items || []);
++			setProviderNextCursor(providerData.nextCursor);
++		}
++	}, [providerData, activeProvider]);
++	const handleLoadMoreProvider = async () => {
++		if (activeProvider === "local" || !providerNextCursor || isLoadingMoreProvider) return;
++		setIsLoadingMoreProvider(true);
++		try {
++			const result = await fetchProviderMedia(activeProvider, {
++				limit: 50,
++				query: searchQuery || void 0,
++				cursor: providerNextCursor
++			});
++			setProviderItems((prev) => [...prev, ...(result.items || [])]);
++			setProviderNextCursor(result.nextCursor);
++		} finally {
++			setIsLoadingMoreProvider(false);
++		}
++	};
+ 	const activeProviderInfo = React.useMemo(() => {
+ 		if (activeProvider === "local") return {
+ 			id: "local",
+@@ -17181,7 +17211,7 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
+ 		return tabs;
+ 	}, [providers]);
+ 	const currentItems = activeProvider === "local" ? items : [];
+-	const currentProviderItems = activeProvider !== "local" ? providerData?.items || [] : [];
++	const currentProviderItems = activeProvider !== "local" ? providerItems : [];
+ 	const currentLoading = activeProvider === "local" ? isLoading : providerLoading;
+ 	const canUpload = activeProviderInfo?.capabilities.upload ?? false;
+ 	const canSearch = activeProviderInfo?.capabilities.search ?? false;
+@@ -17480,6 +17510,22 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
+ 					}, item.id)) })]
+ 				})
+ 			}),
++			activeProvider !== "local" && providerNextCursor && !currentLoading && /* @__PURE__ */ jsx("div", {
++				className: "pt-2 text-center",
++				children: /* @__PURE__ */ jsx(Button, {
++					variant: "outline",
++					size: "sm",
++					onClick: handleLoadMoreProvider,
++					disabled: isLoadingMoreProvider,
++					children: isLoadingMoreProvider ? _t({
++						id: "Z3FXyt",
++						message: "Loading..."
++					}) : _t({
++						id: "yQ2kGp",
++						message: "Load more"
++					})
++				})
++			}),
+ 			selectedItem && /* @__PURE__ */ jsx(MediaDetailPanel, {
+ 				item: selectedItem,
+ 				onClose: () => setSelectedItem(null),

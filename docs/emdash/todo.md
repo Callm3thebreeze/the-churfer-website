@@ -63,3 +63,8 @@
 - [ ] Ejecutar `npm run check`.
 - [ ] Ejecutar `npm run build`.
 - [ ] Verificar `robots.txt`, `sitemap.xml` y `sitemap-static.xml` tras la configuración final.
+
+## Documentacion y contribucion
+
+- [x] Documentar la incidencia de media en Cloudflare Images y su hotfix en [docs/emdash/hotfix-media-cloudflare-images.md](docs/emdash/hotfix-media-cloudflare-images.md).
+- [x] Preparar propuesta de PR para EmDash en [docs/emdash/propuesta-pr-emdash-media-pagination-cloudflare.md](docs/emdash/propuesta-pr-emdash-media-pagination-cloudflare.md).

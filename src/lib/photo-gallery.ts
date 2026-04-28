@@ -291,17 +291,40 @@ function mapEmDashPhoto(entry: { id: string; data: Record<string, unknown> }): G
 
 export async function getGalleryData(): Promise<GalleryData> {
   try {
-    const { entries, error } = await getEmDashCollection("photos", {
-      orderBy: { published_at: "desc" },
-      status: "published",
-    });
+    const allEntries: Array<{ id: string; data: Record<string, unknown> }> = [];
+    let cursor: string | undefined;
 
-    if (error || entries.length === 0) {
+    do {
+      const { entries, error, nextCursor } = await getEmDashCollection("photos", {
+        orderBy: { published_at: "desc" },
+        status: "published",
+        limit: 100,
+        cursor,
+      });
+
+      if (error) {
+        return getFallbackGallery();
+      }
+
+      allEntries.push(
+        ...entries.map((entry) => ({
+          id: entry.id,
+          data:
+            entry.data && typeof entry.data === "object"
+              ? (entry.data as unknown as Record<string, unknown>)
+              : {},
+        })),
+      );
+
+      cursor = nextCursor;
+    } while (cursor);
+
+    if (allEntries.length === 0) {
       return getFallbackGallery();
     }
 
-    const photos = entries
-      .map((entry) => mapEmDashPhoto(entry as { id: string; data: Record<string, unknown> }))
+    const photos = allEntries
+      .map((entry) => mapEmDashPhoto(entry))
       .filter((photo): photo is GalleryPhoto => photo !== null);
 
     if (photos.length === 0) {
