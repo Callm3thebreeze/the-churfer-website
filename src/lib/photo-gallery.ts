@@ -124,7 +124,21 @@ function getMediaValue(
   for (const key of keys) {
     const value = data[key];
     if (typeof value === "string" && value.trim()) {
-      return value;
+      const raw = value.trim();
+
+      // EmDash can persist media fields as JSON strings in SQL-backed collections.
+      if (raw.startsWith("{") || raw.startsWith("[")) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (isMediaValue(parsed)) {
+            return parsed;
+          }
+        } catch {
+          // Fall back to treating it as a plain URL string.
+        }
+      }
+
+      return raw;
     }
     if (isMediaValue(value)) {
       return value;
@@ -137,7 +151,33 @@ function getMediaValue(
 function getMediaSrc(value: MediaValue | string | undefined): string {
   if (!value) return "";
   if (typeof value === "string") return value;
-  return value.src ?? "";
+
+  if (typeof value.src === "string" && value.src.trim()) {
+    return value.src.trim();
+  }
+
+  // Prefer stable variant URLs when providers persist them in metadata.
+  const variants = value.meta?.variants;
+  if (Array.isArray(variants)) {
+    const firstVariant = variants.find(
+      (variant): variant is string =>
+        typeof variant === "string" && variant.trim().length > 0,
+    );
+    if (firstVariant) {
+      return firstVariant;
+    }
+  }
+
+  if (typeof value.previewUrl === "string" && value.previewUrl.trim()) {
+    return value.previewUrl.trim();
+  }
+
+  // Last resort for Cloudflare Images values without explicit URL.
+  if (value.provider === "cloudflare-images" && value.id && import.meta.env.CF_IMAGES_ACCOUNT_HASH) {
+    return `https://imagedelivery.net/${import.meta.env.CF_IMAGES_ACCOUNT_HASH}/${value.id}/public`;
+  }
+
+  return "";
 }
 
 function buildFilters(photos: GalleryPhoto[]): PhotoCategory[] {
