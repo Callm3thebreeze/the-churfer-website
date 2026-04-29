@@ -9,6 +9,7 @@ const PAGE_LIMIT = 100;
 const ORDER_STEP = 10;
 const ORDER_FIELD_SLUG = "front_order";
 const ORDER_FIELD_LABEL = "Orden en galeria";
+const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
 interface ContentItem {
   id: string;
@@ -49,6 +50,20 @@ interface EmdashRuntimeLike {
   ) => Promise<ApiResult<{ item?: unknown; _rev?: string }>>;
   invalidateManifest?: () => Promise<void> | void;
   db?: unknown;
+}
+
+function isEmdashRuntimeLike(value: unknown): value is EmdashRuntimeLike {
+  const obj = toObject(value);
+  if (!obj) {
+    return false;
+  }
+
+  return (
+    typeof obj.handleContentList === "function" &&
+    typeof obj.handleContentGet === "function" &&
+    typeof obj.handleContentUpdate === "function" &&
+    typeof obj.handleContentPublish === "function"
+  );
 }
 
 function toObject(value: unknown): Record<string, unknown> | null {
@@ -184,7 +199,16 @@ function comparePhotos(a: PhotoOrderItem, b: PhotoOrderItem): number {
 }
 
 function apiError(status: number, code: string, message: string): Response {
-  return Response.json({ error: { code, message } }, { status });
+  return Response.json({ error: { code, message } }, { status, headers: NO_STORE_HEADERS });
+}
+
+function isSameOriginRequest(request: Request): boolean {
+  const origin = request.headers.get("origin");
+  if (!origin) {
+    return true;
+  }
+
+  return origin === new URL(request.url).origin;
 }
 
 function buildInternalHeaders(request: Request, withJson: boolean): Headers {
@@ -277,22 +301,15 @@ async function ensureOrderField(request: Request, runtime: EmdashRuntimeLike): P
   }
 }
 
-function getRuntime(locals: Record<string, unknown>): EmdashRuntimeLike | null {
-  const emdash = toObject(locals.emdash);
-  if (!emdash) {
+function getRuntime(locals: unknown): EmdashRuntimeLike | null {
+  const localsObj = toObject(locals);
+  if (!localsObj) {
     return null;
   }
 
-  if (
-    typeof emdash.handleContentList !== "function" ||
-    typeof emdash.handleContentGet !== "function" ||
-    typeof emdash.handleContentUpdate !== "function" ||
-    typeof emdash.handleContentPublish !== "function"
-  ) {
-    return null;
-  }
+  const emdash = localsObj.emdash;
 
-  return emdash as unknown as EmdashRuntimeLike;
+  return isEmdashRuntimeLike(emdash) ? emdash : null;
 }
 
 function hasEditPermission(user: unknown): boolean {
@@ -347,9 +364,8 @@ function toPhotoOrderItem(item: ContentItem): PhotoOrderItem {
 }
 
 export const GET: APIRoute = async ({ locals }) => {
-  const safeLocals = locals as unknown as Record<string, unknown>;
-  const user = safeLocals.user;
-  const runtime = getRuntime(safeLocals);
+  const user = toObject(locals)?.user;
+  const runtime = getRuntime(locals);
 
   if (!user) {
     return apiError(401, "NOT_AUTHENTICATED", "Not authenticated");
@@ -366,7 +382,7 @@ export const GET: APIRoute = async ({ locals }) => {
   try {
     const published = await loadPublishedPhotos(runtime);
     const items = published.map(toPhotoOrderItem).sort(comparePhotos);
-    return Response.json({ data: { items } }, { status: 200 });
+    return Response.json({ data: { items } }, { status: 200, headers: NO_STORE_HEADERS });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to load photos";
     return apiError(500, "ORDER_LIST_FAILED", message);
@@ -374,9 +390,12 @@ export const GET: APIRoute = async ({ locals }) => {
 };
 
 export const POST: APIRoute = async ({ request, locals, cache }) => {
-  const safeLocals = locals as unknown as Record<string, unknown>;
-  const user = safeLocals.user;
-  const runtime = getRuntime(safeLocals);
+  const user = toObject(locals)?.user;
+  const runtime = getRuntime(locals);
+
+  if (!isSameOriginRequest(request)) {
+    return apiError(403, "FORBIDDEN_ORIGIN", "Cross-origin requests are not allowed");
+  }
 
   if (!user) {
     return apiError(401, "NOT_AUTHENTICATED", "Not authenticated");
@@ -503,7 +522,7 @@ export const POST: APIRoute = async ({ request, locals, cache }) => {
           failed,
         },
       },
-      { status: failed.length === 0 ? 200 : 207 },
+      { status: failed.length === 0 ? 200 : 207, headers: NO_STORE_HEADERS },
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to save order";

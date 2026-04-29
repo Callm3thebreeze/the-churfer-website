@@ -5,6 +5,7 @@ import {
   photoFilters as localPhotoFilters,
   type PhotoCategory,
 } from "../data/photos";
+import { formatCategoryLabel, toCategoryId } from "./category";
 
 const BASE_FILTERS = localPhotoFilters.filter(({ id }) => id !== "all");
 const FILTER_LABELS = new Map(BASE_FILTERS.map(({ id, label }) => [id, label]));
@@ -33,25 +34,16 @@ export interface GalleryData {
   source: "emdash" | "local";
 }
 
-function toCategoryId(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function formatCategoryLabel(value: string): string {
-  return value
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
 function getCategoryLabel(value: string): string {
   return FILTER_LABELS.get(value) ?? formatCategoryLabel(value);
+}
+
+function toRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return value as Record<string, unknown>;
 }
 
 function getString(
@@ -334,10 +326,7 @@ export async function getGalleryData(): Promise<GalleryData> {
       allEntries.push(
         ...entries.map((entry) => ({
           id: entry.id,
-          data:
-            entry.data && typeof entry.data === "object"
-              ? (entry.data as unknown as Record<string, unknown>)
-              : {},
+          data: toRecord(entry.data),
         })),
       );
 

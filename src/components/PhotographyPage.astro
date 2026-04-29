@@ -779,28 +779,58 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
     grid.style.height = `${Math.max(...colHeights, 0)}px`;
   }
 
-  // Initial layout (no transitions)
-  layoutMasonry();
+  const availableFilters = new Set(
+    Array.from(btns)
+      .map((btn) => btn.dataset.filter)
+      .filter((value): value is string => Boolean(value)),
+  );
+
+  function normalizeFilter(value: string | null | undefined): string {
+    const normalized = value?.trim().toLowerCase();
+
+    if (normalized && availableFilters.has(normalized)) {
+      return normalized;
+    }
+
+    return "all";
+  }
+
+  function applyFilter(filter: string) {
+    const activeFilter = normalizeFilter(filter);
+
+    btns.forEach((button) => {
+      const isActive = button.dataset.filter === activeFilter;
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+
+    items.forEach((item) => {
+      const tags = (item.dataset.tags ?? "")
+        .split("|")
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+      const match = activeFilter === "all" || tags.includes(activeFilter);
+      item.classList.toggle("hidden", !match);
+      item.style.pointerEvents = match ? "" : "none";
+    });
+
+    layoutMasonry();
+  }
+
+  function getInitialFilterFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return normalizeFilter(
+      params.get("categoria") ?? params.get("category") ?? params.get("filter"),
+    );
+  }
+
+  // ── Initial layout + initial filter from URL ──
+  applyFilter(getInitialFilterFromUrl());
   requestAnimationFrame(() => grid.classList.add("masonry-ready"));
 
   // ── Filters ──
   btns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const filter = btn.dataset.filter;
-      btns.forEach((b) => b.setAttribute("aria-pressed", "false"));
-      btn.setAttribute("aria-pressed", "true");
-
-      items.forEach((item) => {
-        const tags = (item.dataset.tags ?? "")
-          .split("|")
-          .map((tag) => tag.trim())
-          .filter(Boolean);
-        const match = filter === "all" || tags.includes(filter ?? "");
-        item.classList.toggle("hidden", !match);
-        item.style.pointerEvents = match ? "" : "none";
-      });
-
-      layoutMasonry();
+      applyFilter(btn.dataset.filter ?? "all");
     });
   });
 

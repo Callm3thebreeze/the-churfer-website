@@ -8,6 +8,7 @@ import {
   videoCategories as localVideoCategories,
   type Video as LocalVideo,
 } from "../data/videos";
+import { formatCategoryLabel, toCategoryId } from "./category";
 
 const BASE_VIDEO_CATEGORIES = localVideoCategories.filter(({ id }) => id !== "all");
 const BASE_VIDEO_CATEGORY_LABELS = new Map<string, string>(
@@ -39,23 +40,6 @@ export interface VideoLibrary {
   categories: VideoCategory[];
   videos: VideoEntry[];
   source: "emdash" | "local";
-}
-
-function toCategoryId(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function formatCategoryLabel(value: string): string {
-  return value
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function getString(
@@ -179,6 +163,14 @@ function getVideoCategoryLabel(categoryId: string): string {
   return BASE_VIDEO_CATEGORY_LABELS.get(categoryId) ?? formatCategoryLabel(categoryId);
 }
 
+function toDataRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+
+  return value as Record<string, unknown>;
+}
+
 function extractYouTubeId(input: string): string | undefined {
   const trimmed = input.trim();
   if (!trimmed) {
@@ -262,30 +254,35 @@ function getFallbackLibrary(): VideoLibrary {
   };
 }
 
-function mapEmDashVideo(entry: { id: string; data: Record<string, unknown> }): VideoEntry | null {
-  const title = getString(entry.data, "title") ?? entry.id;
-  const slug = getString(entry.data, "slug") ?? entry.id;
-  const videoUrl = getString(entry.data, "video_url", "videoUrl", "url") ?? "";
+function mapEmDashVideo(entry: { id: string; data: unknown }): VideoEntry | null {
+  const data = toDataRecord(entry.data);
+  if (!data) {
+    return null;
+  }
+
+  const title = getString(data, "title") ?? entry.id;
+  const slug = getString(data, "slug") ?? entry.id;
+  const videoUrl = getString(data, "video_url", "videoUrl", "url") ?? "";
 
   if (!videoUrl) {
     return null;
   }
 
-  const contentBlocks = getPortableText(entry.data, "content", "body");
+  const contentBlocks = getPortableText(data, "content", "body");
   const contentText =
     portableTextToPlainText(contentBlocks) ||
-    getString(entry.data, "content", "body") ||
+    getString(data, "content", "body") ||
     "";
   const description =
-    getString(entry.data, "excerpt", "description") ||
+    getString(data, "excerpt", "description") ||
     createExcerpt(contentText) ||
     title;
   const category =
-    toCategoryId(getString(entry.data, "category", "video_category") ?? "") ||
+    toCategoryId(getString(data, "category", "video_category") ?? "") ||
     "all";
   const date =
     getDateString(
-      entry.data,
+      data,
       "publishedAt",
       "published_at",
       "createdAt",
@@ -321,7 +318,7 @@ export async function getVideoLibrary(): Promise<VideoLibrary> {
     }
 
     const videos = entries
-      .map((entry) => mapEmDashVideo(entry as { id: string; data: Record<string, unknown> }))
+      .map((entry) => mapEmDashVideo(entry))
       .filter((video): video is VideoEntry => video !== null);
 
     if (videos.length === 0) {
@@ -342,7 +339,7 @@ export async function getVideoEntryBySlug(slug: string): Promise<VideoEntry | nu
   try {
     const { entry, error } = await getEmDashEntry("videos", slug);
     if (!error && entry) {
-      return mapEmDashVideo(entry as { id: string; data: Record<string, unknown> });
+      return mapEmDashVideo(entry);
     }
   } catch {
     // Fall through to local fallback.

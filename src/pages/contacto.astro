@@ -1,5 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const submissionStatus = Astro.url.searchParams.get("status");
 ---
 
 <BaseLayout
@@ -23,7 +25,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <section class="contact container">
     <div class="contact__grid">
       <!-- FORMULARIO -->
-      <form class="contact__form reveal" method="POST" action="#">
+      <form class="contact__form reveal" method="POST" action="/api/contact">
         <div class="contact__form-group">
           <label for="name">Nombre</label>
           <input
@@ -45,6 +47,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             required
             autocomplete="email"
             placeholder="tu@email.com"
+          />
+        </div>
+
+        <div class="contact__honeypot" aria-hidden="true">
+          <label for="company">Empresa</label>
+          <input
+            type="text"
+            id="company"
+            name="company"
+            tabindex="-1"
+            autocomplete="off"
           />
         </div>
 
@@ -72,6 +85,40 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         </div>
 
         <button type="submit" class="cta-button">Enviar mensaje</button>
+
+        {
+          submissionStatus === "ok" && (
+            <p
+              class="contact__status contact__status--success"
+              aria-live="polite"
+            >
+              Mensaje enviado. Te responderé lo antes posible.
+            </p>
+          )
+        }
+
+        {
+          submissionStatus === "invalid" && (
+            <p
+              class="contact__status contact__status--error"
+              aria-live="polite"
+            >
+              Revisa los campos del formulario e inténtalo de nuevo.
+            </p>
+          )
+        }
+
+        {
+          submissionStatus === "error" && (
+            <p
+              class="contact__status contact__status--error"
+              aria-live="polite"
+            >
+              No se pudo enviar el mensaje ahora mismo. Prueba de nuevo dentro
+              de unos minutos.
+            </p>
+          )
+        }
       </form>
 
       <!-- SIDEBAR INFO -->
@@ -144,9 +191,46 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     gap: var(--space-md);
   }
 
+  .contact__status {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+
+  .contact__status--success {
+    border-color: color-mix(
+      in srgb,
+      var(--color-sunset) 35%,
+      var(--color-border)
+    );
+    background: color-mix(
+      in srgb,
+      var(--color-surface) 82%,
+      var(--color-sunset) 18%
+    );
+  }
+
+  .contact__status--error {
+    border-color: color-mix(in srgb, #b91c1c 35%, var(--color-border));
+    background: color-mix(in srgb, var(--color-surface) 90%, #b91c1c 10%);
+  }
+
   .contact__form-group {
     display: flex;
     flex-direction: column;
+  }
+
+  .contact__honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
   }
 
   .contact__form input::placeholder,

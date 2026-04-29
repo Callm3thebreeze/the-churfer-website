@@ -54,7 +54,6 @@
 
 ## Limpieza posterior
 
-- [ ] Revisar si todavía hace falta mantener compatibilidad con Cloudinary en [astro.config.mjs](astro.config.mjs).
 - [ ] Revisar si conviene retirar código legado no usado tras la migración parcial de la galería.
 - [ ] Documentar el flujo editorial final para subir y etiquetar fotos desde EmDash.
 

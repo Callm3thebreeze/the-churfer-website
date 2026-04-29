@@ -47,6 +47,6 @@ export default defineConfig({
     }),
   ],
   image: {
-    domains: ["res.cloudinary.com", "imagedelivery.net"],
+    domains: ["imagedelivery.net"],
   },
 });
