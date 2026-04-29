@@ -20,7 +20,8 @@ const embedUrl = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(vi
   <iframe
     src={embedUrl}
     title={title}
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+    referrerpolicy="strict-origin-when-cross-origin"
     allowfullscreen
     loading="lazy"></iframe>
 </div>

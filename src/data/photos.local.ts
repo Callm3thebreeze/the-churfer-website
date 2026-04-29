@@ -1,5 +1,6 @@
 import type { ImageMetadata } from "astro";
 import type { PhotoCategory, PhotoItem } from "./photos.shared";
+import { formatCategoryLabel, toCategoryId } from "../lib/category";
 export type { PhotoCategory, PhotoDimensions, PhotoItem } from "./photos.shared";
 export { getPanoramaTileClass } from "./photos.shared";
 
@@ -21,23 +22,6 @@ const photoModules = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true },
 );
 
-function toCategoryId(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function formatSegment(value: string): string {
-  return value
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
 function titleFromFilename(filename: string): string {
   const withoutExt = filename.replace(/\.[^.]+$/, "");
   return withoutExt
@@ -53,7 +37,7 @@ const mapped = Object.entries(photoModules)
     const filename = parts[parts.length - 1] ?? "";
     const rootFolder = parts[0] ?? "OTROS";
     const subfolder = parts.length > 2 ? parts[1] : "";
-    const rootLabel = ROOT_LABELS[rootFolder] ?? formatSegment(rootFolder);
+    const rootLabel = ROOT_LABELS[rootFolder] ?? formatCategoryLabel(rootFolder);
     const category = toCategoryId(rootFolder);
     const title = titleFromFilename(filename);
 
@@ -63,7 +47,7 @@ const mapped = Object.entries(photoModules)
       category,
       filterLabel: rootLabel,
       displayCategory: subfolder
-        ? `${rootLabel} / ${formatSegment(subfolder)}`
+        ? `${rootLabel} / ${formatCategoryLabel(subfolder)}`
         : rootLabel,
       image: module.default,
       src: module.default.src,

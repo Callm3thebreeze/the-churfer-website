@@ -23,6 +23,15 @@ interface Props {
   hideChrome?: boolean;
 }
 
+function serializeJsonLd(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
 const {
   title,
   description = "Portfolio de fotografía y vídeo",
@@ -51,7 +60,7 @@ const schemaItems = [
   }),
   ...(Array.isArray(schema) ? schema : schema ? [schema] : []),
 ];
-const jsonLd = JSON.stringify(schemaItems);
+const jsonLd = serializeJsonLd(schemaItems);
 ---
 
 <!doctype html>
@@ -80,7 +89,7 @@ const jsonLd = JSON.stringify(schemaItems);
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImageUrl} />
 
-    <script type="application/ld+json" set:html={jsonLd} />
+    <script is:inline type="application/ld+json" set:html={jsonLd} />
 
     <!-- Tipografías: Bricolage Grotesque (h1) + Syne (display) + DM Sans (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
