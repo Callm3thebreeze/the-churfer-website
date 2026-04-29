@@ -4,35 +4,57 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { getGalleryData } from "../lib/photo-gallery";
 import { getVideoLibrary, formatDate, getCategoryLabel } from "../lib/videos";
 
-const { photos } = await getGalleryData();
+const { photos, filters } = await getGalleryData();
 const { videos } = await getVideoLibrary();
 
-const surfPhotos = photos.filter(
-  (photo) => photo.category === "surf" || photo.tags.includes("surf"),
-);
+type CategoryHighlight = (typeof photos)[number] & {
+  categoryId: string;
+  categoryLabel: string;
+};
+
+const categoryPhotos: CategoryHighlight[] = [];
+
+for (const filter of filters) {
+  if (filter.id === "all") {
+    continue;
+  }
+
+  const matchingPhoto = photos.find(
+    (photo) => photo.category === filter.id || photo.tags.includes(filter.id),
+  );
+
+  if (!matchingPhoto) {
+    continue;
+  }
+
+  categoryPhotos.push({
+    ...matchingPhoto,
+    categoryId: filter.id,
+    categoryLabel: filter.label,
+  });
+}
+
 const featuredPhotos = await Promise.all(
-  (surfPhotos.length > 0 ? surfPhotos : photos)
-    .slice(0, 20)
-    .map(async (photo) => {
-      if (!photo.image) {
-        return {
-          ...photo,
-          lightboxSrc: photo.src,
-        };
-      }
-
-      const lightboxImage = await getImage({
-        src: photo.image,
-        width: 2200,
-        format: "webp",
-        quality: 74,
-      });
-
+  categoryPhotos.map(async (photo) => {
+    if (!photo.image) {
       return {
         ...photo,
-        lightboxSrc: lightboxImage.src,
+        lightboxSrc: photo.src,
       };
-    }),
+    }
+
+    const lightboxImage = await getImage({
+      src: photo.image,
+      width: 2200,
+      format: "webp",
+      quality: 74,
+    });
+
+    return {
+      ...photo,
+      lightboxSrc: lightboxImage.src,
+    };
+  }),
 );
 
 const featuredVideos = videos.slice(0, 3);
@@ -76,27 +98,16 @@ const featuredVideos = videos.slice(0, 3);
       data-photo-carousel
       role="region"
       aria-roledescription="carrusel"
-      aria-label={`Carrusel con ${featuredPhotos.length} fotografías de surf`}
+      aria-label={`Carrusel con ${featuredPhotos.length} categorías fotográficas`}
     >
       <div class="home-photo-carousel__viewport" data-photo-carousel-viewport>
         <div class="home-photo-carousel__track" data-photo-carousel-track>
           {
             featuredPhotos.map((photo, index) => (
-              <button
-                type="button"
+              <a
+                href={`/fotografia?categoria=${encodeURIComponent(photo.categoryId)}`}
                 class={`home-photo-carousel__slide reveal-delay-${(index % 4) + 1}`}
-                aria-label={
-                  photo.title
-                    ? `Abrir galeria: ${photo.title}`
-                    : "Abrir galeria"
-                }
-                aria-haspopup="dialog"
-                data-home-lightbox-item
-                data-src={photo.lightboxSrc}
-                data-alt={photo.alt}
-                data-title={photo.title}
-                data-cat={photo.displayCategory}
-                data-aspect={photo.aspect}
+                aria-label={`Ver galería de ${photo.categoryLabel}`}
               >
                 <div class="home-photo-carousel__media">
                   {photo.image ? (
@@ -121,8 +132,12 @@ const featuredVideos = videos.slice(0, 3);
                       height={photo.height}
                     />
                   )}
+
+                  <span class="home-photo-carousel__category-label">
+                    {photo.categoryLabel}
+                  </span>
                 </div>
-              </button>
+              </a>
             ))
           }
         </div>
@@ -133,7 +148,7 @@ const featuredVideos = videos.slice(0, 3);
         aria-live="polite"
         data-carousel-status
       >
-        Fotografía 1 de {featuredPhotos.length}
+        Categoría 1 de {featuredPhotos.length}
       </div>
 
       <div class="home-photo-carousel__footer">
@@ -144,7 +159,7 @@ const featuredVideos = videos.slice(0, 3);
           <button
             class="home-photo-carousel__button"
             type="button"
-            aria-label="Ver fotografías anteriores"
+            aria-label="Ver categorías anteriores"
             data-carousel-prev
           >
             <span aria-hidden="true">&larr;</span>
@@ -152,7 +167,7 @@ const featuredVideos = videos.slice(0, 3);
 
           <div
             class="home-photo-carousel__pagination"
-            aria-label={`Indicadores del carrusel, ${featuredPhotos.length} fotografías`}
+            aria-label={`Indicadores del carrusel, ${featuredPhotos.length} categorías`}
             role="tablist"
           >
             {
@@ -161,17 +176,13 @@ const featuredVideos = videos.slice(0, 3);
                   class="home-photo-carousel__dot"
                   type="button"
                   role="tab"
-                  aria-label={
-                    photo.title
-                      ? `Ir a la fotografia ${index + 1} de ${featuredPhotos.length}: ${photo.title}`
-                      : `Ir a la fotografia ${index + 1} de ${featuredPhotos.length}`
-                  }
+                  aria-label={`Ir a la categoría ${index + 1} de ${featuredPhotos.length}: ${photo.categoryLabel}`}
                   aria-selected={index === 0 ? "true" : "false"}
                   aria-current={index === 0 ? "true" : "false"}
                   data-carousel-dot
                   data-carousel-index={index}
                 >
-                  <span class="sr-only">Fotografía {index + 1}</span>
+                  <span class="sr-only">Categoría {index + 1}</span>
                 </button>
               ))
             }
@@ -180,7 +191,7 @@ const featuredVideos = videos.slice(0, 3);
           <button
             class="home-photo-carousel__button"
             type="button"
-            aria-label="Ver fotografías siguientes"
+            aria-label="Ver categorías siguientes"
             data-carousel-next
           >
             <span aria-hidden="true">&rarr;</span>
@@ -378,7 +389,7 @@ const featuredVideos = videos.slice(0, 3);
           dot.setAttribute("aria-current", isActive ? "true" : "false");
         });
 
-        status.textContent = `Fotografía ${activeIndex + 1} de ${dots.length}`;
+        status.textContent = `Categoría ${activeIndex + 1} de ${dots.length}`;
       };
 
       const updateButtons = () => {
@@ -690,7 +701,9 @@ const featuredVideos = videos.slice(0, 3);
     border: 0;
     background: none;
     text-align: left;
-    cursor: zoom-in;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
   }
 
   .home-photo-carousel__slide:focus-visible .home-photo-carousel__media {
@@ -705,6 +718,28 @@ const featuredVideos = videos.slice(0, 3);
     background: var(--color-bg-raised);
   }
 
+  .home-photo-carousel__category-label {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: var(--space-sm);
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(var(--text-sm), 0.95vw + 0.5rem, var(--text-lg));
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.76);
+    background: linear-gradient(
+      180deg,
+      rgba(6, 6, 6, 0.24),
+      rgba(6, 6, 6, 0.52)
+    );
+    pointer-events: none;
+  }
+
   .home-photo-carousel__image {
     width: 100%;
     height: 100%;
@@ -716,7 +751,7 @@ const featuredVideos = videos.slice(0, 3);
   }
 
   .home-photo-carousel__slide:hover .home-photo-carousel__image {
-    transform: scale(1.015);
+    transform: scale(1.04);
   }
 
   .home-photo-carousel__controls {
