@@ -3,6 +3,7 @@ import { Image as AstroImage, getImage } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getPanoramaTileClass } from "../data/photos";
 import { getGalleryData } from "../lib/photo-gallery";
+import { PHOTO_FILTER_GROUPS, PHOTO_SUBFILTERS } from "../lib/photo-taxonomy";
 
 interface Props {
   canonicalPath?: string;
@@ -11,15 +12,9 @@ interface Props {
 
 const { canonicalPath, noindex = false } = Astro.props;
 
-const HOME_GALLERY_CATEGORIES = new Set([
-  "surf",
-  "mar",
-  "lugares",
-  "naturaleza",
-  "skate",
-]);
+const PANORAMA_FILTERS = new Set(PHOTO_SUBFILTERS.map((filter) => filter.id));
 
-const { photos: basePhotos, filters: categories } = await getGalleryData();
+const { photos: basePhotos } = await getGalleryData();
 const photos = await Promise.all(
   basePhotos.map(async (photo) => {
     if (!photo.image) {
@@ -43,7 +38,7 @@ const photos = await Promise.all(
   }),
 );
 const panoramaPhotos = photos.filter((photo) =>
-  photo.tags.some((tag) => HOME_GALLERY_CATEGORIES.has(tag)),
+  photo.tags.some((tag) => PANORAMA_FILTERS.has(tag)),
 );
 const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   getPanoramaTileClass(photo, i),
@@ -56,423 +51,392 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   canonicalPath={canonicalPath}
   noindex={noindex}
 >
-  <!-- ═══ PAGE HERO ═══ -->
-  <section class="page-hero">
-    <div class="page-hero__inner container">
-      <h1 class="reveal">Portfolio fotográfico</h1>
-      <p class="page-hero__desc reveal">
-        Portfolio de fotografía de surf, fotografía acuática y deportes de
-        acción en Cádiz. Imágenes creadas desde dentro del movimiento para
-        marcas, atletas, eventos y editoriales.
-      </p>
-      <div class="rule reveal"></div>
-    </div>
-  </section>
+  <div class="page-gradient-shell">
+    <h1 class="sr-only">
+      Portfolio de fotografía de surf, fotografía acuática y deportes de acción
+      en Cádiz
+    </h1>
 
-  <section class="hero-gradient-lab-shell container reveal">
-    <div class="hero-gradient-lab">
-      <div class="hero-gradient-lab__intro">
-        <span class="label">Gradient Lab</span>
-        <p>
-          Abre el panel, prueba tonos más verdosos y pásame un pantallazo con
-          los valores que más te convenzan.
-        </p>
+    <section class="hero-gradient-lab-shell container reveal">
+      <div class="hero-gradient-lab">
+        <div class="hero-gradient-lab__intro">
+          <span class="label">Gradient Lab</span>
+          <p>
+            Abre el panel, prueba tonos más verdosos y pásame un pantallazo con
+            los valores que más te convenzan.
+          </p>
+        </div>
+        <button
+          class="hero-gradient-lab__toggle pill-btn"
+          id="gradient-lab-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="gradient-lab-panel"
+        >
+          Ajustar degradado
+        </button>
       </div>
-      <button
-        class="hero-gradient-lab__toggle pill-btn"
-        id="gradient-lab-toggle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="gradient-lab-panel"
+      <section
+        class="hero-gradient-panel"
+        id="gradient-lab-panel"
+        aria-label="Editor visual del degradado del hero"
+        hidden
       >
-        Ajustar degradado
-      </button>
-    </div>
-    <section
-      class="hero-gradient-panel"
-      id="gradient-lab-panel"
-      aria-label="Editor visual del degradado del hero"
-      hidden
-    >
-      <div class="hero-gradient-panel__top">
-        <div>
-          <span class="label">Preview en vivo</span>
-          <h2>Control del hero</h2>
-        </div>
-        <div class="hero-gradient-panel__actions">
-          <button
-            class="hero-gradient-panel__action"
-            id="gradient-lab-reset"
-            type="button"
-          >
-            Reset
-          </button>
-        </div>
-      </div>
-
-      <div class="hero-gradient-panel__preview" aria-hidden="true"></div>
-
-      <div class="hero-gradient-panel__grid">
-        <div class="hero-gradient-panel__group">
-          <span class="label">Colores</span>
-
-          <label class="gradient-control">
-            <span class="gradient-control__meta">
-              <span class="gradient-control__name">--color-hero-1</span>
-              <span
-                class="gradient-control__value"
-                data-gradient-value-for="--color-hero-1"></span>
-            </span>
-            <input
-              class="gradient-control__picker"
-              type="color"
-              value="#0c1a2a"
-              data-gradient-control
-              data-var="--color-hero-1"
-            />
-          </label>
-
-          <label class="gradient-control">
-            <span class="gradient-control__meta">
-              <span class="gradient-control__name">--color-hero-2</span>
-              <span
-                class="gradient-control__value"
-                data-gradient-value-for="--color-hero-2"></span>
-            </span>
-            <input
-              class="gradient-control__picker"
-              type="color"
-              value="#0a1520"
-              data-gradient-control
-              data-var="--color-hero-2"
-            />
-          </label>
-
-          <label class="gradient-control">
-            <span class="gradient-control__meta">
-              <span class="gradient-control__name">--color-hero-3</span>
-              <span
-                class="gradient-control__value"
-                data-gradient-value-for="--color-hero-3"></span>
-            </span>
-            <input
-              class="gradient-control__picker"
-              type="color"
-              value="#043966"
-              data-gradient-control
-              data-var="--color-hero-3"
-            />
-          </label>
-
-          <label class="gradient-control">
-            <span class="gradient-control__meta">
-              <span class="gradient-control__name">--color-hero-4</span>
-              <span
-                class="gradient-control__value"
-                data-gradient-value-for="--color-hero-4"></span>
-            </span>
-            <input
-              class="gradient-control__picker"
-              type="color"
-              value="#0d1a25"
-              data-gradient-control
-              data-var="--color-hero-4"
-            />
-          </label>
+        <div class="hero-gradient-panel__top">
+          <div>
+            <span class="label">Preview en vivo</span>
+            <h2>Control del hero</h2>
+          </div>
+          <div class="hero-gradient-panel__actions">
+            <button
+              class="hero-gradient-panel__action"
+              id="gradient-lab-reset"
+              type="button"
+            >
+              Reset
+            </button>
+          </div>
         </div>
 
-        <div class="hero-gradient-panel__group">
-          <span class="label">Dirección y stops</span>
+        <div class="hero-gradient-panel__preview" aria-hidden="true"></div>
 
-          <label class="gradient-slider">
-            <span class="gradient-slider__meta">
-              <span class="gradient-slider__name">Ángulo</span>
-              <span
-                class="gradient-slider__value"
-                data-gradient-value-for="--hero-gradient-angle"
-              >
-              </span>
-            </span>
-            <input
-              type="range"
-              min="0"
-              max="360"
-              step="1"
-              value="135"
-              data-gradient-control
-              data-var="--hero-gradient-angle"
-              data-unit="deg"
-            />
-          </label>
+        <div class="hero-gradient-panel__grid">
+          <div class="hero-gradient-panel__group">
+            <span class="label">Colores</span>
 
-          <label class="gradient-slider">
-            <span class="gradient-slider__meta">
-              <span class="gradient-slider__name">Stop 1</span>
-              <span
-                class="gradient-slider__value"
-                data-gradient-value-for="--hero-stop-1"
-              >
+            <label class="gradient-control">
+              <span class="gradient-control__meta">
+                <span class="gradient-control__name">--color-hero-1</span>
+                <span
+                  class="gradient-control__value"
+                  data-gradient-value-for="--color-hero-1"></span>
               </span>
-            </span>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value="0"
-              data-gradient-control
-              data-var="--hero-stop-1"
-              data-unit="%"
-            />
-          </label>
+              <input
+                class="gradient-control__picker"
+                type="color"
+                value="#0c1a2a"
+                data-gradient-control
+                data-var="--color-hero-1"
+              />
+            </label>
 
-          <label class="gradient-slider">
-            <span class="gradient-slider__meta">
-              <span class="gradient-slider__name">Stop 2</span>
-              <span
-                class="gradient-slider__value"
-                data-gradient-value-for="--hero-stop-2"
-              >
+            <label class="gradient-control">
+              <span class="gradient-control__meta">
+                <span class="gradient-control__name">--color-hero-2</span>
+                <span
+                  class="gradient-control__value"
+                  data-gradient-value-for="--color-hero-2"></span>
               </span>
-            </span>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value="30"
-              data-gradient-control
-              data-var="--hero-stop-2"
-              data-unit="%"
-            />
-          </label>
+              <input
+                class="gradient-control__picker"
+                type="color"
+                value="#0a1520"
+                data-gradient-control
+                data-var="--color-hero-2"
+              />
+            </label>
 
-          <label class="gradient-slider">
-            <span class="gradient-slider__meta">
-              <span class="gradient-slider__name">Stop 3</span>
-              <span
-                class="gradient-slider__value"
-                data-gradient-value-for="--hero-stop-3"
-              >
+            <label class="gradient-control">
+              <span class="gradient-control__meta">
+                <span class="gradient-control__name">--color-hero-3</span>
+                <span
+                  class="gradient-control__value"
+                  data-gradient-value-for="--color-hero-3"></span>
               </span>
-            </span>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value="60"
-              data-gradient-control
-              data-var="--hero-stop-3"
-              data-unit="%"
-            />
-          </label>
+              <input
+                class="gradient-control__picker"
+                type="color"
+                value="#043966"
+                data-gradient-control
+                data-var="--color-hero-3"
+              />
+            </label>
 
-          <label class="gradient-slider">
-            <span class="gradient-slider__meta">
-              <span class="gradient-slider__name">Stop 4</span>
-              <span
-                class="gradient-slider__value"
-                data-gradient-value-for="--hero-stop-4"
-              >
+            <label class="gradient-control">
+              <span class="gradient-control__meta">
+                <span class="gradient-control__name">--color-hero-4</span>
+                <span
+                  class="gradient-control__value"
+                  data-gradient-value-for="--color-hero-4"></span>
               </span>
-            </span>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value="100"
-              data-gradient-control
-              data-var="--hero-stop-4"
-              data-unit="%"
-            />
-          </label>
+              <input
+                class="gradient-control__picker"
+                type="color"
+                value="#0d1a25"
+                data-gradient-control
+                data-var="--color-hero-4"
+              />
+            </label>
+          </div>
+
+          <div class="hero-gradient-panel__group">
+            <span class="label">Dirección y stops</span>
+
+            <label class="gradient-slider">
+              <span class="gradient-slider__meta">
+                <span class="gradient-slider__name">Ángulo</span>
+                <span
+                  class="gradient-slider__value"
+                  data-gradient-value-for="--hero-gradient-angle"
+                >
+                </span>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="360"
+                step="1"
+                value="135"
+                data-gradient-control
+                data-var="--hero-gradient-angle"
+                data-unit="deg"
+              />
+            </label>
+
+            <label class="gradient-slider">
+              <span class="gradient-slider__meta">
+                <span class="gradient-slider__name">Stop 1</span>
+                <span
+                  class="gradient-slider__value"
+                  data-gradient-value-for="--hero-stop-1"
+                >
+                </span>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="0"
+                data-gradient-control
+                data-var="--hero-stop-1"
+                data-unit="%"
+              />
+            </label>
+
+            <label class="gradient-slider">
+              <span class="gradient-slider__meta">
+                <span class="gradient-slider__name">Stop 2</span>
+                <span
+                  class="gradient-slider__value"
+                  data-gradient-value-for="--hero-stop-2"
+                >
+                </span>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="30"
+                data-gradient-control
+                data-var="--hero-stop-2"
+                data-unit="%"
+              />
+            </label>
+
+            <label class="gradient-slider">
+              <span class="gradient-slider__meta">
+                <span class="gradient-slider__name">Stop 3</span>
+                <span
+                  class="gradient-slider__value"
+                  data-gradient-value-for="--hero-stop-3"
+                >
+                </span>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="60"
+                data-gradient-control
+                data-var="--hero-stop-3"
+                data-unit="%"
+              />
+            </label>
+
+            <label class="gradient-slider">
+              <span class="gradient-slider__meta">
+                <span class="gradient-slider__name">Stop 4</span>
+                <span
+                  class="gradient-slider__value"
+                  data-gradient-value-for="--hero-stop-4"
+                >
+                </span>
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="100"
+                data-gradient-control
+                data-var="--hero-stop-4"
+                data-unit="%"
+              />
+            </label>
+          </div>
         </div>
-      </div>
 
-      <div class="hero-gradient-panel__code">
-        <span class="label">Valores para captura</span>
-        <pre id="gradient-css-output"></pre>
-      </div>
+        <div class="hero-gradient-panel__code">
+          <span class="label">Valores para captura</span>
+          <pre id="gradient-css-output"></pre>
+        </div>
+      </section>
     </section>
-  </section>
 
-  <!-- ═══ TOOLBAR ═══ -->
-  <div class="gallery-toolbar container reveal">
-    <nav class="filters" aria-label="Filtrar por categoría">
-      {
-        categories.map(({ id, label }) => (
+    <h2 class="sr-only">
+      Galería de fotografía de surf, agua y deportes de acción
+    </h2>
+
+    <!-- ═══ TOOLBAR ═══ -->
+    <div class="gallery-toolbar container reveal">
+      <div class="gallery-filters" data-gallery-filters>
+        <nav
+          class="filters filters--groups"
+          aria-label="Filtrar por categoría principal"
+        >
           <button
             class="filters__btn pill-btn"
-            data-filter={id}
-            aria-pressed={id === "all" ? "true" : "false"}
+            data-filter="all"
+            aria-pressed="true"
           >
-            {label}
+            Todo
           </button>
-        ))
-      }
-    </nav>
-    <button class="panorama-trigger pill-btn" id="panorama-open" type="button">
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.4"
-      >
-        <rect x="1" y="1" width="5.5" height="5.5" rx="0.5"></rect>
-        <rect x="9.5" y="1" width="5.5" height="5.5" rx="0.5"></rect>
-        <rect x="1" y="9.5" width="5.5" height="5.5" rx="0.5"></rect>
-        <rect x="9.5" y="9.5" width="5.5" height="5.5" rx="0.5"></rect>
-      </svg>
-      Vista global
-    </button>
-  </div>
 
-  <!-- ═══ GALLERY ═══ -->
-  <section class="gallery container">
-    <div class="gallery__grid">
-      {
-        photos.map((photo, i) => (
-          <article
-            class={`gallery__item reveal reveal-delay-${(i % 4) + 1}`}
-            data-category={photo.category}
-            data-tags={photo.tags.join("|")}
-            data-index={i}
-            data-src={photo.lightboxSrc}
-            data-alt={photo.alt}
-            data-aspect={photo.aspect}
-            role="button"
-            tabindex="0"
-            aria-label={photo.title ? `Ver ${photo.title}` : "Ver fotografia"}
-          >
-            <div class="gallery__item-media">
-              <div
-                class="gallery__placeholder"
-                style={`aspect-ratio: ${photo.aspect};`}
+          {
+            PHOTO_FILTER_GROUPS.map((group) => (
+              <button
+                class="filters__btn filters__btn--group pill-btn"
+                type="button"
+                data-filter-group={group.id}
+                aria-expanded="false"
+                aria-controls={`photo-filter-panel-${group.id}`}
               >
-                {photo.image ? (
-                  <AstroImage
-                    src={photo.image}
-                    alt={photo.alt}
-                    class="gallery__image"
-                    loading="lazy"
-                    format="webp"
-                    quality={68}
-                    sizes="(max-width: 540px) 95vw, (max-width: 900px) 48vw, 33vw"
-                    widths={[520, 960, 1440]}
-                  />
-                ) : (
-                  <img
-                    src={photo.src}
-                    alt={photo.alt}
-                    class="gallery__image"
-                    loading="lazy"
-                    decoding="async"
-                    width={photo.width}
-                    height={photo.height}
-                  />
-                )}
-              </div>
-              <div class="gallery__overlay">
-                {photo.title && (
-                  <h3 class="gallery__overlay-title">{photo.title}</h3>
-                )}
-                <span class="gallery__overlay-cat">
-                  {photo.displayCategory}
-                </span>
-              </div>
-            </div>
-          </article>
-        ))
-      }
-    </div>
-  </section>
+                {group.label}
+              </button>
+            ))
+          }
+        </nav>
 
-  <!-- ═══ LIGHTBOX ═══ -->
-  <div
-    class="lightbox"
-    id="lightbox"
-    aria-hidden="true"
-    role="dialog"
-    aria-label="Galería ampliada"
-  >
-    <button class="lightbox__close" aria-label="Cerrar galería">
-      <svg
-        width="28"
-        height="28"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-      >
-        <path d="M18 6L6 18M6 6l12 12"></path>
-      </svg>
-    </button>
-    <button
-      class="lightbox__arrow lightbox__arrow--prev"
-      aria-label="Imagen anterior"
-    >
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-      >
-        <path d="M15 18l-6-6 6-6"></path>
-      </svg>
-    </button>
-    <button
-      class="lightbox__arrow lightbox__arrow--next"
-      aria-label="Imagen siguiente"
-    >
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-      >
-        <path d="M9 18l6-6-6-6"></path>
-      </svg>
-    </button>
-    <div class="lightbox__content">
-      <img
-        class="lightbox__placeholder is-ready"
-        id="lightbox-image"
-        src={photos[0]?.lightboxSrc ?? ""}
-        alt="Imagen ampliada"
-        loading="eager"
-        decoding="async"
-      />
-      <div class="lightbox__info" id="lightbox-info">
-        <h3 class="lightbox__title" id="lightbox-title"></h3>
-        <span class="lightbox__cat label" id="lightbox-cat"></span>
-        <span class="lightbox__counter" id="lightbox-counter"></span>
+        <div class="filter-subfilters" aria-label="Subfiltros de fotografía">
+          {
+            PHOTO_FILTER_GROUPS.map((group) => (
+              <div
+                class="filter-subfilters__panel"
+                id={`photo-filter-panel-${group.id}`}
+                data-filter-panel={group.id}
+                hidden
+              >
+                {group.filters.map((filter) => (
+                  <button
+                    class="filters__btn filters__btn--subfilter pill-btn"
+                    type="button"
+                    data-filter={filter.id}
+                    data-parent-group={group.id}
+                    aria-pressed="false"
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            ))
+          }
+        </div>
       </div>
-    </div>
-  </div>
 
-  <!-- ═══ PANORAMA (Vista Global) ═══ -->
-  <div
-    class="panorama"
-    id="panorama"
-    aria-hidden="true"
-    role="dialog"
-    aria-label="Vista global de fotografías"
-  >
-    <div class="panorama__header">
-      <span class="panorama__label label">Vista global</span>
       <button
-        class="panorama__close"
-        id="panorama-close"
-        aria-label="Cerrar vista global"
+        class="panorama-trigger pill-btn"
+        id="panorama-open"
+        type="button"
       >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+        >
+          <rect x="1" y="1" width="5.5" height="5.5" rx="0.5"></rect>
+          <rect x="9.5" y="1" width="5.5" height="5.5" rx="0.5"></rect>
+          <rect x="1" y="9.5" width="5.5" height="5.5" rx="0.5"></rect>
+          <rect x="9.5" y="9.5" width="5.5" height="5.5" rx="0.5"></rect>
+        </svg>
+        Vista global
+      </button>
+    </div>
+
+    <!-- ═══ GALLERY ═══ -->
+    <section class="gallery container">
+      <div class="gallery__grid">
+        {
+          photos.map((photo, i) => (
+            <article
+              class={`gallery__item reveal reveal-delay-${(i % 4) + 1}`}
+              data-category={photo.category}
+              data-tags={photo.tags.join("|")}
+              data-index={i}
+              data-src={photo.lightboxSrc}
+              data-alt={photo.alt}
+              data-aspect={photo.aspect}
+              role="button"
+              tabindex="0"
+              aria-label={photo.title ? `Ver ${photo.title}` : "Ver fotografia"}
+            >
+              <div class="gallery__item-media">
+                <div
+                  class="gallery__placeholder"
+                  style={`aspect-ratio: ${photo.aspect};`}
+                >
+                  {photo.image ? (
+                    <AstroImage
+                      src={photo.image}
+                      alt={photo.alt}
+                      class="gallery__image"
+                      loading="lazy"
+                      format="webp"
+                      quality={68}
+                      sizes="(max-width: 540px) 95vw, (max-width: 900px) 48vw, 33vw"
+                      widths={[520, 960, 1440]}
+                    />
+                  ) : (
+                    <img
+                      src={photo.src}
+                      alt={photo.alt}
+                      class="gallery__image"
+                      loading="lazy"
+                      decoding="async"
+                      width={photo.width}
+                      height={photo.height}
+                    />
+                  )}
+                </div>
+                <div class="gallery__overlay">
+                  {photo.title && (
+                    <h3 class="gallery__overlay-title">{photo.title}</h3>
+                  )}
+                  <span class="gallery__overlay-cat">
+                    {photo.displayCategory}
+                  </span>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- ═══ LIGHTBOX ═══ -->
+    <div
+      class="lightbox"
+      id="lightbox"
+      aria-hidden="true"
+      role="dialog"
+      aria-label="Galería ampliada"
+    >
+      <button class="lightbox__close" aria-label="Cerrar galería">
         <svg
           width="28"
           height="28"
@@ -484,66 +448,142 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
           <path d="M18 6L6 18M6 6l12 12"></path>
         </svg>
       </button>
-    </div>
-    <div class="panorama__scroll" id="panorama-scroll">
-      <div class="panorama__canvas" id="panorama-canvas">
-        {
-          panoramaPhotos.map((photo, i) => (
-            <div
-              class={`pano-tile ${panoramaTileClasses[i]}`}
-              data-pano-index={i}
-              data-src={photo.lightboxSrc}
-              data-alt={photo.alt}
-              data-title={photo.title}
-              data-cat={photo.displayCategory}
-              data-aspect={photo.aspect}
-              role="button"
-              tabindex="0"
-              aria-label={photo.title ? `Ver ${photo.title}` : "Ver fotografia"}
-              style={`transition-delay: ${0.06 + i * 0.04}s`}
-            >
-              <div class="pano-tile__media">
-                <div class="pano-tile__placeholder">
-                  {photo.image ? (
-                    <AstroImage
-                      src={photo.image}
-                      alt={photo.alt}
-                      class="pano-tile__image"
-                      loading="lazy"
-                      format="webp"
-                      quality={68}
-                      sizes="(max-width: 768px) 45vw, 25vw"
-                      widths={[420, 840, 1260]}
-                    />
-                  ) : (
-                    <img
-                      src={photo.src}
-                      alt={photo.alt}
-                      class="pano-tile__image"
-                      loading="lazy"
-                      decoding="async"
-                      width={photo.width}
-                      height={photo.height}
-                    />
-                  )}
-                </div>
-                <div class="pano-tile__overlay">
-                  {photo.title && (
-                    <h3 class="pano-tile__title">{photo.title}</h3>
-                  )}
-                  <span class="pano-tile__cat">{photo.displayCategory}</span>
-                </div>
-              </div>
-            </div>
-          ))
-        }
+      <button
+        class="lightbox__arrow lightbox__arrow--prev"
+        aria-label="Imagen anterior"
+      >
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <path d="M15 18l-6-6 6-6"></path>
+        </svg>
+      </button>
+      <button
+        class="lightbox__arrow lightbox__arrow--next"
+        aria-label="Imagen siguiente"
+      >
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <path d="M9 18l6-6-6-6"></path>
+        </svg>
+      </button>
+      <div class="lightbox__content">
+        <img
+          class="lightbox__placeholder is-ready"
+          id="lightbox-image"
+          src={photos[0]?.lightboxSrc ?? ""}
+          alt="Imagen ampliada"
+          loading="eager"
+          decoding="async"
+        />
+        <div class="lightbox__info" id="lightbox-info">
+          <h3 class="lightbox__title" id="lightbox-title"></h3>
+          <span class="lightbox__cat label" id="lightbox-cat"></span>
+          <span class="lightbox__counter" id="lightbox-counter"></span>
+        </div>
       </div>
     </div>
-    <div class="panorama__vignette"></div>
-    <div class="panorama__edge panorama__edge--top"></div>
-    <div class="panorama__edge panorama__edge--right"></div>
-    <div class="panorama__edge panorama__edge--bottom"></div>
-    <div class="panorama__edge panorama__edge--left"></div>
+
+    <!-- ═══ PANORAMA (Vista Global) ═══ -->
+    <div
+      class="panorama"
+      id="panorama"
+      aria-hidden="true"
+      role="dialog"
+      aria-label="Vista global de fotografías"
+    >
+      <div class="panorama__header">
+        <span class="panorama__label label">Vista global</span>
+        <button
+          class="panorama__close"
+          id="panorama-close"
+          aria-label="Cerrar vista global"
+        >
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path d="M18 6L6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="panorama__scroll" id="panorama-scroll">
+        <div class="panorama__canvas" id="panorama-canvas">
+          {
+            panoramaPhotos.map((photo, i) => (
+              <div
+                class={`pano-tile ${panoramaTileClasses[i]}`}
+                data-pano-index={i}
+                data-src={photo.lightboxSrc}
+                data-alt={photo.alt}
+                data-title={photo.title}
+                data-cat={photo.displayCategory}
+                data-aspect={photo.aspect}
+                role="button"
+                tabindex="0"
+                aria-label={
+                  photo.title ? `Ver ${photo.title}` : "Ver fotografia"
+                }
+                style={`transition-delay: ${0.06 + i * 0.04}s`}
+              >
+                <div class="pano-tile__media">
+                  <div class="pano-tile__placeholder">
+                    {photo.image ? (
+                      <AstroImage
+                        src={photo.image}
+                        alt={photo.alt}
+                        class="pano-tile__image"
+                        loading="lazy"
+                        format="webp"
+                        quality={68}
+                        sizes="(max-width: 768px) 45vw, 25vw"
+                        widths={[420, 840, 1260]}
+                      />
+                    ) : (
+                      <img
+                        src={photo.src}
+                        alt={photo.alt}
+                        class="pano-tile__image"
+                        loading="lazy"
+                        decoding="async"
+                        width={photo.width}
+                        height={photo.height}
+                      />
+                    )}
+                  </div>
+                  <div class="pano-tile__overlay">
+                    {photo.title && (
+                      <h3 class="pano-tile__title">{photo.title}</h3>
+                    )}
+                    <span class="pano-tile__cat">{photo.displayCategory}</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+      <div class="panorama__vignette"></div>
+      <div class="panorama__edge panorama__edge--top"></div>
+      <div class="panorama__edge panorama__edge--right"></div>
+      <div class="panorama__edge panorama__edge--bottom"></div>
+      <div class="panorama__edge panorama__edge--left"></div>
+    </div>
   </div>
 </BaseLayout>
 
@@ -734,7 +774,14 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   }
 
   const grid = document.querySelector<HTMLElement>(".gallery__grid")!;
-  const btns = document.querySelectorAll<HTMLButtonElement>(".filters__btn");
+  const filterBtns =
+    document.querySelectorAll<HTMLButtonElement>("[data-filter]");
+  const groupBtns = document.querySelectorAll<HTMLButtonElement>(
+    "[data-filter-group]",
+  );
+  const filterPanels = document.querySelectorAll<HTMLElement>(
+    "[data-filter-panel]",
+  );
   const items = Array.from(
     document.querySelectorAll<HTMLElement>(".gallery__item"),
   );
@@ -780,8 +827,13 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   }
 
   const availableFilters = new Set(
-    Array.from(btns)
+    Array.from(filterBtns)
       .map((btn) => btn.dataset.filter)
+      .filter((value): value is string => Boolean(value)),
+  );
+  const availableGroups = new Set(
+    Array.from(groupBtns)
+      .map((btn) => btn.dataset.filterGroup)
       .filter((value): value is string => Boolean(value)),
   );
 
@@ -798,9 +850,15 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   function applyFilter(filter: string) {
     const activeFilter = normalizeFilter(filter);
 
-    btns.forEach((button) => {
+    filterBtns.forEach((button) => {
       const isActive = button.dataset.filter === activeFilter;
       button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+
+    groupBtns.forEach((button) => {
+      const isParent =
+        getParentGroupForFilter(activeFilter) === button.dataset.filterGroup;
+      button.setAttribute("aria-pressed", isParent ? "true" : "false");
     });
 
     items.forEach((item) => {
@@ -816,21 +874,97 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
     layoutMasonry();
   }
 
+  function getParentGroupForFilter(filter: string) {
+    return Array.from(filterBtns).find(
+      (button) => button.dataset.filter === filter,
+    )?.dataset.parentGroup;
+  }
+
+  function getSingleGroupFilter(group: string) {
+    const groupFilters = Array.from(filterBtns).filter(
+      (button) => button.dataset.parentGroup === group,
+    );
+
+    return groupFilters.length === 1
+      ? groupFilters[0]?.dataset.filter
+      : undefined;
+  }
+
+  function setOpenGroup(group: string | null) {
+    filterPanels.forEach((panel) => {
+      const isOpen = Boolean(group) && panel.dataset.filterPanel === group;
+      panel.hidden = !isOpen;
+    });
+
+    groupBtns.forEach((button) => {
+      const isOpen = Boolean(group) && button.dataset.filterGroup === group;
+      button.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+  }
+
+  function openGroup(group: string) {
+    if (!availableGroups.has(group)) return;
+    setOpenGroup(group);
+  }
+
   function getInitialFilterFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    return normalizeFilter(
-      params.get("categoria") ?? params.get("category") ?? params.get("filter"),
+    return (
+      params.get("categoria") ?? params.get("category") ?? params.get("filter")
     );
   }
 
+  function applyInitialFilter() {
+    const requestedFilter = getInitialFilterFromUrl()?.trim().toLowerCase();
+
+    if (requestedFilter && availableGroups.has(requestedFilter)) {
+      openGroup(requestedFilter);
+      const singleFilter = getSingleGroupFilter(requestedFilter);
+      applyFilter(singleFilter ?? "all");
+      return;
+    }
+
+    const activeFilter = normalizeFilter(requestedFilter);
+    const parentGroup = getParentGroupForFilter(activeFilter);
+
+    if (parentGroup) {
+      openGroup(parentGroup);
+    }
+
+    applyFilter(activeFilter);
+  }
+
   // ── Initial layout + initial filter from URL ──
-  applyFilter(getInitialFilterFromUrl());
+  applyInitialFilter();
   requestAnimationFrame(() => grid.classList.add("masonry-ready"));
 
   // ── Filters ──
-  btns.forEach((btn) => {
+  filterBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
+      const parentGroup = btn.dataset.parentGroup;
+
+      if (parentGroup) {
+        openGroup(parentGroup);
+      } else {
+        setOpenGroup(null);
+      }
+
       applyFilter(btn.dataset.filter ?? "all");
+    });
+  });
+
+  groupBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const group = btn.dataset.filterGroup;
+      if (!group) return;
+
+      openGroup(group);
+      const singleFilter = getSingleGroupFilter(group);
+      if (singleFilter === group) {
+        applyFilter(singleFilter);
+      } else {
+        applyFilter("all");
+      }
     });
   });
 
@@ -1142,6 +1276,55 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
 </script>
 
 <style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .page-gradient-shell {
+    position: relative;
+    isolation: isolate;
+    padding-top: calc(var(--space-section) + var(--header-height));
+    overflow: hidden;
+  }
+
+  .page-gradient-shell::before,
+  .page-gradient-shell::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    pointer-events: none;
+  }
+
+  .page-gradient-shell::before {
+    height: clamp(18rem, 34vw, 28rem);
+    background: linear-gradient(
+      var(--hero-gradient-angle),
+      var(--color-hero-1) var(--hero-stop-1),
+      var(--color-hero-2) var(--hero-stop-2),
+      var(--color-hero-3) var(--hero-stop-3),
+      var(--color-hero-4) var(--hero-stop-4)
+    );
+    animation: heroShift 20s ease-in-out infinite alternate;
+    z-index: -2;
+  }
+
+  .page-gradient-shell::after {
+    height: clamp(18rem, 34vw, 28rem);
+    background:
+      linear-gradient(to top, var(--color-bg) 0%, transparent 50%),
+      linear-gradient(to right, rgba(10, 10, 10, 0.5) 0%, transparent 60%);
+    z-index: -1;
+  }
+
   /* ═══ TOOLBAR ═══ */
   .hero-gradient-lab-shell {
     padding-top: var(--space-lg);
@@ -1362,15 +1545,45 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   }
 
   /* ═══ FILTERS ═══ */
+  .gallery-filters {
+    display: grid;
+    gap: 0.75rem;
+    flex: 1 1 32rem;
+  }
+
   .filters {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5em;
   }
 
+  .filters--groups {
+    align-items: center;
+  }
+
+  .filter-subfilters {
+    min-height: 2.7rem;
+  }
+
+  .filter-subfilters__panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+
+  .filter-subfilters__panel[hidden] {
+    display: none;
+  }
+
   .filters__btn:focus-visible {
     outline: 2px solid var(--color-sunset);
     outline-offset: 2px;
+  }
+
+  .filters__btn--group[aria-expanded="true"] {
+    border-color: rgba(121, 220, 227, 0.45);
+    color: var(--color-text);
+    background: rgba(121, 220, 227, 0.1);
   }
 
   .filters__btn[aria-pressed="true"] {

@@ -3,6 +3,12 @@ import smallLogo from "../assets/small-logo.png";
 
 const currentPath = Astro.url.pathname;
 
+interface Props {
+  hideLogo?: boolean;
+}
+
+const { hideLogo = false } = Astro.props;
+
 const navLinks = [
   { href: "/fotografia", label: "Fotografía" },
   { href: "/video", label: "Vídeo" },
@@ -15,19 +21,26 @@ function isCurrentPath(href: string): boolean {
 }
 ---
 
-<header class="site-header" id="site-header">
+<header
+  class:list={["site-header", hideLogo && "site-header--logo-hidden"]}
+  id="site-header"
+>
   <nav class="site-header__nav container">
-    <a href="/" class="site-header__logo">
-      <img
-        src={smallLogo.src}
-        alt="The Churfer"
-        class="site-header__logo-img"
-        width={smallLogo.width}
-        height={smallLogo.height}
-        loading="eager"
-        decoding="async"
-      />
-    </a>
+    {
+      !hideLogo && (
+        <a href="/" class="site-header__logo">
+          <img
+            src={smallLogo.src}
+            alt="The Churfer"
+            class="site-header__logo-img"
+            width={smallLogo.width}
+            height={smallLogo.height}
+            loading="eager"
+            decoding="async"
+          />
+        </a>
+      )
+    }
 
     <button
       class="site-header__toggle"
@@ -127,6 +140,10 @@ function isCurrentPath(href: string): boolean {
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  .site-header--logo-hidden .site-header__nav {
+    justify-content: flex-end;
   }
 
   .site-header__logo-img {

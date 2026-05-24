@@ -46,16 +46,14 @@
           "required": true,
           "validation": {
             "options": [
-              "animales",
-              "colaboraciones",
-              "jujitsu",
-              "lugares",
-              "mar",
-              "monocroma",
-              "naturaleza",
-              "retratos",
+              "surf",
               "skate",
-              "surf"
+              "grappling",
+              "polo",
+              "moto-gp",
+              "mxgp",
+              "light-water",
+              "other"
             ]
           }
         }

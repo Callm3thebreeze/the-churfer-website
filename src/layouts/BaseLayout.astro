@@ -21,6 +21,8 @@ interface Props {
   noindex?: boolean;
   schema?: SeoSchema | SeoSchema[];
   hideChrome?: boolean;
+  hideFooter?: boolean;
+  hideHeaderLogo?: boolean;
 }
 
 function serializeJsonLd(value: unknown): string {
@@ -41,6 +43,8 @@ const {
   noindex = false,
   schema,
   hideChrome = false,
+  hideFooter = false,
+  hideHeaderLogo = false,
 } = Astro.props;
 
 const siteUrl = import.meta.env.SITE ?? "https://thechurfer.com";
@@ -100,11 +104,11 @@ const jsonLd = serializeJsonLd(schemaItems);
     />
   </head>
   <body>
-    {!hideChrome && <Header />}
+    {!hideChrome && <Header hideLogo={hideHeaderLogo} />}
     <main>
       <slot />
     </main>
-    {!hideChrome && <Footer />}
+    {!hideChrome && !hideFooter && <Footer />}
 
     <!-- Scroll reveal observer -->
     <script>

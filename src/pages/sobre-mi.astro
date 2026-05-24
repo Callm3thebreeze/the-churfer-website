@@ -7,85 +7,128 @@ import sergi from "../assets/sergi.jpg";
   title="Sergi Ortega, fotógrafo de surf y videógrafo en Cádiz"
   description="Conoce a Sergi Ortega, fotógrafo de surf, fotografía deportiva y videografía en El Palmar, Cádiz. Una trayectoria ligada al mar, la acción y la producción audiovisual para marcas y proyectos creativos."
 >
-  <!-- ═══ PAGE HERO ═══ -->
-  <section class="page-hero">
-    <div class="page-hero__inner container">
-      <h1 class="reveal">Sobre The Churfer</h1>
-      <p class="page-hero__desc reveal">
-        Conoce a Sergi Ortega, fotógrafo de surf, fotografía deportiva y
-        videografía en El Palmar, Cádiz. Una trayectoria ligada al mar, la
-        acción y la producción audiovisual para marcas y proyectos creativos.
-      </p>
-      <div class="rule reveal"></div>
-    </div>
-  </section>
+  <div class="page-gradient-shell">
+    <h1 class="sr-only">
+      Sergi Ortega, fotógrafo de surf y videógrafo en Cádiz
+    </h1>
 
-  <!-- ═══ ABOUT ═══ -->
-  <section class="about">
-    <div class="about__inner container">
-      <div class="about__image-col reveal">
-        <img
-          src={sergi.src}
-          alt="Retrato de Sergi Ortega"
-          width={sergi.width}
-          height={sergi.height}
-          class="about__portrait"
-          loading="eager"
-          decoding="async"
-        />
-        <span class="about__image-caption label"
-          >Sergi Ortega — Est. Mediterranean Coast</span
-        >
-      </div>
-      <div class="about__text-col">
-        <span class="label reveal">Quién soy</span>
-        <h2 class="about__heading reveal"><em>Sergi Ortega</em></h2>
-        <p class="about__bio reveal">
-          Cámara profesional especializado en fotografía deportiva y producción
-          audiovisual. El surf y la foto marina son mi terreno natural, pero mi
-          objetivo también apunta al jiu-jitsu, el skate y cualquier disciplina
-          que transmita fuerza y movimiento. Grabo y edito vídeos comerciales
-          para marcas y he trabajado en videoclips musicales.
-        </p>
-        <p class="about__bio reveal">
-          De origen mediterráneo y afincado en El Palmar, donde además de la
-          cámara gestiono <strong>Santa Killa</strong>, una tienda y marca de
-          surf. Cada proyecto es único y mi objetivo es capturarlo con la
-          intensidad que merece.
-        </p>
-        <div class="about__stats reveal">
-          <div class="about__stat">
-            <span class="about__stat-number">+500</span>
-            <span class="about__stat-label label">Sesiones</span>
-          </div>
-          <div class="about__stat">
-            <span class="about__stat-number">+30</span>
-            <span class="about__stat-label label">Producciones</span>
-          </div>
-          <div class="about__stat">
-            <span class="about__stat-number">+8</span>
-            <span class="about__stat-label label">Años</span>
+    <!-- ═══ ABOUT ═══ -->
+    <section class="about">
+      <div class="about__inner container">
+        <div class="about__image-col reveal">
+          <img
+            src={sergi.src}
+            alt="Retrato de Sergi Ortega"
+            width={sergi.width}
+            height={sergi.height}
+            class="about__portrait"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="about__image-caption label"
+            >Sergi Ortega — Est. Mediterranean Coast</span
+          >
+        </div>
+        <div class="about__text-col">
+          <span class="label reveal">Quién soy</span>
+          <h2 class="about__heading reveal"><em>Sergi Ortega</em></h2>
+          <p class="about__bio reveal">
+            Cámara profesional especializado en fotografía deportiva y
+            producción audiovisual. El surf y la foto marina son mi terreno
+            natural, pero mi objetivo también apunta al jiu-jitsu, el skate y
+            cualquier disciplina que transmita fuerza y movimiento. Grabo y
+            edito vídeos comerciales para marcas y he trabajado en videoclips
+            musicales.
+          </p>
+          <p class="about__bio reveal">
+            De origen mediterráneo y afincado en El Palmar, donde además de la
+            cámara gestiono <strong>Santa Killa</strong>, una tienda y marca de
+            surf. Cada proyecto es único y mi objetivo es capturarlo con la
+            intensidad que merece.
+          </p>
+          <div class="about__stats reveal">
+            <div class="about__stat">
+              <span class="about__stat-number">+500</span>
+              <span class="about__stat-label label">Sesiones</span>
+            </div>
+            <div class="about__stat">
+              <span class="about__stat-number">+30</span>
+              <span class="about__stat-label label">Producciones</span>
+            </div>
+            <div class="about__stat">
+              <span class="about__stat-number">+8</span>
+              <span class="about__stat-label label">Años</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ═══ CTA ═══ -->
-  <section class="about-cta">
-    <div class="about-cta__inner container reveal">
-      <span class="label">¿Trabajamos juntos?</span>
-      <h2 class="about-cta__heading">Hablemos de tu <em>proyecto</em></h2>
-      <p class="about-cta__text">
-        Sesiones de foto, vídeo comercial, videoclips o cobertura de eventos —
-        escríbeme.
-      </p>
-      <a href="/contacto" class="cta-button">Contactar</a>
-    </div>
-  </section>
+    <!-- ═══ CTA ═══ -->
+    <section class="about-cta">
+      <div class="about-cta__inner container reveal">
+        <span class="label">¿Trabajamos juntos?</span>
+        <h2 class="about-cta__heading">Hablemos de tu <em>proyecto</em></h2>
+        <p class="about-cta__text">
+          Sesiones de foto, vídeo comercial, videoclips o cobertura de eventos —
+          escríbeme.
+        </p>
+        <a href="/contacto" class="cta-button">Contactar</a>
+      </div>
+    </section>
+  </div>
 </BaseLayout>
 
 <style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .page-gradient-shell {
+    position: relative;
+    isolation: isolate;
+    padding-top: calc(var(--space-section) + var(--header-height));
+    overflow: hidden;
+  }
+
+  .page-gradient-shell::before,
+  .page-gradient-shell::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    pointer-events: none;
+  }
+
+  .page-gradient-shell::before {
+    height: clamp(18rem, 34vw, 28rem);
+    background: linear-gradient(
+      var(--hero-gradient-angle),
+      var(--color-hero-1) var(--hero-stop-1),
+      var(--color-hero-2) var(--hero-stop-2),
+      var(--color-hero-3) var(--hero-stop-3),
+      var(--color-hero-4) var(--hero-stop-4)
+    );
+    animation: heroShift 20s ease-in-out infinite alternate;
+    z-index: -2;
+  }
+
+  .page-gradient-shell::after {
+    height: clamp(18rem, 34vw, 28rem);
+    background:
+      linear-gradient(to top, var(--color-bg) 0%, transparent 50%),
+      linear-gradient(to right, rgba(10, 10, 10, 0.5) 0%, transparent 60%);
+    z-index: -1;
+  }
+
   /* ═══ ABOUT ═══ */
   .about {
     padding-block: var(--space-section);
