@@ -2,13 +2,21 @@ import type { ImageMetadata } from "astro";
 import { getEmDashCollection, type MediaValue } from "emdash";
 import {
   galleryPhotos as localGalleryPhotos,
-  photoFilters as localPhotoFilters,
   type PhotoCategory,
 } from "../data/photos";
 import { formatCategoryLabel, toCategoryId } from "./category";
+import {
+  getCanonicalPhotoFilterIds,
+  PHOTO_SUBFILTER_LABELS,
+  PHOTO_SUBFILTERS,
+} from "./photo-taxonomy";
 
-const BASE_FILTERS = localPhotoFilters.filter(({ id }) => id !== "all");
-const FILTER_LABELS = new Map(BASE_FILTERS.map(({ id, label }) => [id, label]));
+const TAXONOMY_FILTERS: PhotoCategory[] = PHOTO_SUBFILTERS.map(
+  ({ id, label }) => ({
+    id,
+    label,
+  }),
+);
 
 export interface GalleryPhoto {
   id: string;
@@ -35,7 +43,7 @@ export interface GalleryData {
 }
 
 function getCategoryLabel(value: string): string {
-  return FILTER_LABELS.get(value) ?? formatCategoryLabel(value);
+  return PHOTO_SUBFILTER_LABELS.get(value) ?? formatCategoryLabel(value);
 }
 
 function toRecord(value: unknown): Record<string, unknown> {
@@ -129,7 +137,9 @@ function getInteger(
 }
 
 function isMediaValue(value: unknown): value is MediaValue {
-  return !!value && typeof value === "object" && ("id" in value || "src" in value);
+  return (
+    !!value && typeof value === "object" && ("id" in value || "src" in value)
+  );
 }
 
 function getMediaValue(
@@ -188,64 +198,74 @@ function getMediaSrc(value: MediaValue | string | undefined): string {
   }
 
   // Last resort for Cloudflare Images values without explicit URL.
-  if (value.provider === "cloudflare-images" && value.id && import.meta.env.CF_IMAGES_ACCOUNT_HASH) {
+  if (
+    value.provider === "cloudflare-images" &&
+    value.id &&
+    import.meta.env.CF_IMAGES_ACCOUNT_HASH
+  ) {
     return `https://imagedelivery.net/${import.meta.env.CF_IMAGES_ACCOUNT_HASH}/${value.id}/public`;
   }
 
   return "";
 }
 
-function buildFilters(photos: GalleryPhoto[]): PhotoCategory[] {
-  const seen = new Set<string>();
-
-  for (const photo of photos) {
-    const sourceTags = photo.tags.length > 0 ? photo.tags : [photo.category];
-    for (const tag of sourceTags) {
-      if (tag) {
-        seen.add(tag);
-      }
-    }
-  }
-
-  const ordered = BASE_FILTERS.filter(({ id }) => seen.has(id));
-  const extras = Array.from(seen)
-    .filter((id) => !FILTER_LABELS.has(id))
-    .sort((a, b) => getCategoryLabel(a).localeCompare(getCategoryLabel(b), "es"))
-    .map((id) => ({ id, label: getCategoryLabel(id) }));
-
+function buildFilters(): PhotoCategory[] {
   return [
     { id: "all", label: "Todo" },
-    ...ordered,
-    ...extras,
+    ...TAXONOMY_FILTERS,
   ];
 }
 
+function getCanonicalTagsFromValues(values: string[]): string[] {
+  const normalizedValues = values
+    .flatMap((value) => value.split(/[\\/|,]+/g))
+    .map((value) => toCategoryId(value))
+    .filter(Boolean);
+
+  return getCanonicalPhotoFilterIds(normalizedValues);
+}
+
 function getFallbackGallery(): GalleryData {
-  const photos: GalleryPhoto[] = localGalleryPhotos.map((photo) => ({
-    id: String(photo.id),
-    title: photo.title,
-    alt: photo.alt,
-    tags: [photo.category],
-    category: photo.category,
-    filterLabel: photo.filterLabel,
-    displayCategory: photo.displayCategory,
-    image: photo.image,
-    media: photo.src,
-    src: photo.src,
-    width: photo.width,
-    height: photo.height,
-    aspect: photo.aspect,
-    relativePath: photo.relativePath,
-  }));
+  const photos: GalleryPhoto[] = localGalleryPhotos.map((photo) => {
+    const tags = getCanonicalTagsFromValues([
+      photo.category,
+      photo.filterLabel,
+      photo.displayCategory,
+      photo.relativePath,
+    ]);
+    const category = tags[0] ?? photo.category;
+
+    return {
+      id: String(photo.id),
+      title: photo.title,
+      alt: photo.alt,
+      tags,
+      category,
+      filterLabel: getCategoryLabel(category),
+      displayCategory: tags.length > 0
+        ? tags.map((tag) => getCategoryLabel(tag)).join(" / ")
+        : photo.displayCategory,
+      image: photo.image,
+      media: photo.src,
+      src: photo.src,
+      width: photo.width,
+      height: photo.height,
+      aspect: photo.aspect,
+      relativePath: photo.relativePath,
+    };
+  });
 
   return {
-    filters: localPhotoFilters,
+    filters: buildFilters(),
     photos,
     source: "local",
   };
 }
 
-function mapEmDashPhoto(entry: { id: string; data: Record<string, unknown> }): GalleryPhoto | null {
+function mapEmDashPhoto(entry: {
+  id: string;
+  data: Record<string, unknown>;
+}): GalleryPhoto | null {
   const title = getString(entry.data, "title") ?? "";
   const media = getMediaValue(entry.data, "image", "featured_image", "photo", "media");
   const src = getMediaSrc(media);
@@ -270,11 +290,14 @@ function mapEmDashPhoto(entry: { id: string; data: Record<string, unknown> }): G
     : legacyCategory
       ? [legacyCategory]
       : ["sin-categoria"];
-  const category = tags[0];
+  const canonicalTags = getCanonicalPhotoFilterIds(tags);
+  const category = canonicalTags[0] ?? tags[0];
   const filterLabel = getCategoryLabel(category);
   const displayCategory =
     getString(entry.data, "displayCategory", "categoryDisplay") ??
-    tags.map((tag) => getCategoryLabel(tag)).join(" / ");
+    (canonicalTags.length > 0
+      ? canonicalTags.map((tag) => getCategoryLabel(tag)).join(" / ")
+      : tags.map((tag) => getCategoryLabel(tag)).join(" / "));
   const width =
     getNumber(entry.data, "width") ??
     (isMediaValue(media) && typeof media.width === "number" ? media.width : undefined) ??
@@ -292,7 +315,7 @@ function mapEmDashPhoto(entry: { id: string; data: Record<string, unknown> }): G
       getString(entry.data, "alt") ??
       (isMediaValue(media) && typeof media.alt === "string" ? media.alt : undefined) ??
       (title ? `Sergi Ortega - ${title}` : "Sergi Ortega - Fotografia"),
-    tags,
+    tags: canonicalTags.length > 0 ? canonicalTags : tags,
     frontOrder,
     category,
     filterLabel,
@@ -358,7 +381,7 @@ export async function getGalleryData(): Promise<GalleryData> {
     }
 
     return {
-      filters: buildFilters(orderedPhotos),
+      filters: buildFilters(),
       photos: orderedPhotos,
       source: "emdash",
     };

@@ -3,6 +3,12 @@ import smallLogo from "../assets/small-logo.png";
 
 const currentPath = Astro.url.pathname;
 
+interface Props {
+  hideLogo?: boolean;
+}
+
+const { hideLogo = false } = Astro.props;
+
 const navLinks = [
   { href: "/fotografia", label: "Fotografía" },
   { href: "/video", label: "Vídeo" },
@@ -15,19 +21,26 @@ function isCurrentPath(href: string): boolean {
 }
 ---
 
-<header class="site-header" id="site-header">
+<header
+  class:list={["site-header", hideLogo && "site-header--logo-hidden"]}
+  id="site-header"
+>
   <nav class="site-header__nav container">
-    <a href="/" class="site-header__logo">
-      <img
-        src={smallLogo.src}
-        alt="The Churfer"
-        class="site-header__logo-img"
-        width={smallLogo.width}
-        height={smallLogo.height}
-        loading="eager"
-        decoding="async"
-      />
-    </a>
+    {
+      !hideLogo && (
+        <a href="/" class="site-header__logo">
+          <img
+            src={smallLogo.src}
+            alt="The Churfer"
+            class="site-header__logo-img"
+            width={smallLogo.width}
+            height={smallLogo.height}
+            loading="eager"
+            decoding="async"
+          />
+        </a>
+      )
+    }
 
     <button
       class="site-header__toggle"
@@ -118,6 +131,11 @@ function isCurrentPath(href: string): boolean {
     transform: translateY(-100%);
   }
 
+  .site-header.is-panorama-hidden {
+    transform: translateY(-100%);
+    pointer-events: none;
+  }
+
   /* Keep header visible when menu is open (transform also creates containing block) */
   .site-header.is-hidden:has(.is-open) {
     transform: none;
@@ -127,6 +145,10 @@ function isCurrentPath(href: string): boolean {
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  .site-header--logo-hidden .site-header__nav {
+    justify-content: flex-end;
   }
 
   .site-header__logo-img {
@@ -208,7 +230,15 @@ function isCurrentPath(href: string): boolean {
     transform: translateY(-3.25px) rotate(-45deg);
   }
 
-  @media (max-width: 768px) {
+  @media (min-width: 1201px) {
+    .site-header--logo-hidden .site-header__nav {
+      width: min(1500px, calc(100vw - var(--gutter)));
+      max-width: min(1500px, calc(100vw - var(--gutter)));
+      padding-inline: 0;
+    }
+  }
+
+  @media (max-width: 1200px) {
     .site-header__toggle {
       display: flex;
     }

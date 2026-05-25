@@ -8,180 +8,227 @@ const submissionStatus = Astro.url.searchParams.get("status");
   title="Contacto para fotografía y vídeo en Cádiz"
   description="Contacta con The Churfer para fotografía de surf, video comercial, videoclips, deporte y eventos en Cádiz. Cuéntame tu proyecto y construimos una pieza con identidad propia."
 >
-  <!-- ═══ PAGE HERO ═══ -->
-  <section class="page-hero page-hero--compact">
-    <div class="page-hero__inner container">
-      <h1 class="reveal">Contacto</h1>
-      <p class="page-hero__desc reveal">
-        Contacta con The Churfer para fotografía de surf, video comercial,
-        videoclips, deporte y eventos en Cádiz. Cuéntame tu proyecto y
-        construimos una pieza con identidad propia.
-      </p>
-      <div class="rule reveal"></div>
-    </div>
-  </section>
+  <div class="page-gradient-shell">
+    <h1 class="sr-only">Contacto para fotografía y vídeo en Cádiz</h1>
 
-  <!-- ═══ CONTACT CONTENT ═══ -->
-  <section class="contact container">
-    <div class="contact__grid">
-      <!-- FORMULARIO -->
-      <form class="contact__form reveal" method="POST" action="/api/contact">
-        <div class="contact__form-group">
-          <label for="name">Nombre</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            autocomplete="name"
-            placeholder="Tu nombre"
-          />
-        </div>
+    <!-- ═══ CONTACT CONTENT ═══ -->
+    <section class="contact container">
+      <div class="contact__grid">
+        <!-- FORMULARIO -->
+        <form class="contact__form reveal" method="POST" action="/api/contact">
+          <div class="contact__form-group">
+            <label for="name">Nombre</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              autocomplete="name"
+              placeholder="Tu nombre"
+            />
+          </div>
 
-        <div class="contact__form-group">
-          <label for="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            autocomplete="email"
-            placeholder="tu@email.com"
-          />
-        </div>
+          <div class="contact__form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder="tu@email.com"
+            />
+          </div>
 
-        <div class="contact__honeypot" aria-hidden="true">
-          <label for="company">Empresa</label>
-          <input
-            type="text"
-            id="company"
-            name="company"
-            tabindex="-1"
-            autocomplete="off"
-          />
-        </div>
+          <div class="contact__honeypot" aria-hidden="true">
+            <label for="company">Empresa</label>
+            <input
+              type="text"
+              id="company"
+              name="company"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
 
-        <div class="contact__form-group">
-          <label for="subject">¿En qué puedo ayudarte?</label>
-          <select id="subject" name="subject" required>
-            <option value="">Selecciona una opción</option>
-            <option value="foto-deportiva">Fotografía deportiva</option>
-            <option value="video-comercial">Vídeo comercial</option>
-            <option value="videoclip">Videoclip musical</option>
-            <option value="evento">Cobertura de evento</option>
-            <option value="colaboracion">Colaboración / Marca</option>
-            <option value="otro">Otro</option>
-          </select>
-        </div>
+          <div class="contact__form-group">
+            <label for="subject">¿En qué puedo ayudarte?</label>
+            <select id="subject" name="subject" required>
+              <option value="">Selecciona una opción</option>
+              <option value="foto-deportiva">Fotografía deportiva</option>
+              <option value="video-comercial">Vídeo comercial</option>
+              <option value="videoclip">Videoclip musical</option>
+              <option value="evento">Cobertura de evento</option>
+              <option value="colaboracion">Colaboración / Marca</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
 
-        <div class="contact__form-group">
-          <label for="message">Mensaje</label>
-          <textarea
-            id="message"
-            name="message"
-            rows="6"
-            required
-            placeholder="Cuéntame sobre tu proyecto..."></textarea>
-        </div>
+          <div class="contact__form-group">
+            <label for="message">Mensaje</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="6"
+              required
+              placeholder="Cuéntame sobre tu proyecto..."></textarea>
+          </div>
 
-        <button type="submit" class="cta-button">Enviar mensaje</button>
+          <button type="submit" class="cta-button">Enviar mensaje</button>
 
-        {
-          submissionStatus === "ok" && (
-            <p
-              class="contact__status contact__status--success"
-              aria-live="polite"
-            >
-              Mensaje enviado. Te responderé lo antes posible.
-            </p>
-          )
-        }
-
-        {
-          submissionStatus === "invalid" && (
-            <p
-              class="contact__status contact__status--error"
-              aria-live="polite"
-            >
-              Revisa los campos del formulario e inténtalo de nuevo.
-            </p>
-          )
-        }
-
-        {
-          submissionStatus === "error" && (
-            <p
-              class="contact__status contact__status--error"
-              aria-live="polite"
-            >
-              No se pudo enviar el mensaje ahora mismo. Prueba de nuevo dentro
-              de unos minutos.
-            </p>
-          )
-        }
-      </form>
-
-      <!-- SIDEBAR INFO -->
-      <aside class="contact__aside reveal">
-        <div class="contact__info-block">
-          <h2 class="contact__info-heading">Encuéntrame</h2>
-          <p class="contact__info-text">
-            Basado en El Palmar, Cádiz. Disponible para proyectos en cualquier
-            punto de la península y fuera de ella.
-          </p>
-        </div>
-
-        <div class="contact__info-block">
-          <h3 class="label">Redes sociales</h3>
-          <ul class="contact__social">
-            <li>
-              <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="contact__social-link"
+          {
+            submissionStatus === "ok" && (
+              <p
+                class="contact__status contact__status--success"
+                aria-live="polite"
               >
-                <span class="contact__social-icon">IG</span>
-                Instagram
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="contact__social-link"
-              >
-                <span class="contact__social-icon">YT</span>
-                YouTube
-              </a>
-            </li>
-          </ul>
-        </div>
+                Mensaje enviado. Te responderé lo antes posible.
+              </p>
+            )
+          }
 
-        <div class="contact__info-block">
-          <h3 class="label">Respuesta habitual</h3>
-          <p class="contact__info-text">
-            Normalmente respondo en menos de 24h. Para proyectos urgentes,
-            indícalo en el mensaje.
-          </p>
-        </div>
-      </aside>
-    </div>
-  </section>
+          {
+            submissionStatus === "invalid" && (
+              <p
+                class="contact__status contact__status--error"
+                aria-live="polite"
+              >
+                Revisa los campos del formulario e inténtalo de nuevo.
+              </p>
+            )
+          }
+
+          {
+            submissionStatus === "error" && (
+              <p
+                class="contact__status contact__status--error"
+                aria-live="polite"
+              >
+                No se pudo enviar el mensaje ahora mismo. Prueba de nuevo dentro
+                de unos minutos.
+              </p>
+            )
+          }
+        </form>
+
+        <!-- SIDEBAR INFO -->
+        <aside class="contact__aside reveal">
+          <div class="contact__info-block">
+            <h2 class="contact__info-heading">Encuéntrame</h2>
+            <p class="contact__info-text">
+              Basado en El Palmar, Cádiz. Disponible para proyectos en cualquier
+              punto de la península y fuera de ella.
+            </p>
+          </div>
+
+          <div class="contact__info-block">
+            <h3 class="label">Redes sociales</h3>
+            <ul class="contact__social">
+              <li>
+                <a
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="contact__social-link"
+                >
+                  <span class="contact__social-icon">IG</span>
+                  Instagram
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="contact__social-link"
+                >
+                  <span class="contact__social-icon">YT</span>
+                  YouTube
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="contact__info-block">
+            <h3 class="label">Respuesta habitual</h3>
+            <p class="contact__info-text">
+              Normalmente respondo en menos de 24h. Para proyectos urgentes,
+              indícalo en el mensaje.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
 </BaseLayout>
 
 <style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .page-gradient-shell {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    padding-top: calc(var(--header-height) + var(--space-lg));
+    overflow: hidden;
+  }
+
+  .page-gradient-shell::before,
+  .page-gradient-shell::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block: 0;
+    pointer-events: none;
+  }
+
+  .page-gradient-shell::before {
+    background: linear-gradient(
+      var(--hero-gradient-angle),
+      var(--color-hero-1) var(--hero-stop-1),
+      var(--color-hero-2) var(--hero-stop-2),
+      var(--color-hero-3) var(--hero-stop-3),
+      var(--color-hero-4) var(--hero-stop-4)
+    );
+    animation: heroShift 20s ease-in-out infinite alternate;
+    z-index: -2;
+  }
+
+  .page-gradient-shell::after {
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(10, 10, 10, 0.06) 0%,
+        var(--color-bg) 94%
+      ),
+      linear-gradient(to right, rgba(10, 10, 10, 0.52) 0%, transparent 62%);
+    z-index: -1;
+  }
+
   /* ═══ CONTACT LAYOUT ═══ */
   .contact {
-    padding-block: var(--space-lg);
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - var(--header-height) - var(--space-lg));
+    padding-block: var(--space-md) var(--space-section);
   }
 
   .contact__grid {
     display: grid;
     grid-template-columns: 1.4fr 1fr;
     gap: var(--space-2xl);
-    align-items: start;
+    align-items: center;
+    width: 100%;
   }
 
   /* ═══ FORM ═══ */
@@ -302,6 +349,15 @@ const submissionStatus = Astro.url.searchParams.get("status");
   }
 
   @media (max-width: 768px) {
+    .page-gradient-shell {
+      padding-top: calc(var(--header-height) + var(--space-sm));
+    }
+
+    .contact {
+      display: block;
+      min-height: 0;
+    }
+
     .contact__grid {
       grid-template-columns: 1fr;
       gap: var(--space-xl);

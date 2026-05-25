@@ -30,12 +30,12 @@
   /* Hero gradient */
   --color-hero-1:       #0c1a2a;
   --color-hero-2:       #0a1520;
-  --color-hero-3:       #043966;
+  --color-hero-3:       #043939;
   --color-hero-4:       #0d1a25;
   --hero-gradient-angle: 135deg;
   --hero-stop-1:        0%;
-  --hero-stop-2:        30%;
-  --hero-stop-3:        60%;
+  --hero-stop-2:        0%;
+  --hero-stop-3:        82%;
   --hero-stop-4:        100%;
 
   /* Overlay alphas (white) */
