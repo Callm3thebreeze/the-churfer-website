@@ -1,5 +1,6 @@
 ---
 import smallLogo from "../assets/small-logo.png";
+import { hasPublishedVideosInEmDash } from "../lib/videos";
 
 const currentPath = Astro.url.pathname;
 
@@ -9,9 +10,11 @@ interface Props {
 
 const { hideLogo = false } = Astro.props;
 
+const showVideoLink = await hasPublishedVideosInEmDash();
+
 const navLinks = [
   { href: "/fotografia", label: "Fotografía" },
-  { href: "/video", label: "Vídeo" },
+  ...(showVideoLink ? [{ href: "/video", label: "Vídeo" }] : []),
   { href: "/sobre-mi", label: "Sobre mí" },
   { href: "/contacto", label: "Contacto" },
 ];
