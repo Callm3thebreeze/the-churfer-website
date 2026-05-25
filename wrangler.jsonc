@@ -1,28 +1,30 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "the-churfer-website",
-  "compatibility_date": "2026-04-23",
-  "compatibility_flags": ["nodejs_compat"],
-  "images": {
-    "binding": "IMAGES"
-  },
-  "kv_namespaces": [
-    {
-      "binding": "SESSION",
-      "id": "a849656cae3e48ad8b786654368070de"
-    }
-  ],
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "the-churfer-emdash",
-      "database_id": "d568ef41-1df1-4115-be88-030324002996"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "MEDIA",
-      "bucket_name": "the-churfer-media"
-    }
-  ]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "the-churfer-website",
+	"compatibility_date": "2026-04-23",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"images": {
+		"binding": "IMAGES"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "SESSION",
+			"id": "7da4f7364abb45389bb8782bca9011d3"
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "the-churfer-emdash",
+			"database_id": "ed381f7f-2ac5-4437-a173-3443dbeba3aa"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "MEDIA",
+			"bucket_name": "the-churfer-media"
+		}
+	]
 }
