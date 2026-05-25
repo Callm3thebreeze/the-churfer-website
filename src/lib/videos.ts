@@ -335,6 +335,19 @@ export async function getVideoLibrary(): Promise<VideoLibrary> {
   }
 }
 
+export async function hasPublishedVideosInEmDash(): Promise<boolean> {
+  try {
+    const { entries, error } = await getEmDashCollection("videos", {
+      orderBy: { published_at: "desc" },
+      status: "published",
+    });
+
+    return !error && entries.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export async function getVideoEntryBySlug(slug: string): Promise<VideoEntry | null> {
   try {
     const { entry, error } = await getEmDashEntry("videos", slug);
