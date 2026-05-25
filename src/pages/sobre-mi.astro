@@ -95,7 +95,8 @@ import sergi from "../assets/sergi.jpg";
   .page-gradient-shell {
     position: relative;
     isolation: isolate;
-    padding-top: calc(var(--space-section) + var(--header-height));
+    min-height: 100vh;
+    padding-top: calc(var(--header-height) + var(--space-xl));
     overflow: hidden;
   }
 
@@ -109,7 +110,7 @@ import sergi from "../assets/sergi.jpg";
   }
 
   .page-gradient-shell::before {
-    height: clamp(18rem, 34vw, 28rem);
+    inset-block: 0;
     background: linear-gradient(
       var(--hero-gradient-angle),
       var(--color-hero-1) var(--hero-stop-1),
@@ -122,16 +123,23 @@ import sergi from "../assets/sergi.jpg";
   }
 
   .page-gradient-shell::after {
-    height: clamp(18rem, 34vw, 28rem);
+    inset-block: 0;
     background:
-      linear-gradient(to top, var(--color-bg) 0%, transparent 50%),
-      linear-gradient(to right, rgba(10, 10, 10, 0.5) 0%, transparent 60%);
+      linear-gradient(
+        to bottom,
+        rgba(10, 10, 10, 0.08) 0%,
+        var(--color-bg) 92%
+      ),
+      linear-gradient(to right, rgba(10, 10, 10, 0.58) 0%, transparent 64%);
     z-index: -1;
   }
 
   /* ═══ ABOUT ═══ */
   .about {
-    padding-block: var(--space-section);
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - var(--header-height) - var(--space-xl));
+    padding-block: var(--space-lg) var(--space-section);
   }
 
   .about__inner {
@@ -139,6 +147,7 @@ import sergi from "../assets/sergi.jpg";
     grid-template-columns: 1fr 1.3fr;
     gap: var(--space-xl);
     align-items: center;
+    width: 100%;
   }
 
   .about__portrait {
@@ -185,8 +194,14 @@ import sergi from "../assets/sergi.jpg";
   }
 
   @media (max-width: 900px) {
+    .page-gradient-shell {
+      padding-top: calc(var(--header-height) + var(--space-xs));
+    }
+
     .about {
-      padding-block: 0;
+      display: block;
+      min-height: 0;
+      padding-block: 0 var(--space-section);
     }
 
     .about__inner {
@@ -194,7 +209,12 @@ import sergi from "../assets/sergi.jpg";
       gap: var(--space-lg);
     }
 
+    .about__text-col {
+      order: -1;
+    }
+
     .about__image-col {
+      order: 1;
       max-width: 400px;
     }
   }

@@ -43,6 +43,7 @@ const panoramaPhotos = photos.filter((photo) =>
 const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   getPanoramaTileClass(photo, i),
 );
+const SHOW_GRADIENT_LAB = false;
 ---
 
 <BaseLayout
@@ -57,234 +58,237 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
       en Cádiz
     </h1>
 
-    <section class="hero-gradient-lab-shell container reveal">
-      <div class="hero-gradient-lab">
-        <div class="hero-gradient-lab__intro">
-          <span class="label">Gradient Lab</span>
-          <p>
-            Abre el panel, prueba tonos más verdosos y pásame un pantallazo con
-            los valores que más te convenzan.
-          </p>
-        </div>
-        <button
-          class="hero-gradient-lab__toggle pill-btn"
-          id="gradient-lab-toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="gradient-lab-panel"
-        >
-          Ajustar degradado
-        </button>
-      </div>
-      <section
-        class="hero-gradient-panel"
-        id="gradient-lab-panel"
-        aria-label="Editor visual del degradado del hero"
-        hidden
-      >
-        <div class="hero-gradient-panel__top">
-          <div>
-            <span class="label">Preview en vivo</span>
-            <h2>Control del hero</h2>
-          </div>
-          <div class="hero-gradient-panel__actions">
+    {
+      SHOW_GRADIENT_LAB && (
+        <section class="hero-gradient-lab-shell container reveal">
+          <div class="hero-gradient-lab">
+            <div class="hero-gradient-lab__intro">
+              <span class="label">Gradient Lab</span>
+              <p>
+                Abre el panel, prueba tonos más verdosos y pásame un pantallazo
+                con los valores que más te convenzan.
+              </p>
+            </div>
             <button
-              class="hero-gradient-panel__action"
-              id="gradient-lab-reset"
+              class="hero-gradient-lab__toggle pill-btn"
+              id="gradient-lab-toggle"
               type="button"
+              aria-expanded="false"
+              aria-controls="gradient-lab-panel"
             >
-              Reset
+              Ajustar degradado
             </button>
           </div>
-        </div>
-
-        <div class="hero-gradient-panel__preview" aria-hidden="true"></div>
-
-        <div class="hero-gradient-panel__grid">
-          <div class="hero-gradient-panel__group">
-            <span class="label">Colores</span>
-
-            <label class="gradient-control">
-              <span class="gradient-control__meta">
-                <span class="gradient-control__name">--color-hero-1</span>
-                <span
-                  class="gradient-control__value"
-                  data-gradient-value-for="--color-hero-1"></span>
-              </span>
-              <input
-                class="gradient-control__picker"
-                type="color"
-                value="#0c1a2a"
-                data-gradient-control
-                data-var="--color-hero-1"
-              />
-            </label>
-
-            <label class="gradient-control">
-              <span class="gradient-control__meta">
-                <span class="gradient-control__name">--color-hero-2</span>
-                <span
-                  class="gradient-control__value"
-                  data-gradient-value-for="--color-hero-2"></span>
-              </span>
-              <input
-                class="gradient-control__picker"
-                type="color"
-                value="#0a1520"
-                data-gradient-control
-                data-var="--color-hero-2"
-              />
-            </label>
-
-            <label class="gradient-control">
-              <span class="gradient-control__meta">
-                <span class="gradient-control__name">--color-hero-3</span>
-                <span
-                  class="gradient-control__value"
-                  data-gradient-value-for="--color-hero-3"></span>
-              </span>
-              <input
-                class="gradient-control__picker"
-                type="color"
-                value="#043966"
-                data-gradient-control
-                data-var="--color-hero-3"
-              />
-            </label>
-
-            <label class="gradient-control">
-              <span class="gradient-control__meta">
-                <span class="gradient-control__name">--color-hero-4</span>
-                <span
-                  class="gradient-control__value"
-                  data-gradient-value-for="--color-hero-4"></span>
-              </span>
-              <input
-                class="gradient-control__picker"
-                type="color"
-                value="#0d1a25"
-                data-gradient-control
-                data-var="--color-hero-4"
-              />
-            </label>
-          </div>
-
-          <div class="hero-gradient-panel__group">
-            <span class="label">Dirección y stops</span>
-
-            <label class="gradient-slider">
-              <span class="gradient-slider__meta">
-                <span class="gradient-slider__name">Ángulo</span>
-                <span
-                  class="gradient-slider__value"
-                  data-gradient-value-for="--hero-gradient-angle"
+          <section
+            class="hero-gradient-panel"
+            id="gradient-lab-panel"
+            aria-label="Editor visual del degradado del hero"
+            hidden
+          >
+            <div class="hero-gradient-panel__top">
+              <div>
+                <span class="label">Preview en vivo</span>
+                <h2>Control del hero</h2>
+              </div>
+              <div class="hero-gradient-panel__actions">
+                <button
+                  class="hero-gradient-panel__action"
+                  id="gradient-lab-reset"
+                  type="button"
                 >
-                </span>
-              </span>
-              <input
-                type="range"
-                min="0"
-                max="360"
-                step="1"
-                value="135"
-                data-gradient-control
-                data-var="--hero-gradient-angle"
-                data-unit="deg"
-              />
-            </label>
+                  Reset
+                </button>
+              </div>
+            </div>
 
-            <label class="gradient-slider">
-              <span class="gradient-slider__meta">
-                <span class="gradient-slider__name">Stop 1</span>
-                <span
-                  class="gradient-slider__value"
-                  data-gradient-value-for="--hero-stop-1"
-                >
-                </span>
-              </span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value="0"
-                data-gradient-control
-                data-var="--hero-stop-1"
-                data-unit="%"
-              />
-            </label>
+            <div class="hero-gradient-panel__preview" aria-hidden="true" />
 
-            <label class="gradient-slider">
-              <span class="gradient-slider__meta">
-                <span class="gradient-slider__name">Stop 2</span>
-                <span
-                  class="gradient-slider__value"
-                  data-gradient-value-for="--hero-stop-2"
-                >
-                </span>
-              </span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value="30"
-                data-gradient-control
-                data-var="--hero-stop-2"
-                data-unit="%"
-              />
-            </label>
+            <div class="hero-gradient-panel__grid">
+              <div class="hero-gradient-panel__group">
+                <span class="label">Colores</span>
 
-            <label class="gradient-slider">
-              <span class="gradient-slider__meta">
-                <span class="gradient-slider__name">Stop 3</span>
-                <span
-                  class="gradient-slider__value"
-                  data-gradient-value-for="--hero-stop-3"
-                >
-                </span>
-              </span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value="60"
-                data-gradient-control
-                data-var="--hero-stop-3"
-                data-unit="%"
-              />
-            </label>
+                <label class="gradient-control">
+                  <span class="gradient-control__meta">
+                    <span class="gradient-control__name">--color-hero-1</span>
+                    <span
+                      class="gradient-control__value"
+                      data-gradient-value-for="--color-hero-1"
+                    />
+                  </span>
+                  <input
+                    class="gradient-control__picker"
+                    type="color"
+                    value="#0c1a2a"
+                    data-gradient-control
+                    data-var="--color-hero-1"
+                  />
+                </label>
 
-            <label class="gradient-slider">
-              <span class="gradient-slider__meta">
-                <span class="gradient-slider__name">Stop 4</span>
-                <span
-                  class="gradient-slider__value"
-                  data-gradient-value-for="--hero-stop-4"
-                >
-                </span>
-              </span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value="100"
-                data-gradient-control
-                data-var="--hero-stop-4"
-                data-unit="%"
-              />
-            </label>
-          </div>
-        </div>
+                <label class="gradient-control">
+                  <span class="gradient-control__meta">
+                    <span class="gradient-control__name">--color-hero-2</span>
+                    <span
+                      class="gradient-control__value"
+                      data-gradient-value-for="--color-hero-2"
+                    />
+                  </span>
+                  <input
+                    class="gradient-control__picker"
+                    type="color"
+                    value="#0a1520"
+                    data-gradient-control
+                    data-var="--color-hero-2"
+                  />
+                </label>
 
-        <div class="hero-gradient-panel__code">
-          <span class="label">Valores para captura</span>
-          <pre id="gradient-css-output"></pre>
-        </div>
-      </section>
-    </section>
+                <label class="gradient-control">
+                  <span class="gradient-control__meta">
+                    <span class="gradient-control__name">--color-hero-3</span>
+                    <span
+                      class="gradient-control__value"
+                      data-gradient-value-for="--color-hero-3"
+                    />
+                  </span>
+                  <input
+                    class="gradient-control__picker"
+                    type="color"
+                    value="#043939"
+                    data-gradient-control
+                    data-var="--color-hero-3"
+                  />
+                </label>
+
+                <label class="gradient-control">
+                  <span class="gradient-control__meta">
+                    <span class="gradient-control__name">--color-hero-4</span>
+                    <span
+                      class="gradient-control__value"
+                      data-gradient-value-for="--color-hero-4"
+                    />
+                  </span>
+                  <input
+                    class="gradient-control__picker"
+                    type="color"
+                    value="#0d1a25"
+                    data-gradient-control
+                    data-var="--color-hero-4"
+                  />
+                </label>
+              </div>
+
+              <div class="hero-gradient-panel__group">
+                <span class="label">Dirección y stops</span>
+
+                <label class="gradient-slider">
+                  <span class="gradient-slider__meta">
+                    <span class="gradient-slider__name">Ángulo</span>
+                    <span
+                      class="gradient-slider__value"
+                      data-gradient-value-for="--hero-gradient-angle"
+                    />
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="360"
+                    step="1"
+                    value="135"
+                    data-gradient-control
+                    data-var="--hero-gradient-angle"
+                    data-unit="deg"
+                  />
+                </label>
+
+                <label class="gradient-slider">
+                  <span class="gradient-slider__meta">
+                    <span class="gradient-slider__name">Stop 1</span>
+                    <span
+                      class="gradient-slider__value"
+                      data-gradient-value-for="--hero-stop-1"
+                    />
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="0"
+                    data-gradient-control
+                    data-var="--hero-stop-1"
+                    data-unit="%"
+                  />
+                </label>
+
+                <label class="gradient-slider">
+                  <span class="gradient-slider__meta">
+                    <span class="gradient-slider__name">Stop 2</span>
+                    <span
+                      class="gradient-slider__value"
+                      data-gradient-value-for="--hero-stop-2"
+                    />
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="0"
+                    data-gradient-control
+                    data-var="--hero-stop-2"
+                    data-unit="%"
+                  />
+                </label>
+
+                <label class="gradient-slider">
+                  <span class="gradient-slider__meta">
+                    <span class="gradient-slider__name">Stop 3</span>
+                    <span
+                      class="gradient-slider__value"
+                      data-gradient-value-for="--hero-stop-3"
+                    />
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="82"
+                    data-gradient-control
+                    data-var="--hero-stop-3"
+                    data-unit="%"
+                  />
+                </label>
+
+                <label class="gradient-slider">
+                  <span class="gradient-slider__meta">
+                    <span class="gradient-slider__name">Stop 4</span>
+                    <span
+                      class="gradient-slider__value"
+                      data-gradient-value-for="--hero-stop-4"
+                    />
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="100"
+                    data-gradient-control
+                    data-var="--hero-stop-4"
+                    data-unit="%"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div class="hero-gradient-panel__code">
+              <span class="label">Valores para captura</span>
+              <pre id="gradient-css-output" />
+            </div>
+          </section>
+        </section>
+      )
+    }
 
     <h2 class="sr-only">
       Galería de fotografía de surf, agua y deportes de acción
@@ -302,7 +306,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
             data-filter="all"
             aria-pressed="true"
           >
-            Todo
+            ALL
           </button>
 
           {
@@ -588,16 +592,16 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
 </BaseLayout>
 
 <script>
-  const gradientStorageKey = "the-churfer-photo-hero-gradient";
+  const gradientStorageKey = "the-churfer-photo-hero-gradient-v2";
   const gradientDefaults = {
     "--color-hero-1": "#0c1a2a",
     "--color-hero-2": "#0a1520",
-    "--color-hero-3": "#043966",
+    "--color-hero-3": "#043939",
     "--color-hero-4": "#0d1a25",
     "--hero-gradient-angle": "135deg",
     "--hero-stop-1": "0%",
-    "--hero-stop-2": "30%",
-    "--hero-stop-3": "60%",
+    "--hero-stop-2": "0%",
+    "--hero-stop-3": "82%",
     "--hero-stop-4": "100%",
   } as const;
 
@@ -849,6 +853,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
 
   function applyFilter(filter: string) {
     const activeFilter = normalizeFilter(filter);
+    const activeFilters = new Set([activeFilter]);
 
     filterBtns.forEach((button) => {
       const isActive = button.dataset.filter === activeFilter;
@@ -866,7 +871,39 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
         .split("|")
         .map((tag) => tag.trim())
         .filter(Boolean);
-      const match = activeFilter === "all" || tags.includes(activeFilter);
+      const match =
+        activeFilter === "all" || tags.some((tag) => activeFilters.has(tag));
+      item.classList.toggle("hidden", !match);
+      item.style.pointerEvents = match ? "" : "none";
+    });
+
+    layoutMasonry();
+  }
+
+  function applyGroupFilter(group: string) {
+    const groupFilters = getGroupFilters(group);
+    if (groupFilters.length === 0) {
+      applyFilter("all");
+      return;
+    }
+
+    filterBtns.forEach((button) => {
+      button.setAttribute("aria-pressed", "false");
+    });
+
+    groupBtns.forEach((button) => {
+      const isParent = button.dataset.filterGroup === group;
+      button.setAttribute("aria-pressed", isParent ? "true" : "false");
+    });
+
+    const activeFilters = new Set(groupFilters);
+
+    items.forEach((item) => {
+      const tags = (item.dataset.tags ?? "")
+        .split("|")
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+      const match = tags.some((tag) => activeFilters.has(tag));
       item.classList.toggle("hidden", !match);
       item.style.pointerEvents = match ? "" : "none";
     });
@@ -881,13 +918,23 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   }
 
   function getSingleGroupFilter(group: string) {
-    const groupFilters = Array.from(filterBtns).filter(
-      (button) => button.dataset.parentGroup === group,
-    );
+    const groupFilters = getGroupFilterButtons(group);
 
     return groupFilters.length === 1
       ? groupFilters[0]?.dataset.filter
       : undefined;
+  }
+
+  function getGroupFilterButtons(group: string) {
+    return Array.from(filterBtns).filter(
+      (button) => button.dataset.parentGroup === group,
+    );
+  }
+
+  function getGroupFilters(group: string) {
+    return getGroupFilterButtons(group)
+      .map((button) => button.dataset.filter)
+      .filter((value): value is string => Boolean(value));
   }
 
   function setOpenGroup(group: string | null) {
@@ -920,7 +967,11 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
     if (requestedFilter && availableGroups.has(requestedFilter)) {
       openGroup(requestedFilter);
       const singleFilter = getSingleGroupFilter(requestedFilter);
-      applyFilter(singleFilter ?? "all");
+      if (singleFilter === requestedFilter) {
+        applyFilter(singleFilter);
+      } else {
+        applyGroupFilter(requestedFilter);
+      }
       return;
     }
 
@@ -963,7 +1014,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
       if (singleFilter === group) {
         applyFilter(singleFilter);
       } else {
-        applyFilter("all");
+        applyGroupFilter(group);
       }
     });
   });
@@ -1127,6 +1178,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   const panoCanvas = document.getElementById("panorama-canvas")!;
   const panoOpen = document.getElementById("panorama-open")!;
   const panoCl = document.getElementById("panorama-close")!;
+  const siteHeader = document.getElementById("site-header");
   const panoTiles = Array.from(
     document.querySelectorAll<HTMLElement>(".pano-tile"),
   );
@@ -1151,8 +1203,16 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
         : "";
   }
 
+  function syncHeaderVisibility() {
+    siteHeader?.classList.toggle(
+      "is-panorama-hidden",
+      panorama.getAttribute("aria-hidden") !== "true",
+    );
+  }
+
   function openPanorama() {
     panorama.setAttribute("aria-hidden", "false");
+    syncHeaderVisibility();
     syncScrollLock();
     requestAnimationFrame(() => {
       panoScroll.scrollLeft =
@@ -1166,6 +1226,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   function closePanorama() {
     stopEdgeScroll();
     panorama.setAttribute("aria-hidden", "true");
+    syncHeaderVisibility();
     syncScrollLock();
   }
 
@@ -1291,7 +1352,8 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   .page-gradient-shell {
     position: relative;
     isolation: isolate;
-    padding-top: calc(var(--space-section) + var(--header-height));
+    min-height: 100vh;
+    padding-top: calc(var(--header-height) + var(--space-md));
     overflow: hidden;
   }
 
@@ -1305,7 +1367,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   }
 
   .page-gradient-shell::before {
-    height: clamp(18rem, 34vw, 28rem);
+    inset-block: 0;
     background: linear-gradient(
       var(--hero-gradient-angle),
       var(--color-hero-1) var(--hero-stop-1),
@@ -1318,10 +1380,14 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   }
 
   .page-gradient-shell::after {
-    height: clamp(18rem, 34vw, 28rem);
+    inset-block: 0;
     background:
-      linear-gradient(to top, var(--color-bg) 0%, transparent 50%),
-      linear-gradient(to right, rgba(10, 10, 10, 0.5) 0%, transparent 60%);
+      linear-gradient(
+        to bottom,
+        rgba(10, 10, 10, 0.06) 0%,
+        var(--color-bg) 94%
+      ),
+      linear-gradient(to right, rgba(10, 10, 10, 0.52) 0%, transparent 62%);
     z-index: -1;
   }
 
@@ -1539,7 +1605,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-block: var(--space-lg);
+    padding-block: var(--space-md) var(--space-sm);
     flex-wrap: wrap;
     gap: var(--space-sm);
   }
@@ -1562,7 +1628,7 @@ const panoramaTileClasses = panoramaPhotos.map((photo, i) =>
   }
 
   .filter-subfilters {
-    min-height: 2.7rem;
+    min-height: 0;
   }
 
   .filter-subfilters__panel {

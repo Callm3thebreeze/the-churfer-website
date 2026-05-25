@@ -3,8 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import YouTubeEmbed from "../../components/YouTubeEmbed.astro";
 import { getVideoLibrary } from "../../lib/videos";
 
-const { videos, categories } = await getVideoLibrary();
-const totalLabel = videos.length.toString().padStart(2, "0");
+const { videos } = await getVideoLibrary();
 ---
 
 <BaseLayout
@@ -16,15 +15,6 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     <div class="vhero__inner container">
       <div class="vhero__text">
         <h1 class="vhero__title reveal">Producción Audiovisual</h1>
-        <p class="vhero__desc reveal">
-          Producción audiovisual en Cádiz para marcas, videoclips, deporte y
-          eventos. The Churfer desarrolla videos con ritmo, atmósfera y una
-          narrativa visual de corte cinematográfico.
-        </p>
-      </div>
-      <div class="vhero__counter reveal">
-        <span class="vhero__counter-num">{totalLabel}</span>
-        <span class="vhero__counter-label">producciones</span>
       </div>
     </div>
     <div class="vhero__line"></div>
@@ -33,20 +23,6 @@ const totalLabel = videos.length.toString().padStart(2, "0");
   <!-- ═══ HORIZONTAL SCROLL GALLERY ═══ -->
   <section class="hscroll" id="hscroll" aria-label="Lista de producciones">
     <div class="hscroll__sticky">
-      <nav class="hscroll__nav container" aria-label="Filtrar por tipo">
-        {
-          categories.map(({ id, label }) => (
-            <button
-              class="vfilters__btn pill-btn"
-              data-filter={id}
-              aria-pressed={id === "all" ? "true" : "false"}
-            >
-              {label}
-            </button>
-          ))
-        }
-      </nav>
-
       <div class="hscroll__track" id="hscroll-track">
         {
           videos.map((video, i) => (
@@ -107,8 +83,6 @@ const totalLabel = videos.length.toString().padStart(2, "0");
   const section = document.getElementById("hscroll")!;
   const track = document.getElementById("hscroll-track")!;
   const bar = document.getElementById("hscroll-bar")!;
-  const filterBtns =
-    document.querySelectorAll<HTMLButtonElement>(".vfilters__btn");
   const allCards = track.querySelectorAll<HTMLElement>(".vcard");
 
   const DESKTOP_MIN = 769;
@@ -231,29 +205,6 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     computeTargets();
   });
 
-  // ── Filters ──
-  filterBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const filter = btn.dataset.filter;
-      filterBtns.forEach((b) => b.setAttribute("aria-pressed", "false"));
-      btn.setAttribute("aria-pressed", "true");
-
-      allCards.forEach((card) => {
-        const match = filter === "all" || card.dataset.category === filter;
-        card.classList.toggle("is-hidden", !match);
-      });
-
-      // Reset lerp state so it doesn't animate from old position
-      currentX = 0;
-      targetX = 0;
-      currentBar = 0;
-      targetBar = 0;
-
-      updateDimensions();
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  });
-
   updateDimensions();
   computeTargets();
 </script>
@@ -284,41 +235,6 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     margin-top: var(--space-xs);
   }
 
-  .vhero__desc {
-    color: var(--color-text-muted);
-    margin-top: var(--space-sm);
-    max-width: 42ch;
-    line-height: 1.75;
-  }
-
-  .vhero__counter {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0;
-    flex-shrink: 0;
-  }
-
-  .vhero__counter-num {
-    font-family: var(--font-display);
-    font-size: clamp(4rem, 3rem + 5vw, 8rem);
-    font-weight: 800;
-    line-height: 0.85;
-    letter-spacing: -0.04em;
-    color: var(--color-sunset);
-    opacity: 0.18;
-  }
-
-  .vhero__counter-label {
-    font-family: var(--font-body);
-    font-size: var(--text-xs);
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-text-dim);
-    margin-top: -0.2em;
-  }
-
   .vhero__line {
     width: 100%;
     height: 1px;
@@ -335,29 +251,6 @@ const totalLabel = videos.length.toString().padStart(2, "0");
   }
 
   /* ═══════════════════════════════════════
-     FILTERS
-     ═══════════════════════════════════════ */
-  .hscroll__nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5em;
-    padding-block: var(--space-md);
-    flex-shrink: 0;
-  }
-
-  .vfilters__btn:focus-visible {
-    outline: 2px solid var(--color-sunset);
-    outline-offset: 2px;
-  }
-
-  .vfilters__btn[aria-pressed="true"] {
-    color: var(--color-text);
-    background: var(--color-sunset-glow);
-    border-color: rgba(212, 168, 83, 0.3);
-    box-shadow: 0 0 16px -4px rgba(212, 168, 83, 0.15);
-  }
-
-  /* ═══════════════════════════════════════
      HORIZONTAL SCROLL
      ═══════════════════════════════════════ */
   .hscroll {
@@ -370,6 +263,8 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     height: 100vh;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+    padding-top: 8rem;
     overflow: hidden;
   }
 
@@ -400,7 +295,7 @@ const totalLabel = videos.length.toString().padStart(2, "0");
     width: 100vw;
     height: 100%;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 0 var(--gutter);
   }
@@ -512,13 +407,10 @@ const totalLabel = videos.length.toString().padStart(2, "0");
       align-items: flex-start;
     }
 
-    .vhero__counter {
-      align-items: flex-start;
-    }
-
     .hscroll__sticky {
       position: static;
       height: auto;
+      padding-top: 0;
     }
 
     .hscroll__track {
@@ -531,6 +423,7 @@ const totalLabel = videos.length.toString().padStart(2, "0");
       flex: none;
       width: 100%;
       height: auto;
+      align-items: stretch;
       padding: 0 var(--gutter);
     }
 

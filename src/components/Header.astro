@@ -131,6 +131,11 @@ function isCurrentPath(href: string): boolean {
     transform: translateY(-100%);
   }
 
+  .site-header.is-panorama-hidden {
+    transform: translateY(-100%);
+    pointer-events: none;
+  }
+
   /* Keep header visible when menu is open (transform also creates containing block) */
   .site-header.is-hidden:has(.is-open) {
     transform: none;
@@ -225,7 +230,15 @@ function isCurrentPath(href: string): boolean {
     transform: translateY(-3.25px) rotate(-45deg);
   }
 
-  @media (max-width: 768px) {
+  @media (min-width: 1201px) {
+    .site-header--logo-hidden .site-header__nav {
+      width: min(1500px, calc(100vw - var(--gutter)));
+      max-width: min(1500px, calc(100vw - var(--gutter)));
+      padding-inline: 0;
+    }
+  }
+
+  @media (max-width: 1200px) {
     .site-header__toggle {
       display: flex;
     }

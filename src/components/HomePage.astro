@@ -958,7 +958,33 @@ const featuredPhotos = await Promise.all(
     }
   }
 
-  @media (max-width: 640px) {
+  @media (min-width: 1101px) {
+    .home-photo-carousel {
+      left: 50%;
+      width: min(1500px, calc(100vw - var(--gutter)));
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (min-width: 560px) and (max-width: 1100px) {
+    .home-photo-carousel {
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-right: calc(50% - 50vw);
+    }
+
+    .home-photo-carousel__track {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    .home-photo-carousel__slide--primary .home-photo-carousel__category-label {
+      font-size: clamp(var(--text-sm), 2.5vw, var(--text-xl));
+      letter-spacing: 0.12em;
+    }
+  }
+
+  @media (max-width: 559px) {
     .lightbox__arrow {
       width: 40px;
       height: 40px;
