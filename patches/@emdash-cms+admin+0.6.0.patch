@@ -1,5 +1,5 @@
 diff --git a/node_modules/@emdash-cms/admin/dist/index.js b/node_modules/@emdash-cms/admin/dist/index.js
-index f878a42..90aefd2 100644
+index f878a42..0000000 100644
 --- a/node_modules/@emdash-cms/admin/dist/index.js
 +++ b/node_modules/@emdash-cms/admin/dist/index.js
 @@ -1412,7 +1412,8 @@ async function fetchMediaProviders() {
@@ -12,6 +12,39 @@ index f878a42..90aefd2 100644
  	if (options?.query) params.set("query", options.query);
  	if (options?.mimeType) params.set("mimeType", options.mimeType);
  	return parseApiResponse(await apiFetch(`${API_BASE}/media/providers/${providerId}${params.toString() ? `?${params}` : ""}`), "Failed to fetch provider media");
+@@ -16684,7 +16684,7 @@ function formatDimensions(width, height) {
+ 	return `${width} x ${height}`;
+ }
+-function MediaDetailPanel({ item, onClose, onDeleted }) {
++function MediaDetailPanel({ item, providerId, onClose, onDeleted }) {
+ 	const { _: _t } = useLingui();
+ 	const queryClient = useQueryClient();
+ 	const [alt, setAlt] = React.useState(item.alt || "");
+@@ -16718,10 +16718,11 @@ function MediaDetailPanel({ item, onClose, onDeleted }) {
+ 	const deleteMutation = useMutation({
+ 		mutationFn: () => {
+ 			if (!item) throw new Error("No item selected");
+-			if (item.provider && item.provider !== "local") {
+-				return deleteFromProvider(item.provider, item.id);
++			const resolvedProviderId = item.provider || providerId;
++			if (resolvedProviderId && resolvedProviderId !== "local") {
++				return deleteFromProvider(resolvedProviderId, item.id);
+ 			}
+ 			return deleteMedia(item.id);
+-		},
++		},
+ 		onSuccess: () => {
+ 			queryClient.invalidateQueries({ queryKey: ["media"] });
+ 			onDeleted?.();
+@@ -16830,7 +16831,7 @@ function MediaDetailPanel({ item, onClose, onDeleted }) {
+ 									message: "Size:"
+ 								})
+ 							}),
+-							/* @__PURE__ */ jsx("span", { children: formatFileSize(item.size) })
++							/* @__PURE__ */ jsx("span", { children: item.size ? formatFileSize(item.size) : "—" })
+ 						]
+ 					}),
+ 					item.width && item.height && /* @__PURE__ */ jsxs("div", {
 @@ -17000,6 +17001,9 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
  	const [uploadState, setUploadState] = React.useState({ status: "idle" });
  	const fileInputRef = React.useRef(null);
@@ -64,7 +97,7 @@ index f878a42..90aefd2 100644
  	const currentLoading = activeProvider === "local" ? isLoading : providerLoading;
  	const canUpload = activeProviderInfo?.capabilities.upload ?? false;
  	const canSearch = activeProviderInfo?.capabilities.search ?? false;
-@@ -17480,6 +17510,22 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
+@@ -17480,6 +17510,23 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
  					}, item.id)) })]
  				})
  			}),
@@ -86,4 +119,7 @@ index f878a42..90aefd2 100644
 +			}),
  			selectedItem && /* @__PURE__ */ jsx(MediaDetailPanel, {
  				item: selectedItem,
++				providerId: activeProvider,
  				onClose: () => setSelectedItem(null),
+ 				onDeleted: () => {
+ 					if (activeProvider === "local") {

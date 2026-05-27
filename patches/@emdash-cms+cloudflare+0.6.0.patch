@@ -1,10 +1,10 @@
 diff --git a/node_modules/@emdash-cms/cloudflare/dist/media/images-runtime.mjs b/node_modules/@emdash-cms/cloudflare/dist/media/images-runtime.mjs
-index feedba3..921fe04 100644
+index feedba3..0000000 100644
 --- a/node_modules/@emdash-cms/cloudflare/dist/media/images-runtime.mjs
 +++ b/node_modules/@emdash-cms/cloudflare/dist/media/images-runtime.mjs
 @@ -21,6 +21,22 @@ function resolveEnvValue(directValue, envVarName, defaultEnvVar, serviceName) {
- 	if (!value) throw new Error(`${serviceName}: Missing ${envVar}. Set it as an environment variable or provide it directly in config.`);
- 	return value;
+	if (!value) throw new Error(`${serviceName}: Missing ${envVar}. Set it as an environment variable or provide it directly in config.`);
+	return value;
  }
 +function getErrorMessage(error) {
 +	if (error instanceof Error) return error.message;
@@ -25,7 +25,20 @@ index feedba3..921fe04 100644
  /**
  * Runtime implementation for Cloudflare Images provider
  */
-@@ -44,7 +60,7 @@ const createMediaProvider = (config) => {
+@@ -40,6 +56,12 @@ const createMediaProvider = (config) => {
+ 	const getApiBase = () => `https://api.cloudflare.com/client/v4/accounts/${getAccountId()}/images/v1`;
+ 	const getHeaders = () => ({ Authorization: `Bearer ${getApiToken()}` });
+ 	const getDeliveryBase = () => deliveryDomain ? `https://${deliveryDomain}` : "https://imagedelivery.net";
++	const getDefaultVariantUrl = (imageId) => `${getDeliveryBase()}/${getAccountHash()}/${imageId}/${defaultVariant}`;
++	const getPreferredVariantUrl = (imageId, variants) => {
++		const matchingVariant = Array.isArray(variants) ? variants.find((variant) => typeof variant === "string" && variant.trim() && variant.endsWith(`/${defaultVariant}`)) : void 0;
++		const firstVariant = Array.isArray(variants) ? variants.find((variant) => typeof variant === "string" && variant.trim()) : void 0;
++		return matchingVariant || firstVariant || getDefaultVariantUrl(imageId);
++	};
+ 	const buildUrl = (imageId, transforms) => {
+ 		const base = `${getDeliveryBase()}/${getAccountHash()}/${imageId}`;
+ 		if (!transforms || Object.keys(transforms).length === 0) return `${base}/${defaultVariant}`;
+@@ -44,7 +66,7 @@ const createMediaProvider = (config) => {
  	const fetchDimensions = async (imageId) => {
  		const url = `${getDeliveryBase()}/${getAccountHash()}/${imageId}/format=json`;
  		try {
@@ -34,7 +47,7 @@ index feedba3..921fe04 100644
  			if (!response.ok) return null;
  			const data = await response.json();
  			return {
-@@ -61,9 +77,10 @@ const createMediaProvider = (config) => {
+@@ -61,9 +83,10 @@ const createMediaProvider = (config) => {
  			const headers = getHeaders();
  			const params = new URLSearchParams();
  			if (options.cursor) params.set("continuation_token", options.cursor);
@@ -47,7 +60,20 @@ index feedba3..921fe04 100644
  			if (!response.ok) throw new Error(`Cloudflare Images API error: ${response.status}`);
  			const data = await response.json();
  			if (!data.success) throw new Error(`Cloudflare Images API error: ${data.errors?.[0]?.message || "Unknown error"}`);
-@@ -103,7 +120,7 @@ const createMediaProvider = (config) => {
+@@ -91,11 +114,8 @@ const createMediaProvider = (config) => {
+ 					filename: img.filename || img.id,
+ 					mimeType: "image/jpeg",
+ 					width: dims?.width ?? toNumber(img.meta?.width),
+ 					height: dims?.height ?? toNumber(img.meta?.height),
+-					previewUrl: buildUrl(img.id, {
+-						w: 400,
+-						fit: "scale-down"
+-					}),
++					previewUrl: getPreferredVariantUrl(img.id, img.variants),
+ 					meta: {
+ 						variants: img.variants,
+ 						uploaded: img.uploaded
+@@ -103,7 +123,7 @@ const createMediaProvider = (config) => {
  			const apiBase = getApiBase();
  			const headers = getHeaders();
  			const url = `${apiBase}/${id}`;
@@ -56,6 +82,19 @@ index feedba3..921fe04 100644
  			if (!response.ok) {
  				if (response.status === 404) return null;
  				throw new Error(`Cloudflare Images API error: ${response.status}`);
+@@ -118,11 +138,8 @@ const createMediaProvider = (config) => {
+ 				filename: img.filename || img.id,
+ 				mimeType: "image/jpeg",
+ 				width: dims?.width ?? toNumber(img.meta?.width),
+ 				height: dims?.height ?? toNumber(img.meta?.height),
+-				previewUrl: buildUrl(img.id, {
+-					w: 800,
+-					fit: "scale-down"
+-				}),
++				previewUrl: getPreferredVariantUrl(img.id, img.variants),
+ 				meta: {
+ 					variants: img.variants,
+ 					uploaded: img.uploaded
 @@ -138,11 +155,11 @@ const createMediaProvider = (config) => {
  			const metadata = {};
  			if (input.alt) metadata.alt = input.alt;
@@ -70,7 +109,20 @@ index feedba3..921fe04 100644
  			if (!response.ok) {
  				const error = await response.text();
  				throw new Error(`Cloudflare Images upload failed: ${error}`);
-@@ -169,10 +186,10 @@ const createMediaProvider = (config) => {
+@@ -156,11 +173,8 @@ const createMediaProvider = (config) => {
+ 				filename: img.filename || input.filename,
+ 				mimeType: "image/jpeg",
+ 				width: toNumber(img.meta?.width),
+ 				height: toNumber(img.meta?.height),
+-				previewUrl: buildUrl(img.id, {
+-					w: 400,
+-					fit: "scale-down"
+-				}),
++				previewUrl: getPreferredVariantUrl(img.id, img.variants),
+ 				meta: {
+ 					variants: img.variants,
+ 					uploaded: img.uploaded
+@@ -169,10 +183,10 @@ const createMediaProvider = (config) => {
  		async delete(id) {
  			const apiBase = getApiBase();
  			const headers = getHeaders();
@@ -83,3 +135,20 @@ index feedba3..921fe04 100644
  			if (!response.ok && response.status !== 404) throw new Error(`Cloudflare Images delete failed: ${response.status}`);
  		},
  		getEmbed(value, options) {
+@@ -199,13 +213,8 @@ const createMediaProvider = (config) => {
+ 				return buildUrl(id, transforms);
+ 			};
+ 		},
+-		getThumbnailUrl(id, _mimeType, options) {
+-			const width = options?.width || 400;
+-			const height = options?.height;
+-			return buildUrl(id, {
+-				w: width,
+-				h: height,
+-				fit: "scale-down"
+-			});
++		getThumbnailUrl(id, _mimeType, _options) {
++			return getDefaultVariantUrl(id);
+ 		}
+ 	};
+ };
