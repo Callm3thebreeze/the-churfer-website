@@ -26,5 +26,12 @@
 			"binding": "MEDIA",
 			"bucket_name": "the-churfer-media"
 		}
+	],
+	"routes": [
+		{
+			"pattern": "thechurfer.com",
+			"zone_name": "thechurfer.com",
+			"custom_domain": true
+		}
 	]
 }
