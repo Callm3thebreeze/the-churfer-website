@@ -53,12 +53,13 @@ function buildHighlight(
   };
 }
 
-const fallbackPhoto = photos[0];
+const oldestPhotosFirst = [...photos].reverse();
+const fallbackPhoto = oldestPhotosFirst[0] ?? photos[0];
 const categoryPhotos: CategoryHighlight[] = [];
 
 for (const group of HOME_FILTER_GROUPS) {
   const groupPhoto =
-    photos.find((photo) =>
+    oldestPhotosFirst.find((photo) =>
       matchesFilterIds(photo, getTaxonomyGroupIds(group)),
     ) ?? fallbackPhoto;
 
