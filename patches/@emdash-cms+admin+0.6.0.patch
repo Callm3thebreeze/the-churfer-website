@@ -1,5 +1,5 @@
 diff --git a/node_modules/@emdash-cms/admin/dist/index.js b/node_modules/@emdash-cms/admin/dist/index.js
-index f878a42..0000000 100644
+index f878a42..22082e0 100644
 --- a/node_modules/@emdash-cms/admin/dist/index.js
 +++ b/node_modules/@emdash-cms/admin/dist/index.js
 @@ -1412,7 +1412,8 @@ async function fetchMediaProviders() {
@@ -12,40 +12,36 @@ index f878a42..0000000 100644
  	if (options?.query) params.set("query", options.query);
  	if (options?.mimeType) params.set("mimeType", options.mimeType);
  	return parseApiResponse(await apiFetch(`${API_BASE}/media/providers/${providerId}${params.toString() ? `?${params}` : ""}`), "Failed to fetch provider media");
-@@ -16684,7 +16684,7 @@ function formatDimensions(width, height) {
- 	return `${width} x ${height}`;
- }
+@@ -16680,7 +16681,7 @@ function formatBytes(bytes) {
+ /**
+ * Slide-out panel for viewing and editing media metadata
+ */
 -function MediaDetailPanel({ item, onClose, onDeleted }) {
 +function MediaDetailPanel({ item, providerId, onClose, onDeleted }) {
  	const { _: _t } = useLingui();
  	const queryClient = useQueryClient();
- 	const [alt, setAlt] = React.useState(item.alt || "");
-@@ -16718,10 +16718,11 @@ function MediaDetailPanel({ item, onClose, onDeleted }) {
+ 	const [filename, setFilename] = React.useState(item?.filename ?? "");
+@@ -16714,6 +16715,10 @@ function MediaDetailPanel({ item, onClose, onDeleted }) {
  	const deleteMutation = useMutation({
  		mutationFn: () => {
  			if (!item) throw new Error("No item selected");
--			if (item.provider && item.provider !== "local") {
--				return deleteFromProvider(item.provider, item.id);
 +			const resolvedProviderId = item.provider || providerId;
 +			if (resolvedProviderId && resolvedProviderId !== "local") {
 +				return deleteFromProvider(resolvedProviderId, item.id);
- 			}
++			}
  			return deleteMedia(item.id);
--		},
-+		},
+ 		},
  		onSuccess: () => {
- 			queryClient.invalidateQueries({ queryKey: ["media"] });
- 			onDeleted?.();
-@@ -16830,7 +16831,7 @@ function MediaDetailPanel({ item, onClose, onDeleted }) {
- 									message: "Size:"
- 								})
+@@ -16826,7 +16831,7 @@ function MediaDetailPanel({ item, onClose, onDeleted }) {
+ 											message: "Size:"
+ 										})
+ 									}),
+-									/* @__PURE__ */ jsx("span", { children: formatFileSize(item.size) })
++									/* @__PURE__ */ jsx("span", { children: item.size ? formatFileSize(item.size) : "—" })
+ 								]
  							}),
--							/* @__PURE__ */ jsx("span", { children: formatFileSize(item.size) })
-+							/* @__PURE__ */ jsx("span", { children: item.size ? formatFileSize(item.size) : "—" })
- 						]
- 					}),
- 					item.width && item.height && /* @__PURE__ */ jsxs("div", {
-@@ -17000,6 +17001,9 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
+ 							item.width && item.height && /* @__PURE__ */ jsxs("div", {
+@@ -17000,6 +17005,9 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
  	const [uploadState, setUploadState] = React.useState({ status: "idle" });
  	const fileInputRef = React.useRef(null);
  	const [loadedDimensions, setLoadedDimensions] = React.useState({});
@@ -55,7 +51,7 @@ index f878a42..0000000 100644
  	const { data: providers } = useQuery({
  		queryKey: ["media-providers"],
  		queryFn: fetchMediaProviders,
-@@ -17017,6 +17021,32 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
+@@ -17017,6 +17025,32 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
  		}),
  		enabled: activeProvider !== "local"
  	});
@@ -88,7 +84,7 @@ index f878a42..0000000 100644
  	const activeProviderInfo = React.useMemo(() => {
  		if (activeProvider === "local") return {
  			id: "local",
-@@ -17181,7 +17211,7 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
+@@ -17181,7 +17215,7 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
  		return tabs;
  	}, [providers]);
  	const currentItems = activeProvider === "local" ? items : [];
@@ -97,7 +93,7 @@ index f878a42..0000000 100644
  	const currentLoading = activeProvider === "local" ? isLoading : providerLoading;
  	const canUpload = activeProviderInfo?.capabilities.upload ?? false;
  	const canSearch = activeProviderInfo?.capabilities.search ?? false;
-@@ -17480,6 +17510,23 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
+@@ -17480,8 +17514,25 @@ function MediaLibrary({ items = [], isLoading, onUpload, onDelete, onItemUpdated
  					}, item.id)) })]
  				})
  			}),

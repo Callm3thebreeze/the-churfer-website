@@ -1,10 +1,10 @@
 diff --git a/node_modules/@emdash-cms/cloudflare/dist/media/images-runtime.mjs b/node_modules/@emdash-cms/cloudflare/dist/media/images-runtime.mjs
-index feedba3..0000000 100644
+index feedba3..ca7a264 100644
 --- a/node_modules/@emdash-cms/cloudflare/dist/media/images-runtime.mjs
 +++ b/node_modules/@emdash-cms/cloudflare/dist/media/images-runtime.mjs
 @@ -21,6 +21,22 @@ function resolveEnvValue(directValue, envVarName, defaultEnvVar, serviceName) {
-	if (!value) throw new Error(`${serviceName}: Missing ${envVar}. Set it as an environment variable or provide it directly in config.`);
-	return value;
+ 	if (!value) throw new Error(`${serviceName}: Missing ${envVar}. Set it as an environment variable or provide it directly in config.`);
+ 	return value;
  }
 +function getErrorMessage(error) {
 +	if (error instanceof Error) return error.message;
@@ -25,7 +25,7 @@ index feedba3..0000000 100644
  /**
  * Runtime implementation for Cloudflare Images provider
  */
-@@ -40,6 +56,12 @@ const createMediaProvider = (config) => {
+@@ -32,6 +48,12 @@ const createMediaProvider = (config) => {
  	const getApiBase = () => `https://api.cloudflare.com/client/v4/accounts/${getAccountId()}/images/v1`;
  	const getHeaders = () => ({ Authorization: `Bearer ${getApiToken()}` });
  	const getDeliveryBase = () => deliveryDomain ? `https://${deliveryDomain}` : "https://imagedelivery.net";
@@ -60,19 +60,18 @@ index feedba3..0000000 100644
  			if (!response.ok) throw new Error(`Cloudflare Images API error: ${response.status}`);
  			const data = await response.json();
  			if (!data.success) throw new Error(`Cloudflare Images API error: ${data.errors?.[0]?.message || "Unknown error"}`);
-@@ -91,11 +114,8 @@ const createMediaProvider = (config) => {
- 					filename: img.filename || img.id,
- 					mimeType: "image/jpeg",
- 					width: dims?.width ?? toNumber(img.meta?.width),
- 					height: dims?.height ?? toNumber(img.meta?.height),
--					previewUrl: buildUrl(img.id, {
--						w: 400,
--						fit: "scale-down"
--					}),
-+					previewUrl: getPreferredVariantUrl(img.id, img.variants),
- 					meta: {
- 						variants: img.variants,
- 						uploaded: img.uploaded
+@@ -86,10 +109,7 @@ const createMediaProvider = (config) => {
+ 						mimeType: "image/jpeg",
+ 						width: dims?.width ?? toNumber(img.meta?.width),
+ 						height: dims?.height ?? toNumber(img.meta?.height),
+-						previewUrl: buildUrl(img.id, {
+-							w: 400,
+-							fit: "scale-down"
+-						}),
++						previewUrl: getPreferredVariantUrl(img.id, img.variants),
+ 						meta: {
+ 							variants: img.variants,
+ 							uploaded: img.uploaded
 @@ -103,7 +123,7 @@ const createMediaProvider = (config) => {
  			const apiBase = getApiBase();
  			const headers = getHeaders();
@@ -82,8 +81,7 @@ index feedba3..0000000 100644
  			if (!response.ok) {
  				if (response.status === 404) return null;
  				throw new Error(`Cloudflare Images API error: ${response.status}`);
-@@ -118,11 +138,8 @@ const createMediaProvider = (config) => {
- 				filename: img.filename || img.id,
+@@ -119,10 +139,7 @@ const createMediaProvider = (config) => {
  				mimeType: "image/jpeg",
  				width: dims?.width ?? toNumber(img.meta?.width),
  				height: dims?.height ?? toNumber(img.meta?.height),
@@ -109,8 +107,7 @@ index feedba3..0000000 100644
  			if (!response.ok) {
  				const error = await response.text();
  				throw new Error(`Cloudflare Images upload failed: ${error}`);
-@@ -156,11 +173,8 @@ const createMediaProvider = (config) => {
- 				filename: img.filename || input.filename,
+@@ -156,10 +173,7 @@ const createMediaProvider = (config) => {
  				mimeType: "image/jpeg",
  				width: toNumber(img.meta?.width),
  				height: toNumber(img.meta?.height),
@@ -135,8 +132,8 @@ index feedba3..0000000 100644
  			if (!response.ok && response.status !== 404) throw new Error(`Cloudflare Images delete failed: ${response.status}`);
  		},
  		getEmbed(value, options) {
-@@ -199,13 +213,8 @@ const createMediaProvider = (config) => {
- 				return buildUrl(id, transforms);
+@@ -199,14 +213,8 @@ const createMediaProvider = (config) => {
+ 				getSrc: buildSrc
  			};
  		},
 -		getThumbnailUrl(id, _mimeType, options) {
