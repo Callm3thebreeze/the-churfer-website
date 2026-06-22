@@ -1,7 +1,7 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import altLogo from "../assets/alt-logo.png";
+import socialImage from "../assets/social.png";
 import {
   buildAbsoluteUrl,
   buildBaseSchemas,
@@ -52,7 +52,7 @@ const canonicalUrl = buildAbsoluteUrl(
   canonicalPath ?? Astro.url.pathname,
   siteUrl,
 );
-const socialImageUrl = buildAbsoluteUrl(ogImage ?? altLogo.src, siteUrl);
+const socialImageUrl = buildAbsoluteUrl(ogImage ?? socialImage.src, siteUrl);
 const fullTitle = buildDocumentTitle(title);
 const robots = noindex ? "noindex, follow" : "index, follow";
 const schemaItems = [
