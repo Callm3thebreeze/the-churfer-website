@@ -16,7 +16,7 @@
           "slug": "title",
           "label": "Titulo",
           "type": "string",
-          "required": true,
+          "required": false,
           "searchable": true
         },
         {
