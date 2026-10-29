@@ -1,6 +1,9 @@
 ---
 import altLogo from "../assets/alt-logo.png";
 
+interface Props { lang?: "es" | "en"; }
+const { lang = "es" } = Astro.props;
+
 const year = new Date().getFullYear();
 
 const socialLinks = [
@@ -27,7 +30,7 @@ const socialLinks = [
         />
       </a>
 
-      <nav class="site-footer__social" aria-label="Redes sociales">
+      <nav class="site-footer__social" aria-label={lang === "en" ? "Social media" : "Redes sociales"}>
         {
           socialLinks.map(({ href, label, icon }) => (
             <a

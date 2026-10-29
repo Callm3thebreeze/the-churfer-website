@@ -1,24 +1,26 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import LanguageSwitcher from "../components/LanguageSwitcher.astro";
 import sergi from "../assets/sergi.jpg";
+
+const lang = Astro.url.searchParams.get("lang") === "en" ? "en" : "es";
+const en = lang === "en";
 ---
 
 <BaseLayout
-  title="Sergi Ortega, fotógrafo de surf y videógrafo en Cádiz"
-  description="Conoce a Sergi Ortega, fotógrafo de surf, fotografía deportiva y videografía en El Palmar, Cádiz. Una trayectoria ligada al mar, la acción y la producción audiovisual para marcas y proyectos creativos."
+  lang={lang}
+  title={en ? "Sergi Ortega, surf and sports photographer in Cádiz" : "Sergi Ortega, fotógrafo de surf y deporte en Cádiz"}
+  description={en ? "Discover Sergi Ortega's surf and sports photography, visual storytelling and aquatic photography equipment in Cádiz." : "Conoce la fotografía deportiva y de surf de Sergi Ortega, su narrativa visual y su equipo de fotografía acuática en Cádiz."}
 >
   <div class="page-gradient-shell">
-    <h1 class="sr-only">
-      Sergi Ortega, fotógrafo de surf y videógrafo en Cádiz
-    </h1>
+    <h1 class="sr-only">{en ? "Sergi Ortega, surf and sports photographer in Cádiz" : "Sergi Ortega, fotógrafo de surf y deporte en Cádiz"}</h1>
 
-    <!-- ═══ ABOUT ═══ -->
     <section class="about">
       <div class="about__inner container">
         <div class="about__image-col reveal">
           <img
             src={sergi.src}
-            alt="Retrato de Sergi Ortega"
+            alt={en ? "Portrait of Sergi Ortega" : "Retrato de Sergi Ortega"}
             width={sergi.width}
             height={sergi.height}
             class="about__portrait"
@@ -30,34 +32,36 @@ import sergi from "../assets/sergi.jpg";
           >
         </div>
         <div class="about__text-col">
-          <span class="label reveal">Quién soy</span>
-          <h2 class="about__heading reveal"><em>Sergi Ortega</em></h2>
+          <LanguageSwitcher path="/sobre-mi" language={lang} />
+          <span class="label reveal">THE CHURFER</span>
+          <h2 class="about__heading reveal"><em>{en ? "Sports Photography & Visual Storytelling" : "Fotografía deportiva y narrativa visual"}</em></h2>
           <p class="about__bio reveal">
-            Cámara profesional especializado en fotografía deportiva y
-            producción audiovisual. El surf y la foto marina son mi terreno
-            natural, pero mi objetivo también apunta al jiu-jitsu, el skate y
-            cualquier disciplina que transmita fuerza y movimiento. Grabo y
-            edito vídeos comerciales para marcas y he trabajado en videoclips
-            musicales.
+            {en ? "I’m a sports photographer specializing in surf photography, driven by adrenaline, speed and the pursuit of the decisive moment. From surfing to any other sport, I capture the intensity, emotion and details that tell the story behind every image." : "Soy fotógrafo deportivo especializado en surf, impulsado por la adrenalina, la velocidad y la búsqueda del instante decisivo. Del surf a cualquier otra disciplina deportiva, capturo la intensidad, la emoción y los detalles que cuentan la historia detrás de cada imagen."}
           </p>
           <p class="about__bio reveal">
-            De origen mediterráneo y afincado en El Palmar, donde además de la
-            cámara gestiono <strong>Santa Killa</strong>, una tienda y marca de
-            surf. Cada proyecto es único y mi objetivo es capturarlo con la
-            intensidad que merece.
+            {en ? "My work goes beyond freezing the action. It’s about capturing moments that happen in a fraction of a second and turning them into powerful visual stories for brands, athletes and organizations." : "Mi trabajo va más allá de congelar la acción. Se trata de capturar momentos que suceden en una fracción de segundo y transformarlos en historias visuales impactantes para marcas, deportistas y organizaciones."}
           </p>
-          <div class="about__stats reveal">
-            <div class="about__stat">
-              <span class="about__stat-number">+500</span>
-              <span class="about__stat-label label">Sesiones</span>
-            </div>
-            <div class="about__stat">
-              <span class="about__stat-number">+30</span>
-              <span class="about__stat-label label">Producciones</span>
-            </div>
-            <div class="about__stat">
-              <span class="about__stat-number">+8</span>
-              <span class="about__stat-label label">Años</span>
+          <p class="about__bio about__closing reveal">{en ? "Every split second tells a story." : "Cada fracción de segundo cuenta una historia."}</p>
+          <div class="about__equipment reveal">
+            <h3 class="label">{en ? "EQUIPMENT" : "EQUIPO"}</h3>
+            <div class="about__equipment-grid">
+              <div>
+                <h4>{en ? "Camera bodies" : "Cámaras"}</h4>
+                <ul><li>Sony α1 II</li><li>Sony α7R III</li></ul>
+              </div>
+              <div>
+                <h4>{en ? "Lenses" : "Objetivos"}</h4>
+                <ul>
+                  <li>Sony FE 200–600{en ? "mm" : " mm"} F5.6–6.3 G OSS</li>
+                  <li>Sony FE 70–200{en ? "mm" : " mm"} F4 G OSS</li>
+                  <li>Sony FE 85{en ? "mm" : " mm"} F1.8</li>
+                  <li>Sony FE 35{en ? "mm" : " mm"} F1.8</li>
+                </ul>
+              </div>
+              <div>
+                <h4>{en ? "Aquatic photography" : "Fotografía acuática"}</h4>
+                <ul><li>{en ? "AquaTech underwater housing system." : "Sistema de carcasa acuática AquaTech."}</li></ul>
+              </div>
             </div>
           </div>
         </div>
@@ -67,13 +71,12 @@ import sergi from "../assets/sergi.jpg";
     <!-- ═══ CTA ═══ -->
     <section class="about-cta">
       <div class="about-cta__inner container reveal">
-        <span class="label">¿Trabajamos juntos?</span>
-        <h2 class="about-cta__heading">Hablemos de tu <em>proyecto</em></h2>
+        <span class="label">{en ? "Shall we work together?" : "¿Trabajamos juntos?"}</span>
+        <h2 class="about-cta__heading">{en ? "Let's talk about your" : "Hablemos de tu"} <em>{en ? "project" : "proyecto"}</em></h2>
         <p class="about-cta__text">
-          Sesiones de foto, vídeo comercial, videoclips o cobertura de eventos —
-          escríbeme.
+          {en ? "Photo sessions, commercial video, music videos or event coverage — get in touch." : "Sesiones de foto, vídeo comercial, videoclips o cobertura de eventos — escríbeme."}
         </p>
-        <a href="/contacto" class="cta-button">Contactar</a>
+        <a href={en ? "/contacto?lang=en" : "/contacto"} class="cta-button">{en ? "Contact me" : "Contactar"}</a>
       </div>
     </section>
   </div>
@@ -172,25 +175,26 @@ import sergi from "../assets/sergi.jpg";
     line-height: 1.85;
   }
 
-  .about__stats {
-    display: flex;
-    gap: var(--space-lg);
+  .about__closing { color: var(--color-sunset); }
+
+  .about__equipment {
     margin-top: var(--space-lg);
     padding-top: var(--space-md);
     border-top: 1px solid var(--color-border);
   }
 
-  .about__stat-number {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    color: var(--color-sunset);
-    display: block;
-    line-height: 1;
+  .about__equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-md) var(--space-lg);
+    margin-top: var(--space-sm);
   }
 
-  .about__stat-label {
-    margin-top: 0.3em;
-    display: block;
+  .about__equipment h4 { font-size: var(--text-base); margin-bottom: 0.35em; }
+  .about__equipment ul { list-style: none; padding: 0; margin: 0; color: var(--color-text-muted); line-height: 1.7; }
+
+  @media (max-width: 480px) {
+    .about__equipment-grid { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 900px) {

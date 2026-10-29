@@ -6,17 +6,19 @@ const currentPath = Astro.url.pathname;
 
 interface Props {
   hideLogo?: boolean;
+  lang?: "es" | "en";
 }
 
-const { hideLogo = false } = Astro.props;
+const { hideLogo = false, lang = "es" } = Astro.props;
+const en = lang === "en";
 
 const showVideoLink = await hasPublishedVideosInEmDash();
 
 const navLinks = [
-  { href: "/fotografia", label: "Fotografía" },
-  ...(showVideoLink ? [{ href: "/video", label: "Vídeo" }] : []),
-  { href: "/sobre-mi", label: "Sobre mí" },
-  { href: "/contacto", label: "Contacto" },
+  { href: "/fotografia", label: en ? "Photography" : "Fotografía" },
+  ...(showVideoLink ? [{ href: "/video", label: en ? "Video" : "Vídeo" }] : []),
+  { href: "/sobre-mi", label: en ? "About me" : "Sobre mí", query: en ? "?lang=en" : "" },
+  { href: "/contacto", label: en ? "Contact" : "Contacto", query: en ? "?lang=en" : "" },
 ];
 
 function isCurrentPath(href: string): boolean {
@@ -48,7 +50,7 @@ function isCurrentPath(href: string): boolean {
     <button
       class="site-header__toggle"
       id="menu-toggle"
-      aria-label="Abrir menú"
+      aria-label={en ? "Open menu" : "Abrir menú"}
       aria-expanded="false"
     >
       <span></span>
@@ -57,10 +59,10 @@ function isCurrentPath(href: string): boolean {
 
     <ul class="site-header__links" id="menu-links">
       {
-        navLinks.map(({ href, label }, i) => (
+        navLinks.map(({ href, label, query }, i) => (
           <li>
             <a
-              href={href}
+              href={`${href}${query ?? ""}`}
               class="site-header__link"
               aria-current={isCurrentPath(href) ? "page" : undefined}
               style={`--delay: ${i * 60}ms`}

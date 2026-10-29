@@ -1,4 +1,4 @@
-import type { APIContext, APIRoute } from "astro";
+import type { APIRoute } from "astro";
 import { env as workersEnv } from "cloudflare:workers";
 
 export const prerender = false;
@@ -15,6 +15,7 @@ const SUBJECT_LABELS = new Map([
 ]);
 
 interface ContactFormPayload {
+  lang: "es" | "en";
   name: string;
   email: string;
   subject: string;
@@ -69,6 +70,7 @@ function getContactEnv(): ContactEnv {
 
 function readContactPayload(formData: FormData): ContactFormPayload {
   return {
+    lang: formData.get("lang") === "en" ? "en" : "es",
     name: normalizeSingleLine(toTrimmedString(formData.get("name"))),
     email: normalizeSingleLine(toTrimmedString(formData.get("email"))).toLowerCase(),
     subject: normalizeSingleLine(toTrimmedString(formData.get("subject"))),
@@ -134,9 +136,10 @@ function buildContactEmailHtml(payload: ContactFormPayload): string {
   ].join("");
 }
 
-function buildRedirectResponse(request: Request, status: "ok" | "invalid" | "error"): Response {
+function buildRedirectResponse(request: Request, status: "ok" | "invalid" | "error", lang: "es" | "en"): Response {
   const url = new URL("/contacto", request.url);
   url.searchParams.set("status", status);
+  if (lang === "en") url.searchParams.set("lang", "en");
 
   return new Response(null, {
     status: 303,
@@ -210,17 +213,17 @@ export const POST: APIRoute = async (context) => {
   const validationError = validateContactPayload(payload);
 
   if (payload.company.length > 0) {
-    return buildRedirectResponse(context.request, "ok");
+    return buildRedirectResponse(context.request, "ok", payload.lang);
   }
 
   if (validationError) {
-    return buildRedirectResponse(context.request, "invalid");
+    return buildRedirectResponse(context.request, "invalid", payload.lang);
   }
 
   const sendResult = await sendContactEmail(payload);
   if (!sendResult.ok) {
-    return buildRedirectResponse(context.request, "error");
+    return buildRedirectResponse(context.request, "error", payload.lang);
   }
 
-  return buildRedirectResponse(context.request, "ok");
+  return buildRedirectResponse(context.request, "ok", payload.lang);
 };

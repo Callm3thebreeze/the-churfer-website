@@ -1,0 +1,30 @@
+---
+interface Props {
+  path: string;
+  language: "es" | "en";
+}
+
+const { path, language } = Astro.props;
+---
+
+<nav class="language-switcher" aria-label={language === "es" ? "Idioma" : "Language"}>
+  <a href={path} lang="es" hreflang="es" aria-current={language === "es" ? "page" : undefined}>ES</a>
+  <span aria-hidden="true">/</span>
+  <a href={`${path}?lang=en`} lang="en" hreflang="en" aria-current={language === "en" ? "page" : undefined}>EN</a>
+</nav>
+
+<style>
+  .language-switcher {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.55rem;
+    padding-bottom: var(--space-md);
+    font-size: var(--text-sm);
+    letter-spacing: 0.08em;
+  }
+
+  .language-switcher a { color: var(--color-text-muted); text-decoration: none; }
+  .language-switcher a[aria-current="page"] { color: var(--color-sunset); font-weight: 700; }
+  .language-switcher a:hover { color: var(--color-sunset); }
+</style>
