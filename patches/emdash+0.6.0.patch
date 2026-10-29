@@ -1,0 +1,36 @@
+diff --git a/node_modules/emdash/src/astro/routes/api/manifest.ts b/node_modules/emdash/src/astro/routes/api/manifest.ts
+index 44dbd5e..7e269e7 100644
+--- a/node_modules/emdash/src/astro/routes/api/manifest.ts
++++ b/node_modules/emdash/src/astro/routes/api/manifest.ts
+@@ -54,6 +54,31 @@ export const GET: APIRoute = async ({ locals }) => {
+ 				signupEnabled,
+ 			};
+ 
++	// The persisted manifest can outlive a field update on another Worker isolate.
++	// Read the photo title's live required flag so the editor reflects the schema.
++	if (emdash?.db && manifest.collections.photos?.fields.title) {
++		try {
++			const { sql } = await import("kysely");
++			const result = await sql<{ required: number }>`
++				SELECT f.required FROM _emdash_fields f
++				JOIN _emdash_collections c ON c.id = f.collection_id
++				WHERE c.slug = 'photos' AND f.slug = 'title'
++			`.execute(emdash.db);
++			const required = result.rows[0]?.required;
++			if (required !== undefined) {
++				manifest.collections.photos = {
++					...manifest.collections.photos,
++					fields: {
++						...manifest.collections.photos.fields,
++						title: { ...manifest.collections.photos.fields.title, required: required === 1 },
++					},
++				};
++			}
++		} catch (error) {
++			console.error("Could not refresh photo title requirement", error);
++		}
++	}
++
+ 	return Response.json(
+ 		{ data: manifest },
+ 		{
